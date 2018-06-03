@@ -9,7 +9,7 @@ norm_data <- function(data) {
   if (is.null(dim(data))) {
     data <- t(matrix(data))
   }
-  if(class(data)=="data.frame"){
+  if(is.data.frame(data)){
     data <- as.matrix(data)
   }
   ## check presence of 0s or negative values
@@ -73,6 +73,8 @@ clr <- function(data){
   log.data <- log(data)
   ## ... and center
   clr.data <- log.data - rowMeans(log.data)
+  
+  clr.data
 }
 
 mult<-function(x,t){
@@ -81,6 +83,8 @@ mult<-function(x,t){
 }
 
 ternary_diagram<-function(data){
+  
+  data <- norm_data(data)
   u0=0.2;
   v0=0.2;
   A=c(u0+0.5,v0+sqrt(3)/2)
@@ -120,9 +124,9 @@ Base_SIGMA_matrix<-function(D){
   mat=matrix(0,nrow=(D-1),ncol=D)
   for(i in 1:(D-1)){
     for(j in 1:(D-i)){
-      mat[D-i,j]=sqrt(1/((D-i)*(D-i+1)))
+      mat[D-i,j]=-sqrt(1/((D-i)*(D-i+1)))
     }
-    mat[D-i,(D-i+1)]=-sqrt((D-i)/(D-i+1))
+    mat[D-i,(D-i+1)]=sqrt((D-i)/(D-i+1))
   }
   mat
 }
@@ -140,6 +144,7 @@ Base_binary_matrix<-function(D){
 }
 
 balance_coordinate=function(data,sequential_binary){
+  
   D=dim(sequential_binary)[1]
   n=dim(data)[1]
   rs=cbind(apply(sequential_binary,1,function(x){return(sum(x==1))}),apply(sequential_binary,1,function(x){return(sum(x==-1))}))
@@ -155,10 +160,13 @@ balance_coordinate=function(data,sequential_binary){
 }
 
 ilr<-function(data){
-  clr(data)%*%t(Base_SIGMA_matrix(dim(data)[2])) 
+  
+  data <- norm_data(data)
+  clr(data)%*%t(Base_SIGMA_matrix(ncol(data))) 
 }
 
-ilr_inverse<-function(data,k){
+ilr_inverse<-function(data,k=1){
+  
   x=exp((data%*%Base_SIGMA_matrix(dim(data)[2]+1)))  
   
   closure(x,k)
@@ -243,9 +251,9 @@ biplot<-function(data){
   n <- nrow(data)
   p <- ncol(data)
   
+  data <- center_scale(data, scale=FALSE)
   
-  
-  Z=clr(data)
+  Z=ilr(data)
 
   C=cov(Z)
   
@@ -255,10 +263,35 @@ biplot<-function(data){
   x=Z%*%vect
   
   n=dim(data)[1]
+  rval <- list(variance_explain=cumsum(val)/sum(val), vector=vect, values=val, coord=x)
   
-  stats::biplot(x[,1:2],vect[,1:2])
+  class(rval) <- "biplot"
+  
+  rval
 }
 
+
+regularisation <- function(var1){
+  
+  if(class(try(solve(var1), silent=TRUE))=="matrix"){
+    var1
+  }else{
+    D <- ncol(var1)
+    ID <- diag(1, nrow=D)
+    
+    l <- 1e-24
+    while(!(class(try(solve(var1+l*ID), silent=TRUE))=="matrix")){
+      l <- l*10
+    }
+    
+    var1 <- var1+l*ID
+    var1
+  }
+}
+
+solve_regularisation<-function(var1){
+  var1 %>% regularisation() %>% solve()
+}
 
 marginal_univariate_distributions<-function(data){
   
@@ -270,7 +303,7 @@ marginal_univariate_distributions<-function(data){
   var_i <- apply(data_ilr,2,var)
   
   q <- t(data_ilr)-u_i
-  q <- t(q/var_i)
+  q <- t(q/sqrt(var_i))
   p <- pnorm(q)
   
   z <- apply(p,2,sort)
@@ -377,7 +410,7 @@ Raduis_test<-function(data){
   
   u_i <- apply(data_ilr,2,mean)
   var_ij <- var(data_ilr)
-  var_ij_inv <- solve(var_ij)
+  var_ij_inv <- solve_regularisation(var_ij)
   
   
   data_centrer <- t(t(data_ilr)-u_i)
@@ -407,7 +440,6 @@ Raduis_test<-function(data){
                   "Watson", 0.152, 0.187, 0.221, 0.267
   ),nrow=4,byrow=TRUE)
   
-  
   rval <- list(significance_level=mat, Anderson_Darling=Qa, Cramer_von_Mises=Qc, Watson=Qw)
   class(rval) <- "raduis test"
   
@@ -415,21 +447,21 @@ Raduis_test<-function(data){
  
 }
 
-intervalle_confiance<-function(data,alpha,case=1,moy=0,var_matrix=1){
+intervalle_confiance<-function(data,alpha,case=3,moy=NULL,var_matrix=NULL){
   
   coord <- function(x,k,sigma,theta){
     u1 <- x[1]-sqrt((sigma[1,1]*sigma[2,2]-sigma[1,2]^2)/sigma[2,2])*sqrt(k)*cos(theta)-sigma[1,2]/sqrt(sigma[2,2])*sqrt(k)*sin(theta)
     u2 <- x[2]-sqrt(sigma[2,2])*sqrt(k)*sin(theta)
     
-    matrix(c(u1,u2),ncol=2)
+    return(matrix(c(u1,u2),ncol=2))
   }
   
   if(case==1){
-    theta <- seq(0,2*pi,0.01)
+    theta <- seq(0,2*pi,0.05)
     D <- ncol(data)
     u <- coord(moy,qchisq(1-alpha,D-1),var_matrix,theta)
     
-    u
+    return(u)
   }
 
   else if(case==2){
@@ -437,32 +469,46 @@ intervalle_confiance<-function(data,alpha,case=1,moy=0,var_matrix=1){
     var_matrix <- var(data)
     
     theta <- seq(0,2*pi,0.01)
-    D <- dim(data)[2]
-    n <- dim(data)[1]
+    D <- ncol(data)
+    n <- nrow(data)
     k <- (D-1)/(n-D+1)*qf(1-alpha,D-1,n-D+1)
     u <- coord(moy,k,var_matrix,theta)
+    return(u)
     
-    u
+  }else if(case==3){
+    
+    moy <- apply(data,2,mean)
+    var_matrix <- var(data)
+    
+    theta <- seq(0,2*pi,0.01)
+    D <- ncol(data)
+    n <- nrow(data)
+    k <- (n-1)*(D-1)/(n-D+1)*((n+1)/n)*qf(1-alpha,D-1,n-D+1)
+    u <- coord(moy,k,var_matrix,theta)
+    
+    return(u)
+    
   }
   
 }
 
 testing<-function(data1,data2,alpha,case=1){
-  
+    data1 <- ilr(norm_data(data1))
+    data2 <- ilr(norm_data(data2))
     
     u1 <- apply(data1,2,mean)
     u2 <- apply(data2,2,mean)
     
-    sigma1 <-var(data1)
-    sigma2 <- var(data2)
-
+    sigma1 <- data1 %>% var() %>% regularisation()
+    sigma2 <- data2 %>% var() %>% regularisation()
+    
     n1 <- nrow(data1)
     n2 <- nrow(data2)
     D <- ncol(data1)+1
     
     if(case==1){
       uc <- (n1*u1+n2*u2)/(n1+n2)
-      sigmac <- (n1*sigma1+n2*sigma2)/(n1+n2)+(n1*n2*(u1-u2)%*%t((u1-u2)))/((n1+n2)^2)
+      sigmac <- (n1*sigma1+n2*sigma2)/(n1+n2)+(n1*n2*(u1-u2)%*%t((u1-u2)))/((n1+n2)^2) %>% regularisation()
       
       Q <- n1*log(det(sigmac)/det(sigma1))+n2*log(det(sigmac)/det(sigma2))
       
@@ -470,7 +516,7 @@ testing<-function(data1,data2,alpha,case=1){
 
     }
     else if(case==2){
-      sigmap <- (n1*sigma1+n2*sigma2)/(n1+n2)
+      sigmap <- (n1*sigma1+n2*sigma2)/(n1+n2) %>% regularisation()
       
       Q <- n1*log(det(sigmap)/det(sigma1))+n2*log(det(sigmap)/det(sigma2))
       
@@ -481,35 +527,35 @@ testing<-function(data1,data2,alpha,case=1){
       sigma1h <- sigma1
       sigma2h <- sigma2
       
-      sigma_12h <- sigma1h+100
-      sigma_22h <- sigma2h+100
+      sigma_12h <- sigma1h+1
+      sigma_22h <- sigma2h+1
       
-      tol <- 1e-6
-      nb_iter_max <- 5000000
+      
+      tol <- 1e-12
+      nb_iter_max <- 500
       nb_iter <- 0
       
       while(abs(det(sigma1h)-det(sigma_12h))>tol | abs(det(sigma2h)-det(sigma_22h))>tol & nb_iter<nb_iter_max){
         
-        sol_sigma1h <- solve(sigma1h)
-        sol_sigma2h <- solve(sigma2h)
+        sol_sigma1h <- solve_regularisation(sigma1h)
+        sol_sigma2h <- solve_regularisation(sigma2h)
         
-        uh <- solve(n1*sol_sigma1h+n2*sol_sigma2h)%*%(n1*sol_sigma1h%*%u1+n2*sol_sigma2h%*%u2)
+        uh <- solve_regularisation(n1*sol_sigma1h+n2*sol_sigma2h)%*%(n1*sol_sigma1h%*%u1+n2*sol_sigma2h%*%u2)
 
         sigma_12h <- sigma1h
         sigma_22h <- sigma2h
         
-        sigma1h <- sigma1+(u1-uh)%*%t(u1-uh)
-        sigma2h <- sigma2+(u2-uh)%*%t(u2-uh)
+        sigma1h <- (sigma1+(u1-uh)%*%t(u1-uh)) %>% regularisation()
+        sigma2h <- (sigma2+(u2-uh)%*%t(u2-uh)) %>% regularisation()
         
         nb_iter <- nb_iter+1
       }
-      
+  
       Q <- n1*log(det(sigma1h)/det(sigma1))+n2*log(det(sigma2h)/det(sigma2))
-      
       quant<- qchisq(1-alpha,(D-1))
     }
     
-  rval<-list(statistic=Q, quantile=quant, case=case)
+  rval<-list(statistic=Q, quantile=quant, result=(Q<quant), case=case)
   class(rval)="test"
   
   rval
@@ -587,103 +633,112 @@ Graph_cumulative_evolution<-function(data, abscisse=1:nrow(data)){
 }
 
 
+count_to_proportion<-function(data){
+  K <- ncol(data)
+  alpha <- rep(2,K)
+    
+  #new.data <- apply(data, 2, sum) +alpha
+  #somme <- sum(new.data)
+  #new.data <- new.data/somme
 
-simplexe=rbind(c(5,0,0),c(0,0,5),c(0,5,0))
-ternary_diagram(simplexe)
-
-test=simu_simplexe(3,10,40)
-
-ternary_diagram(test)
-ternary_diagram(perturbation(test,c(20,100,2)))
-ternary_diagram(power(test,2))
-
-x=matrix(c(1,3.8,1.2),nrow=1)
-x0=matrix(c(1,4,1),nrow=1)
-ternary_diagram(ligne(x0,x))
-
-########### test ilr
-x=matrix(c(1,2,-1.2,1,-6,9),nrow=3)
-ternary_diagram(ilr_inverse(x,4))
-x
-ilr(ilr_inverse(x,4))
-
-x=matrix(c(seq(-1,1,length=100),seq(-4,4,length=100)),ncol=2)
-x1=matrix(c(seq(-4,4,length=100),seq(4,-4,length=100)),ncol=2)
-ternary_diagram(ilr_inverse(x,4))
-ternary_diagram(ilr_inverse(x1,4))
+  new.data <- sweep(data, 2, alpha, "+")
+  somme <- apply(new.data, 1, sum)
+  new.data <- sweep(new.data, 1, somme, "/")
+  
+  new.data
+}
 
 
-
-table_2.1=matrix(c(79.07,12.83,8.1,31.74,56.69,11.57,18.61,72.05,9.34,49.51,15.11,35.38,29.22,52.36,18.42,21.99,59.01,18.1,11.74,65.04,23.22,24.47,52.53,23.0,5.14,38.39,56.47,15.54,57.34,27.11),nrow=3)
-clr(t(table_2.1))
-
-
-
-x=matrix(c(48.29,48.83,45.61,45.5,49.27,46.53,48.12,47.93,46.96,49.16,48.41,47.9,48.45,48.98,48.74,49.61,49.2,
-           2.33,2.47,1.7,1.54,3.3,1.99,2.34,2.32,2.01,2.73,2.47,2.24,2.35,2.48,2.44,3.03,2.5, 11.48,12.38,8.33,8.17,12.10,9.49,11.43,11.18,9.9,12.54,11.8,11.17,11.64,12.05,11.6,12.91,12.32,
-           1.59,2.15,2.12,1.6,1.77,2.16,2.26,2.46,2.13,1.83,2.81,2.41,1.04,1.39,1.38,1.6,1.26,
-           10.03,9.41,10.02,10.44,9.89,9.79,9.46,9.36,9.72,10.02,8.91,9.36,10.37,10.17,10.18,9.68,10.13, 0.18,0.17,0.17,0.17,0.17,0.18,0.18,0.18,0.18,0.18,0.18,0.18,0.18,0.18,0.18,0.17,0.18,
-           13.58,11.08,23.06,23.87,10.46,19.28,13.65,14.33,18.31,10.05,12.52,14.64,13.23,11.18,12.35,8.84,10.51,
-           9.85,10.64,6.98,6.79,9.65,8.18,9.87,9.64,8.58,10.55,10.18,9.58,10.13,10.83,10.45,10.96,11.05,
-           1.9,2.02,1.33,1.28,2.25,1.54,1.89,1.86,1.58,2.09,1.93,1.82,1.89,1.73,1.67,2.24,2.02,
-           0.44,0.47,0.32,0.31,0.65,0.38,0.46,0.45,0.37,0.56,0.48,0.41,0.45,0.8,0.79,0.55,0.48,
-           0.23,0.24,0.16,0.15,0.3,0.18,0.22,0.21,0.19,0.26,0.23,0.21,0.23,0.24,0.23,0.27,0.23),
-         nrow=17,
-         dimnames = list(1:17,
-                         paste0("v", 1:11)))
-round(center_data(x),2)
-totvar(x)
-round(normalised_variation_matrix(x),3)
-
-x_center_scale=center_scale(x,scale=FALSE)
-
-x1=simu_simplexe(3,4,10)+matrix(c(rep(2,10),rep(0,20)),nrow=10)
-x2=center_scale(x1)
-ternary_diagram(x1)
-ternary_diagram(x2)
+MAP <- function(data){
+  
+  K <- ncol(data)
+  alpha <- rep(2,K)
+  
+  #new.data <- apply(data, 2, sum) +alpha
+  #somme <- sum(new.data-K)
+  #new.data <- (new.data-1)/somme
+  
+  new.data <- sweep(data, 2, alpha-1, "+")
+  somme <- apply(new.data, 1, sum)
+  new.data <- sweep(new.data, 1, somme, "/")
+  
+  new.data
+  
+}
 
 
-
-biplot(x_center_scale)
-
-base=matrix(c(0,0,0,1,-1,0,0,0,0,0,0,  1,0,-1,0,0,0,0,0,0,0,0,  0,1,0,0,0,0,0,0,0,0,-1,  1,-1,1,0,0,0,0,0,0,0,-1,   0,0,0,0,0,0,0,1,-1,0,0,  0,0,0,0,0,0,0,1,1,-1,0,   0,0,0,0,0,1,-1,0,0,0,0,   0,0,0,1,1,-1,-1,0,0,0,0,   0,0,0,1,1,1,1,-1,-1,-1,0,   1,1,1,-1,-1,-1,-1,-1,-1,-1,1),nrow=10,byrow = TRUE)
-
-z=balance_coordinate(x,base)
-m=matrix(0,nrow =10,ncol=10)
-m[upper.tri(m)]=cor(z)[upper.tri(cor(z))]
-m[lower.tri(m)]=var(z)[lower.tri(var(z))]
-diag(m)=diag(var(z))
-m
-
-
-########################## simulation multivarie
-simplexe=simu_simplexe(3,4,50000)
-Sigma <- matrix(c(1,0.4,0.4,1),2,2)
-Sigma1 <- matrix(c(1.2,0.8,0.8,1),2,2)
-normale=mvrnorm(n = 5000, c(0,0.8), Sigma1)
-normale1=mvrnorm(n = 4000, c(0,2), Sigma1)
-ternary_diagram(ilr_inverse(rbind(normale,normale1),4))
-
-marginal_univariate_distributions(simplexe)
-marginal_univariate_distributions(ilr_inverse(normale,4))
-
-Bivariate_angle_distribution(simplexe)
-Bivariate_angle_distribution(ilr_inverse(normale,4))
-
-Raduis_test(simplexe)
-Raduis_test(ilr_inverse(normale,4))
-
-
-u=intervalle_confiance(normale,0.05,1,c(0,0.8),Sigma1)
-plot(normale)
-lines(u,col='red')
-
-u=intervalle_confiance(normale,0.05,2)
-plot(normale)
-lines(u,col='red')
-
-
-normale=mvrnorm(n = 50000, c(0,0.8), Sigma1)
-normale1=mvrnorm(n = 40000, c(0,0.81), Sigma1)
-testing(normale,normale1,0.05,3)
+graph_biplot_normale <- function(data, metadata_group, nb_graph=1, title=NULL, legend_title="group"){
+  
+  data_MAP <- MAP(data)
+  
+  b_data <- biplot(data_MAP);
+  
+  if(ncol(b_data$coord)<nb_graph-1){
+    stop("number of graph incorrect")
+  }
+  
+  metadata_group <- metadata_group %>% as.factor()
+  
+  
+  m <- data.frame(b_data$coord, group=metadata_group)
+  
+  name_group <- nth(summarise(group_by(m,group)),1)
+  
+  ellipse_confiance <- list()
+  for(i in 1:nb_graph) ellipse_confiance[[i]] <- data.frame()
+  
+  for(i in name_group){
+    for(j in 1:nb_graph){
+    
+      if(((filter(m,group==i)[,j:(j+1)]) %>% as.matrix() %>%ilr_inverse() %>% Raduis_test())$Watson<0.187){
+        temp <- as.matrix(filter(m,group==i)[,j:(j+1)])
+        el <- intervalle_confiance(temp, alpha=0.05,1,moy=apply(temp,2,mean),var=var(temp))
+      
+        ellipse_confiance[[j]] <- rbind(ellipse_confiance[[j]], cbind(el, i))
+    
+      }
+    }
+    
+  }
+  
+  check_type_data <- function(data_list){
+    data_list[,1] <- data_list[,1] %>% as.character() %>% as.numeric()
+    data_list[,2] <- data_list[,2] %>% as.character() %>% as.numeric()
+    data_list[,3] <- data_list[,3] %>% as.character() %>% as.factor()
+    
+    data_list
+  }
+  
+  for(i in 1:length(ellipse_confiance)){
+    if(length(ellipse_confiance[[i]])!=0){
+      ellipse_confiance[[i]] %<>% check_type_data()
+    }
+  }
+  
+  create_graph <- function(data, ellipse){
+ 
+    graph_bc <- list()
+    for(i in 1:nb_graph){
+      if(length(ellipse_confiance[[i]])!=0){
+        g <- eval(substitute( ggplot()+geom_point(aes(x=m[,i], y=m[,(i+1)],col=group),m)
+                              +labs(title=title, y=paste("comp",i+1), x=paste("comp",i))
+                              +scale_color_discrete(name=legend_title)
+                              +geom_path(aes(x=ellipse_confiance[[i]][,1], y=ellipse_confiance[[i]][,2], group=ellipse_confiance[[i]][,3],col=ellipse_confiance[[i]][,3]),ellipse_confiance[[i]])
+                              +theme(plot.title = element_text(hjust=0.5))
+        ))
+      }else{
+        g <- eval(substitute( ggplot()+geom_point(aes(x=m[,i], y=m[,(i+1)],col=group),m)
+                              +scale_color_discrete(name=legend_title)
+                              +labs(title=title, y=paste("comp",i+1), x=paste("comp",i))
+                              +theme(plot.title = element_text(hjust=0.5))
+        ))
+      }
+      graph_bc[[i]] <- g
+    }
+    graph_bc
+  }
+  
+  create_graph(m,ellipse_confiance)
+  
+}
 
