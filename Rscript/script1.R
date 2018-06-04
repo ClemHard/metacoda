@@ -174,34 +174,25 @@ ilr_inverse<-function(data,k=1){
   closure(x, k)
 }
 
-variation_matrix<-function(data){
-  D=dim(data)[2]
-  mat=matrix(0,nrow=D,ncol=D)
-  for(i in 1:D) {
-    for(j in 1:D) {
-      mat[i,j]=var(log(data[, i] / data[, j]))
-    }
-  }
-  mat
+variation_matrix<-function(data) {
+  2 * normalised_variation_matrix(data)
 }
 
-
-cor_matrix<-function(data){
-
-  if(nrow(data)==1){
-    stop("correlation computation is impossible with one sample only.")
-  }
-
-  D <- ncol(data)
-  mat <- matrix(0,nrow=D,ncol=D)
-  for(i in 1:D){
-    for(j in 1:D){
-      mat[i,j] <- var(log(data[,i]/data[,j]))
-    }
-  }
-  mat
-}
-
+# cor_matrix<-function(data){
+#
+#   if(nrow(data)==1){
+#     stop("correlation computation is impossible with one sample only.")
+#   }
+#
+#   D <- ncol(data)
+#   mat <- matrix(0,nrow=D,ncol=D)
+#   for(i in 1:D){
+#     for(j in 1:D){
+#       mat[i,j] <- var(log(data[,i]/data[,j]))
+#     }
+#   }
+#   mat
+# }
 
 normalised_variation_matrix <- function(data){
   log.data <- log(norm_data(data))
