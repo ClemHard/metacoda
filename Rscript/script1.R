@@ -9,16 +9,27 @@ norm_data <- function(data) {
   if (is.null(dim(data))) {
     data <- t(matrix(data))
   }
-  if(is.data.frame(data)){
+  if (is.data.frame(data)) {
     data <- as.matrix(data)
   }
   ## check presence of 0s or negative values
   if (any(data <= 0)) {
-    stop("All values should be positive")
+    warning("Non positive values are present in the data.")
   }
   data
 }
 
+check_data <- function(data) {
+  ## transform to column matrix if vector
+  ## ensures that functions work also with one data point only
+  if (is.null(dim(data))) {
+    data <- t(matrix(data))
+  }
+  if (is.data.frame(data)) {
+    data <- as.matrix(data)
+  }
+  data
+}
 
 Inner_product<-function(x,y){
 
@@ -447,6 +458,8 @@ intervalle_confiance<-function(data,alpha,case=3,moy=NULL,var_matrix=NULL){
     return(matrix(c(u1,u2),ncol=2))
   }
 
+
+
   if(case==1){
     theta <- seq(0,2*pi,0.05)
     D <- ncol(data)
@@ -625,36 +638,13 @@ Graph_cumulative_evolution<-function(data, abscisse=1:nrow(data)){
 
 
 count_to_proportion<-function(data){
-  K <- ncol(data)
-  alpha <- rep(2,K)
-
-  #new.data <- apply(data, 2, sum) +alpha
-  #somme <- sum(new.data)
-  #new.data <- new.data/somme
-
-  new.data <- sweep(data, 2, alpha, "+")
-  somme <- apply(new.data, 1, sum)
-  new.data <- sweep(new.data, 1, somme, "/")
-
-  new.data
+  data <- check_data(data)
+  data / rowSums(data)
 }
 
-
-MAP <- function(data){
-
-  K <- ncol(data)
-  alpha <- rep(2,K)
-
-  #new.data <- apply(data, 2, sum) +alpha
-  #somme <- sum(new.data-K)
-  #new.data <- (new.data-1)/somme
-
-  new.data <- sweep(data, 2, alpha-1, "+")
-  somme <- apply(new.data, 1, sum)
-  new.data <- sweep(new.data, 1, somme, "/")
-
-  new.data
-
+MAP <- function(data, pseudocount = 1) {
+  data <- check_data(data) + pseudocount
+  data / rowSums(data)
 }
 
 
