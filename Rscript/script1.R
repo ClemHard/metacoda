@@ -3,6 +3,26 @@ library(ggplot2)
 library(dplyr)
 
 
+check_data <- function(data) {
+  ## transform to column matrix if vector
+  ## ensures that functions work also with one data point only
+  if (is.null(dim(data))) {
+    data <- t(matrix(data))
+  }
+  if (is.data.frame(data)) {
+    data <- as.matrix(data)
+  }
+  if(any(is.na(data))){
+    warning("NA in data has been deleted")
+    data <- as.matrix(data[complete.cases(data),])
+    
+    if(nrow(data)==0) data <- NULL
+  }
+  
+  data
+}
+
+
 norm_data <- function(data) {
   ## transform to column matrix if vector
   ## ensures that functions work also with one data point only
@@ -16,7 +36,6 @@ norm_data <- function(data) {
   if (any(data <= 0)) {
     stop("All values should be positive")
   }
-  
   if(any(is.na(data))){
     warning("NA in data has been deleted")
     data <- as.matrix(data[complete.cases(data),])
@@ -207,24 +226,6 @@ cor_matrix<-function(data){
   mat
 }
 
-check_data <- function(data) {
-  ## transform to column matrix if vector
-  ## ensures that functions work also with one data point only
-  if (is.null(dim(data))) {
-    data <- t(matrix(data))
-  }
-  if (is.data.frame(data)) {
-    data <- as.matrix(data)
-  }
-  if(any(is.na(data))){
-    warning("NA in data has been deleted")
-    data <- as.matrix(data[complete.cases(data),])
-    
-    if(nrow(data)==0) data <- NULL
-  }
-  
-  data
-}
 
 normalised_variation_matrix <- function(data){
   log.data <- log(norm_data(data))
@@ -354,7 +355,7 @@ marginal_univariate_distributions<-function(data){
   Qw <- Qc-((2*n+1)/2.)*(somme_w/n)^2
   
   
-  rval <- list(significance_level=mat, Anderson_Darling=Qa, Cramer_von_Mises=Qc, Watson=Qw, marginale_normal=which(Qw<0.116))
+  rval <- list(significance_level=mat, Anderson_Darling=Qa, Cramer_von_Mises=Qc, Watson=Qw)
   class(rval) <- "marginale univariate"
   
   rval
@@ -375,10 +376,9 @@ Bivariate_angle_distribution<-function(data){
   u_i <- apply(data_ilr,2,mean)
   var_i <- apply(data_ilr,2,var)
   
-  Qa <- matrix(NA, ncol = D_1, nrow = D_1)
-  Qc <- matrix(NA, ncol = D_1, nrow = D_1)
-  Qw <- matrix(NA, ncol = D_1, nrow = D_1)
-  
+  Qa <- matrix(0, ncol = D_1, nrow = D_1)
+  Qc <- matrix(0, ncol = D_1, nrow = D_1)
+  Qw <- matrix(0, ncol = D_1, nrow = D_1)
   for(i in 1:D_1){
     j <- i+1
     while(j<=D_1){
@@ -394,7 +394,6 @@ Bivariate_angle_distribution<-function(data){
      somme_a <- 0
      somme_c <- 0
      somme_w <- 0
-     
      for(r in 1:n){
        somme_a <- somme_a+(2*r-1)*(log(z[r])+log(1-z[n+1-r]))
        somme_c <- somme_c+(z[r]-(2*r-1)/(2*n))
@@ -420,7 +419,7 @@ Bivariate_angle_distribution<-function(data){
   ),nrow=4,byrow=TRUE)
   
   
-  rval <- list(significance_level=mat, Anderson_Darling=Qa, Cramer_von_Mises=Qc, Watson=Qw, couple_normal=which(Qw<0.187, arr.ind = TRUE))
+  rval <- list(significance_level=mat, Anderson_Darling=Qa, Cramer_von_Mises=Qc, Watson=Qw)
   class(rval) <- "Bivariate angle test"
   
   rval
@@ -483,29 +482,40 @@ intervalle_confiance<-function(data,alpha,case=3,moy=NULL,var_matrix=NULL){
     return(matrix(c(u1,u2),ncol=2))
   }
   
-  theta <- seq(0,2*pi,0.05)
-  D <- ncol(data)
-  
   if(case==1){
+    theta <- seq(0,2*pi,0.05)
+    D <- ncol(data)
     u <- coord(moy,qchisq(1-alpha,D-1),var_matrix,theta)
+    
+    return(u)
   }
-  else{
+
+  else if(case==2){
+    moy <- apply(data,2,mean)
+    var_matrix <- var(data)
+    
+    theta <- seq(0,2*pi,0.01)
+    D <- ncol(data)
+    n <- nrow(data)
+    k <- (D-1)/(n-D+1)*qf(1-alpha,D-1,n-D+1)
+    u <- coord(moy,k,var_matrix,theta)
+    return(u)
+    
+  }else if(case==3){
     
     moy <- apply(data,2,mean)
     var_matrix <- var(data)
+    
+    theta <- seq(0,2*pi,0.01)
+    D <- ncol(data)
     n <- nrow(data)
+    k <- (n-1)*(D-1)/(n-D+1)*((n+1)/n)*qf(1-alpha,D-1,n-D+1)
+    u <- coord(moy,k,var_matrix,theta)
     
-    if(case==2){
-      k <- (D-1)/(n-D+1)*qf(1-alpha,D-1,n-D+1)
-      u <- coord(moy,k,var_matrix,theta)
+    return(u)
     
-    }else if(case==3){
-      k <- (n-1)*(D-1)/(n-D+1)*((n+1)/n)*qf(1-alpha,D-1,n-D+1)
-      u <- coord(moy,k,var_matrix,theta)
-    }
   }
   
-  u
 }
 
 testing<-function(data1,data2,alpha,case=1){
@@ -547,8 +557,8 @@ testing<-function(data1,data2,alpha,case=1){
       sigma_22h <- sigma2h+1
       
       
-      tol <- 1e-40
-      nb_iter_max <- 5000
+      tol <- 1e-12
+      nb_iter_max <- 500
       nb_iter <- 0
       
       while(abs(det(sigma1h)-det(sigma_12h))>tol | abs(det(sigma2h)-det(sigma_22h))>tol & nb_iter<nb_iter_max){
@@ -566,7 +576,7 @@ testing<-function(data1,data2,alpha,case=1){
         
         nb_iter <- nb_iter+1
       }
-    
+  
       Q <- n1*log(det(sigma1h)/det(sigma1))+n2*log(det(sigma2h)/det(sigma2))
       quant<- qchisq(1-alpha,(D-1))
     }
@@ -575,6 +585,21 @@ testing<-function(data1,data2,alpha,case=1){
   class(rval)="test"
   
   rval
+}
+
+
+
+dendogram<-function(data,mat){
+  
+  data <- norm_data(data)
+  n <- nrow(data)
+  p <- ncol(data)
+  
+  
+  data<-balance_coordinate(data,mat)
+  
+  
+  
 }
 
 
@@ -635,21 +660,41 @@ Graph_cumulative_evolution<-function(data, abscisse=1:nrow(data)){
 
 
 count_to_proportion<-function(data){
-  data <- check_data(data)
-  data / rowSums(data)
+  K <- ncol(data)
+  alpha <- rep(2,K)
+    
+  #new.data <- apply(data, 2, sum) +alpha
+  #somme <- sum(new.data)
+  #new.data <- new.data/somme
+
+  new.data <- sweep(data, 2, alpha, "+")
+  somme <- apply(new.data, 1, sum)
+  new.data <- sweep(new.data, 1, somme, "/")
+  
+  new.data
 }
 
 
-MAP <- function(data,pseudocount=1){
+MAP <- function(data){
   
-  data <- check_data(data) + pseudocount
-  data / rowSums(data)
+  K <- ncol(data)
+  alpha <- rep(2,K)
+  
+  #new.data <- apply(data, 2, sum) +alpha
+  #somme <- sum(new.data-K)
+  #new.data <- (new.data-1)/somme
+  
+  new.data <- sweep(data, 2, alpha-1, "+")
+  somme <- apply(new.data, 1, sum)
+  new.data <- sweep(new.data, 1, somme, "/")
+  
+  new.data
   
 }
 
 
 graph_biplot_normale <- function(data, metadata_group, nb_graph=1, title=NULL, legend_title="group"){
-  data <- check_data(data)
+  
   data_MAP <- MAP(data)
   
   b_data <- biplot(data_MAP);
@@ -670,16 +715,16 @@ graph_biplot_normale <- function(data, metadata_group, nb_graph=1, title=NULL, l
   
   for(i in name_group){
     for(j in 1:nb_graph){
-      if(length((filter(m,group==i)[,j:(j+1)]))>10){
-        if(((filter(m,group==i)[,j:(j+1)]) %>% as.matrix() %>%ilr_inverse() %>% Raduis_test())$Watson<0.187){
-          temp <- as.matrix(filter(m,group==i)[,j:(j+1)])
-          el <- intervalle_confiance(temp, alpha=0.05,1,moy=apply(temp,2,mean),var=var(temp))
-      
-          ellipse_confiance[[j]] <- rbind(ellipse_confiance[[j]], cbind(el, i))
     
-        }
+      if(((filter(m,group==i)[,j:(j+1)]) %>% as.matrix() %>%ilr_inverse() %>% Raduis_test())$Watson<0.187){
+        temp <- as.matrix(filter(m,group==i)[,j:(j+1)])
+        el <- intervalle_confiance(temp, alpha=0.05,1,moy=apply(temp,2,mean),var=var(temp))
+      
+        ellipse_confiance[[j]] <- rbind(ellipse_confiance[[j]], cbind(el, i))
+    
       }
     }
+    
   }
   
   check_type_data <- function(data_list){
@@ -724,13 +769,12 @@ graph_biplot_normale <- function(data, metadata_group, nb_graph=1, title=NULL, l
 }
 
 
-
-comparaison_k_means <- function(data, metadata, nb_cluster=2, nb_graph=1){
+comparaison_k_means <- function(data, metadata, nb_cluster=2, nb_graph=1, nb_start=50){
   
   data_ilr <- data %>% MAP() %>% ilr()
-    
-  k_data_ilr <- kmeans(data_ilr, nb_cluster, nstart=50)
-  k_data <- kmeans(data, nb_cluster, nstart=50)
+  
+  k_data_ilr <- kmeans(data_ilr, nb_cluster, nstart=nb_start)
+  k_data <- kmeans(data, nb_cluster, nstart=nb_start)
   
   table1 <- table(k_data$cluster, metadata)
   table2 <- table(k_data_ilr$cluster, metadata)
@@ -739,3 +783,4 @@ comparaison_k_means <- function(data, metadata, nb_cluster=2, nb_graph=1){
   
   list( comptage_table=table1, ilr_table=table2, graphics=grob)
 }
+

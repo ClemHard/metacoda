@@ -2,20 +2,20 @@ source("Rscript/read_metagenomic_data.R")
 source("Rscript/script1.R")
 
 chaillou_p <- count_to_proportion(chaillou)
-mach_p <- count_to_proportion(mach)
+mach_500_p <- count_to_proportion(mach)
 ravel_p <- count_to_proportion(ravel)
 vacher_p <- count_to_proportion(vacher)
 
 
 chaillou_MAP <- MAP(chaillou)
-mach_MAP <- MAP(mach)
+mach_500_MAP <- MAP(mach_500)
 ravel_MAP <- MAP(ravel)
 vacher_MAP <- MAP(vacher)
 
 
 ### reduction de dimension
 bc <- biplot(chaillou_MAP)
-bm <- biplot(mach_MAP)
+bm <- biplot(mach_500_MAP)
 br <- biplot(ravel_MAP)
 bv <- biplot(vacher_MAP)
 
@@ -27,7 +27,7 @@ grid.arrange(grobs=graph_biplot_normale(chaillou, metadata_chaillou$EnvType,4, "
 grid.arrange(grobs=graph_biplot_normale(ravel, metadata_ravel$CST, 4, "Ravel", "CST"), ncol=2)
 
 #mach
-grid.arrange(grobs=graph_biplot_normale(mach, metadata_mach$Weaned, 4, "Mach", "Weaned"), ncol=2)
+grid.arrange(grobs=graph_biplot_normale(mach_500, metadata_mach$Weaned, 4, "Mach", "Weaned"), ncol=2)
 
 #vacher
 
@@ -42,9 +42,9 @@ Bivariate_angle_distribution(chaillou_MAP)
 Raduis_test(chaillou_MAP)
 
 # mach
-marginal_univariate_distributions(mach_MAP)
-y <- Bivariate_angle_distribution(mach_MAP)
-Raduis_test(mach_MAP)
+marginal_univariate_distributions(mach_500_MAP)
+Bivariate_angle_distribution(mach_500_MAP)
+Raduis_test(mach_500_MAP)
 
 # ravel
 marginal_univariate_distributions(ravel_MAP)
@@ -66,7 +66,7 @@ sapply(val,function(x){
 val <- c("TRUE", "FALSE")
 
 sapply(val,function(x){
-  (Raduis_test(mach_MAP[which(metadata_mach$Weaned==x),]))
+  (Raduis_test(mach_500_MAP[which(metadata_mach$Weaned==x),]))
 })
 
 #chaillou
@@ -97,7 +97,7 @@ sapply(val,function(x){
 })
 
 
-#mach
+#mach 500
 val <- c("TRUE", "FALSE")
 
 sapply(val,function(x){
@@ -226,9 +226,9 @@ grid.arrange(grobs=k_ravel$graphics, ncol=3)
 
 
 
-##mach
-k_mach <- comparaison_k_means(mach, metadata_mach$Weaned, 2, 3)
-grid.arrange(grobs=k_mach$graphics, ncol=3)
+##mach 500
+k_mach_500 <- comparaison_k_means(mach_500, metadata_mach$Weaned, 2, 3)
+grid.arrange(grobs=k_mach_500$graphics, ncol=3)
 
 
 
@@ -238,5 +238,8 @@ k_chaillou <- comparaison_k_means(chaillou, metadata_chaillou$EnvType, 8, 3)
 grid.arrange(grobs=k_chaillou$graphics, ncol=3)
 
 
+##mach
+k_mach <- comparaison_k_means(mach, metadata_mach$Weaned, 2, 3, 1)
+grid.arrange(grobs=k_mach$graphics, ncol=3)
 
 
