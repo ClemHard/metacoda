@@ -40,3 +40,58 @@ Comme attendu le nombre d'échantillons améliore la puissance du test de normal
 
 Le bruit améliore la puisssance du test, cependant en augmentant la dimension (D) de la multinomiale, l'inverse se produit à partir d'un certains N. La précision informatique semble étre en cause (les valeurs propres de la matrice de covariance sont très faible).
 
+
+\newpage
+
+## Clustering
+
+# Chaillou
+
+```{r echo=FALSE, warning=FALSE, out.width="400px", out.height="300px", fig.align='center'}
+k_chaillou <- comparaison_k_means(chaillou, metadata_chaillou$EnvType, 8, 1);
+
+cat("comptage:\n")
+print(k_chaillou$comptage_table)
+cat("\nilr:\n")
+print(k_chaillou$ilr_table)
+
+k_chaillou$graphics[[1]]
+k_chaillou$graphics[[2]]
+k_chaillou$graphics[[3]]
+```
+
+\newpage
+
+# ravel
+
+```{r echo=FALSE, warning=FALSE, , out.width="400px", out.height="300px", fig.align='center'}
+k_ravel <- comparaison_k_means(ravel, metadata_ravel$CST, 5, 1);
+
+cat("comptage:\n")
+print(k_ravel$comptage_table)
+cat("\nilr:\n")
+print(k_ravel$ilr_table)
+
+
+k_ravel$graphics[[1]]
+k_ravel$graphics[[2]]
+k_ravel$graphics[[3]]
+```
+
+\newpage
+
+# mach
+
+```{r echo=FALSE, warning=FALSE, , out.width="400px", out.height="300px", fig.align='center'}
+k_mach <- comparaison_k_means(mach, metadata_mach$Weaned, 2, 1);
+
+cat("comptage:\n")
+print(k_mach$comptage_table)
+cat("\nilr:\n")
+print(k_mach$ilr_table)
+
+
+k_mach$graphics[[1]]
+k_mach$graphics[[2]]
+k_mach$graphics[[3]]
+```
