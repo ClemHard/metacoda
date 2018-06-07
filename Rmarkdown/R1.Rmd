@@ -25,7 +25,7 @@ graph_biplot_normale(ravel,metadata_ravel$CST)[[1]]
 Cette fois ci les échantillons sont moins bien séparé les uns des autres, seul le groupe 3 et 4 sont clairement distinguable. A l'inverse, seul le groupe 2 et 5 suivent une loi normale bivariée.
 
 ```{r echo=FALSE, warning=FALSE}
-graph_biplot_normale(mach,metadata_mach$Weaned)[[1]]
+graph_biplot_normale(mach_500,metadata_mach$Weaned)[[1]]
 ```
 Les deux groupes sont clairement distinguables. Cependant un seul groupe suit une loi normale.\newline
 Les données brutes (sans réduction de variables) ne suivent pas une loi normale que se soit par groupe ou l'ensemble.
@@ -80,18 +80,18 @@ k_ravel$graphics[[3]]
 
 \newpage
 
-# mach
+# mach 500
 
 ```{r echo=FALSE, warning=FALSE, , out.width="400px", out.height="300px", fig.align='center'}
-k_mach <- comparaison_k_means(mach, metadata_mach$Weaned, 2, 1);
+k_mach_500 <- comparaison_k_means(mach_500, metadata_mach$Weaned, 2, 1);
 
 cat("comptage:\n")
-print(k_mach$comptage_table)
+print(k_mach_500$comptage_table)
 cat("\nilr:\n")
-print(k_mach$ilr_table)
+print(k_mach_500$ilr_table)
 
 
-k_mach$graphics[[1]]
-k_mach$graphics[[2]]
-k_mach$graphics[[3]]
+k_mach_500$graphics[[1]]
+k_mach_500$graphics[[2]]
+k_mach_500$graphics[[3]]
 ```
