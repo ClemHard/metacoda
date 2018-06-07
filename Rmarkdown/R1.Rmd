@@ -3,6 +3,7 @@ title: "R1"
 output: pdf_document
 ---
 
+
 ```{r setup, include=FALSE}
 setwd("..")
 source("Rscript/read_metagenomic_data.R")
@@ -13,18 +14,18 @@ setwd("Rmarkdown")
 ## Réduction de dimension
 
 
-```{r echo=FALSE, warning=FALSE}
+```{r echo=FALSE, warning=FALSE, cache=TRUE}
 graph_biplot_normale(chaillou,metadata_chaillou$EnvType)[[1]]
 ```
 La projetion des échantillons sur le plan formée par les deux premieres composantes principales suivent une loi normale bivariée (pour tous les groupes), de plus on s'aperéoit que les groupes sont bien séparé les uns des autres.
 
-```{r echo=FALSE, warning=FALSE}
+```{r echo=FALSE, warning=FALSE, cache=TRUE}
 graph_biplot_normale(ravel,metadata_ravel$CST)[[1]]
 ```
 
 Cette fois ci les échantillons sont moins bien séparé les uns des autres, seul le groupe 3 et 4 sont clairement distinguable. A l'inverse, seul le groupe 2 et 5 suivent une loi normale bivariée.
 
-```{r echo=FALSE, warning=FALSE}
+```{r echo=FALSE, warning=FALSE, cache=TRUE}
 graph_biplot_normale(mach_500,metadata_mach$Weaned)[[1]]
 ```
 Les deux groupes sont clairement distinguables. Cependant un seul groupe suit une loi normale.\newline
@@ -43,11 +44,11 @@ Le bruit améliore la puisssance du test, cependant en augmentant la dimension (
 
 \newpage
 
-## Clustering
+# Clustering kmeans
 
-# Chaillou
+## Chaillou
 
-```{r echo=FALSE, warning=FALSE, out.width="400px", out.height="300px", fig.align='center'}
+```{r echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
 k_chaillou <- comparaison_k_means(chaillou, metadata_chaillou$EnvType, 8, 1);
 
 cat("comptage:\n")
@@ -62,9 +63,9 @@ k_chaillou$graphics[[3]]
 
 \newpage
 
-# ravel
+## ravel
 
-```{r echo=FALSE, warning=FALSE, , out.width="400px", out.height="300px", fig.align='center'}
+```{r echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
 k_ravel <- comparaison_k_means(ravel, metadata_ravel$CST, 5, 1);
 
 cat("comptage:\n")
@@ -80,9 +81,9 @@ k_ravel$graphics[[3]]
 
 \newpage
 
-# mach 500
+## mach 500
 
-```{r echo=FALSE, warning=FALSE, , out.width="400px", out.height="300px", fig.align='center'}
+```{r echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
 k_mach_500 <- comparaison_k_means(mach_500, metadata_mach$Weaned, 2, 1);
 
 cat("comptage:\n")
@@ -94,4 +95,99 @@ print(k_mach_500$ilr_table)
 k_mach_500$graphics[[1]]
 k_mach_500$graphics[[2]]
 k_mach_500$graphics[[3]]
+```
+
+\newpage
+
+## mach data complete
+
+```{r echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+k_mach <- comparaison_k_means(mach, metadata_mach$Weaned, 2, 1);
+
+cat("comptage:\n")
+print(k_mach$comptage_table)
+cat("\nilr:\n")
+print(k_mach$ilr_table)
+
+
+k_mach$graphics[[1]]
+k_mach$graphics[[2]]
+k_mach$graphics[[3]]
+```
+
+\newpage
+
+# Clustering hclust
+
+## Ravel
+
+```{r echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+hclust_ravel <- comparaison_hclust(ravel, metadata_ravel$CST, 5, 1)
+
+cat("comptage:\n")
+print(hclust_ravel$comptage_table)
+cat("\nilr:\n")
+print(hclust_ravel$ilr_table)
+
+hclust_ravel$graphics[[1]]
+hclust_ravel$graphics[[2]]
+hclust_ravel$graphics[[3]]
+```
+
+
+\newpage
+
+## Mach 500
+
+```{r echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+hclust_mach_500 <- comparaison_hclust(mach_500, metadata_mach$Weaned, 2, 1)
+
+cat("comptage:\n")
+print(hclust_mach_500$comptage_table)
+cat("\nilr:\n")
+print(hclust_mach_500$ilr_table)
+
+hclust_mach_500$graphics[[1]]
+hclust_mach_500$graphics[[2]]
+hclust_mach_500$graphics[[3]]
+```
+
+
+\newpage
+
+## Chaillou
+
+```{r echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+hclust_chaillou <- comparaison_hclust(chaillou, metadata_chaillou$EnvType, 8, 1)
+
+cat("comptage:\n")
+print(hclust_chaillou$comptage_table)
+cat("\nilr:\n")
+print(hclust_chaillou$ilr_table)
+
+hclust_chaillou$graphics[[1]]
+hclust_chaillou$graphics[[2]]
+hclust_chaillou$graphics[[3]]
+```
+
+
+\newpage
+
+## Mach data complete
+
+```{r echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+hclust_mach <- comparaison_hclust(mach, metadata_mach$Weaned, 2, 1)
+
+cat("comptage:\n")
+print(hclust_mach$comptage_table)
+cat("\nilr:\n")
+print(hclust_mach$ilr_table)
+
+hclust_mach$graphics[[1]]
+hclust_mach$graphics[[2]]
+hclust_mach$graphics[[3]]
 ```

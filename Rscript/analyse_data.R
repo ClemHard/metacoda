@@ -21,13 +21,16 @@ bv <- biplot(vacher_MAP)
 
 
 #chaillou
-grid.arrange(grobs=graph_biplot_normale(chaillou, metadata_chaillou$EnvType,4, "Chaillou", "EnvType"), ncol=2)
+grid.arrange(grobs=graph_biplot_normale(chaillou, metadata_chaillou$EnvType, 4, "Chaillou", "EnvType"), ncol=2)
+
 
 #ravel
 grid.arrange(grobs=graph_biplot_normale(ravel, metadata_ravel$CST, 4, "Ravel", "CST"), ncol=2)
 
+
 #mach
 grid.arrange(grobs=graph_biplot_normale(mach_500, metadata_mach$Weaned, 4, "Mach", "Weaned"), ncol=2)
+
 
 #vacher
 
@@ -220,26 +223,30 @@ g
 
 
 ##ravel
-k_ravel <- comparaison_k_means(ravel, metadata_ravel$CST, 5, 3)
-grid.arrange(grobs=k_ravel$graphics, ncol=3)
+k_ravel <- comparaison_k_means(ravel, metadata_ravel$CST, 5, 1)
+grid.arrange(grobs=k_ravel$graphics, ncol=1)
 
-
-
+hclust_ravel <- comparaison_hclust(ravel, metadata_ravel$CST, 5, 1)
+grid.arrange(grobs=hclust_ravel$graphics, ncol=1)
 
 ##mach 500
-k_mach_500 <- comparaison_k_means(mach_500, metadata_mach$Weaned, 2, 3)
-grid.arrange(grobs=k_mach_500$graphics, ncol=3)
+k_mach_500 <- comparaison_k_means(mach_500, metadata_mach$Weaned, 2, 1)
+grid.arrange(grobs=k_mach_500$graphics, ncol=1)
 
-
-
+hclust_mach_500 <- comparaison_hclust(mach_500, metadata_mach$Weaned, 2, 1)
+grid.arrange(grobs=hclust_mach_500$graphics, ncol=1)
 
 ##chaillou
-k_chaillou <- comparaison_k_means(chaillou, metadata_chaillou$EnvType, 8, 3)
-grid.arrange(grobs=k_chaillou$graphics, ncol=3)
+k_chaillou <- comparaison_k_means(chaillou, metadata_chaillou$EnvType, 8, 1)
+grid.arrange(grobs=k_chaillou$graphics, ncol=1)
+
+hclust_chaillou <- comparaison_hclust(chaillou, metadata_chaillou$EnvType, 8, 1)
+grid.arrange(grobs=hclust_chaillou$graphics, ncol=1) 
 
 
 ##mach
 k_mach <- comparaison_k_means(mach, metadata_mach$Weaned, 2, 3, 1)
-grid.arrange(grobs=k_mach$graphics, ncol=3)
+grid.arrange(grobs=k_mach$graphics, ncol=1)
 
-
+hclust_mach <- comparaison_hclust(mach, metadata_mach$Weaned, 2, 1)
+grid.arrange(grobs=hclust_mach$graphics, ncol=1)

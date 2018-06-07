@@ -784,3 +784,19 @@ comparaison_k_means <- function(data, metadata, nb_cluster=2, nb_graph=1, nb_sta
   list( comptage_table=table1, ilr_table=table2, graphics=grob)
 }
 
+
+comparaison_hclust <- function(data, metadata, nb_cluster,nb_graph){
+  
+  data_ilr <- data %>% MAP() %>% ilr()
+  
+  hclust_data <- data %>% dist() %>% as.dist() %>% hclust(method="ward.D") %>% cutree(k=nb_cluster)
+  hclust_data_ilr <- data_ilr %>% dist() %>% as.dist() %>% hclust(method="ward.D") %>% cutree(k=nb_cluster)
+  
+  table1 <- table(hclust_data, metadata)
+  table2 <- table(hclust_data_ilr, metadata)
+  
+  grob <- c(graph_biplot_normale(data, hclust_data, title="comptage", nb_graph = nb_graph), graph_biplot_normale(data, metadata, title = "correct", nb_graph = nb_graph),  graph_biplot_normale(data, hclust_data_ilr, title = "ilr", nb_graph = nb_graph))
+  
+  list( comptage_table=table1, ilr_table=table2, graphics=grob)
+  
+}
