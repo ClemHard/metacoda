@@ -41,10 +41,9 @@ marginal_univariate_distributions(chaillou_MAP)
 Bivariate_angle_distribution(chaillou_MAP)
 Raduis_test(chaillou_MAP)
 
-
 # mach
 marginal_univariate_distributions(mach_MAP)
-Bivariate_angle_distribution(mach_MAP)
+y <- Bivariate_angle_distribution(mach_MAP)
 Raduis_test(mach_MAP)
 
 # ravel
@@ -146,20 +145,18 @@ g
 
 
 
-
-
 #### dans N
-D <- 5
-nb_sample <- 2000
+D <- 50
+nb_sample <- 200
 
 prob1 <- runif(D, 1, 2)
-prob2 <- prob1+((runif(D,-1,1)>0)*2-1)*0.001 # perturbation de +-0.1
+prob2 <- prob1+((runif(D,-1,1)>0)*2-1)*0.05 # perturbation de +-0.1
 
 prob1 <- prob1/sum(prob1)
 prob2 <- prob2/sum(prob2)
 
 
-N=round(10^(seq(2,4.5,length=3)))
+N=round(10^(seq(1,4,length=3)))
 
 total <- 0
 NB <- 500
@@ -179,4 +176,67 @@ for(i in 1:NB){
 m <- data.frame(N=N, power=1-total)
 g <- ggplot(m, aes(N, power))+ geom_line()+labs(title="Evolution de la puissance", x="N multinomiale")+theme(panel.background = element_rect(fill="white"),plot.title = element_text(hjust=0.5), axis.line = element_line(colour="black"))
 g
+
+
+
+###test variation D
+nb_sample <- 200
+D <- round(2^(seq(2,3,length=3)))
+N=500
+
+total <- 0
+NB <- 500
+for(i in 1:NB){
+  
+  total <- total+sapply(D, function(x){
+    
+    
+    prob1 <- runif(x, 1, 2)
+    
+    prob1 <- prob1/sum(prob1)
+    
+    data1 <- t(rmultinom(nb_sample, size=N, prob1)) %>% MAP()
+
+    
+    mean(eigen(var(ilr(data1)))$values)
+    
+  })/NB
+}
+
+m <- data.frame(D=D, power=total)
+g <- ggplot(m, aes(D, power))+ geom_line()+labs(title="Evolution de la puissance", x="N multinomiale")+theme(panel.background = element_rect(fill="white"),plot.title = element_text(hjust=0.5), axis.line = element_line(colour="black"))
+g
+
+
+
+
+
+
+
+
+
+########clustering
+
+
+
+##ravel
+k_ravel <- comparaison_k_means(ravel, metadata_ravel$CST, 5, 3)
+grid.arrange(grobs=k_ravel$graphics, ncol=3)
+
+
+
+
+##mach
+k_mach <- comparaison_k_means(mach, metadata_mach$Weaned, 2, 3)
+grid.arrange(grobs=k_mach$graphics, ncol=3)
+
+
+
+
+##chaillou
+k_chaillou <- comparaison_k_means(chaillou, metadata_chaillou$EnvType, 8, 3)
+grid.arrange(grobs=k_chaillou$graphics, ncol=3)
+
+
+
 
