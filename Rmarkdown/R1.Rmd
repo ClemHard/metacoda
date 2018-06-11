@@ -191,3 +191,79 @@ hclust_mach$graphics[[1]]
 hclust_mach$graphics[[2]]
 hclust_mach$graphics[[3]]
 ```
+
+
+# Clustering Mclust
+
+## Ravel
+
+```{r echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+Mclust_ravel <- comparaison_Mclust(ravel, metadata_ravel$CST, 5, 1)
+
+cat("comptage:\n")
+print(Mclust_ravel$comptage_table)
+cat("\nilr:\n")
+print(Mclust_ravel$ilr_table)
+
+Mclust_ravel$graphics[[1]]
+Mclust_ravel$graphics[[2]]
+Mclust_ravel$graphics[[3]]
+```
+
+
+\newpage
+
+## Mach 500
+
+```{r echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+Mclust_mach_500 <- comparaison_Mclust(mach_500, metadata_mach$Weaned, 2, 1)
+
+cat("comptage:\n")
+print(Mclust_mach_500$comptage_table)
+cat("\nilr:\n")
+print(Mclust_mach_500$ilr_table)
+
+Mclust_mach_500$graphics[[1]]
+Mclust_mach_500$graphics[[2]]
+Mclust_mach_500$graphics[[3]]
+```
+
+
+\newpage
+
+## Chaillou
+
+```{r echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+Mclust_chaillou <- comparaison_Mclust(chaillou, metadata_chaillou$EnvType, 8, 1)
+
+cat("comptage:\n")
+print(hclust_chaillou$comptage_table)
+cat("\nilr:\n")
+print(hclust_chaillou$ilr_table)
+
+Mclust_chaillou$graphics[[1]]
+Mclust_chaillou$graphics[[2]]
+Mclust_chaillou$graphics[[3]]
+```
+
+
+\newpage
+
+## Mach data complete
+
+```{r echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+Mclust_mach <- comparaison_Mclust(mach, metadata_mach$Weaned, 2, 1)
+
+cat("comptage:\n")
+print(Mclust_mach$comptage_table)
+cat("\nilr:\n")
+print(Mclust_mach$ilr_table)
+
+Mclust_mach$graphics[[1]]
+Mclust_mach$graphics[[2]]
+Mclust_mach$graphics[[3]]
+```

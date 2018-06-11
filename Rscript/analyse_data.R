@@ -226,8 +226,13 @@ g
 k_ravel <- comparaison_k_means(ravel, metadata_ravel$CST, 5, 1)
 grid.arrange(grobs=k_ravel$graphics, ncol=1)
 
+
 hclust_ravel <- comparaison_hclust(ravel, metadata_ravel$CST, 5, 1)
 grid.arrange(grobs=hclust_ravel$graphics, ncol=1)
+
+Mclust_ravel <- comparaison_Mclust(ravel, metadata_ravel$CST, 5, 1)
+grid.arrange(grobs=Mclust_ravel$graphics, ncol=1)
+
 
 ##mach 500
 k_mach_500 <- comparaison_k_means(mach_500, metadata_mach$Weaned, 2, 1)
@@ -236,6 +241,11 @@ grid.arrange(grobs=k_mach_500$graphics, ncol=1)
 hclust_mach_500 <- comparaison_hclust(mach_500, metadata_mach$Weaned, 2, 1)
 grid.arrange(grobs=hclust_mach_500$graphics, ncol=1)
 
+Mclust_mach_500 <- comparaison_Mclust(mach_500, metadata_mach$Weaned, 2, 1)
+grid.arrange(grobs=Mclust_mach_500$graphics, ncol=1)
+
+
+
 ##chaillou
 k_chaillou <- comparaison_k_means(chaillou, metadata_chaillou$EnvType, 8, 1)
 grid.arrange(grobs=k_chaillou$graphics, ncol=1)
@@ -243,10 +253,18 @@ grid.arrange(grobs=k_chaillou$graphics, ncol=1)
 hclust_chaillou <- comparaison_hclust(chaillou, metadata_chaillou$EnvType, 8, 1)
 grid.arrange(grobs=hclust_chaillou$graphics, ncol=1) 
 
+Mclust_chaillou <- comparaison_Mclust(chaillou, metadata_chaillou$EnvType, 8, 1)
+grid.arrange(grobs=Mclust_chaillou$graphics, ncol=1)
+
+
 
 ##mach
-k_mach <- comparaison_k_means(mach, metadata_mach$Weaned, 2, 3, 1)
+k_mach <- comparaison_k_means(mach, metadata_mach$Weaned, 2, 1, 1)
 grid.arrange(grobs=k_mach$graphics, ncol=1)
 
 hclust_mach <- comparaison_hclust(mach, metadata_mach$Weaned, 2, 1)
 grid.arrange(grobs=hclust_mach$graphics, ncol=1)
+
+Mclust_mach <- comparaison_Mclust(mach, metadata_mach$Weaned, 2, 1)
+grid.arrange(grobs=Mclust_mach$graphics, ncol=1)
+
