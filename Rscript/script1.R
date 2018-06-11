@@ -1,6 +1,8 @@
 library(MASS)
 library(ggplot2)
 library(dplyr)
+library(mclust)
+library(rARPACK)
 
 
 check_data <- function(data) {
@@ -65,10 +67,13 @@ Inner_product<-function(x,y){
   somme/(2*D)
 }
 
+
 norm_simplex<-function(x){
   
   sqrt(Inner_product(x,x))
 }
+
+
 
 closure <- function(data, k=1){
   data <- norm_data(data)
@@ -82,6 +87,7 @@ perturbation <- function(data, multiple){
   new.data <- sweep(data, 2, multiple, "*")
   closure(new.data)
 }
+
 
 power <- function(data, alpha){
   data <- norm_data(data)
@@ -277,10 +283,16 @@ biplot<-function(data){
   
   Z=ilr(data)
 
-  C=cov(Z)
+  C <- cov(Z) 
   
-  vect=eigen(C)$vector
-  val=eigen(C)$values
+  if(p>n){     
+    C <- C %>% eigs_sym(k=min(n,p)-1)   
+  }else{    
+    C <- C %>% eigen()   
+  }   
+  
+  vect <- C$vectors   
+  val <- C$values   
   
   x=Z%*%vect
   
@@ -584,22 +596,6 @@ testing<-function(data1,data2,alpha,case=1){
 }
 
 
-
-dendogram<-function(data,mat){
-  
-  data <- norm_data(data)
-  n <- nrow(data)
-  p <- ncol(data)
-  
-  
-  data<-balance_coordinate(data,mat)
-  
-  
-  
-}
-
-
-
 Graph_proportion_evolution<-function(data, abscisse=1:nrow(data)){
   
   data <- norm_data(data)
@@ -689,11 +685,17 @@ MAP <- function(data){
 }
 
 
-graph_biplot_normale <- function(data, metadata_group, nb_graph=1, title=NULL, legend_title="group"){
+graph_biplot_normale <- function(data, metadata_group, nb_graph=1, title=NULL, legend_title="group", coord_biplot=FALSE){
   
-  data_MAP <- MAP(data)
+  b_data <- 0
   
-  b_data <- biplot(data_MAP);
+  if(!coord_biplot){
+    data_MAP <- MAP(data)
+    b_data <- biplot(data_MAP);
+  }
+  else{
+    b_data <- data
+  }
   
   if(ncol(b_data$coord)<nb_graph-1){
     stop("number of graph incorrect")
@@ -711,16 +713,16 @@ graph_biplot_normale <- function(data, metadata_group, nb_graph=1, title=NULL, l
   
   for(i in name_group){
     for(j in 1:nb_graph){
-    
-      if(((filter(m,group==i)[,j:(j+1)]) %>% as.matrix() %>%ilr_inverse() %>% Raduis_test())$Watson<0.187){
-        temp <- as.matrix(filter(m,group==i)[,j:(j+1)])
-        el <- intervalle_confiance(temp, alpha=0.05,1,moy=apply(temp,2,mean),var=var(temp))
-      
-        ellipse_confiance[[j]] <- rbind(ellipse_confiance[[j]], cbind(el, i))
-    
+      if(nrow((filter(m,group==i)[,j:(j+1)]))>5){
+        if(((filter(m,group==i)[,j:(j+1)]) %>% as.matrix() %>%ilr_inverse() %>% Raduis_test())$Watson<0.187){
+          temp <- as.matrix(filter(m,group==i)[,j:(j+1)])
+          el <- intervalle_confiance(temp, alpha=0.05,1,moy=apply(temp,2,mean),var=var(temp))
+          
+          ellipse_confiance[[j]] <- rbind(ellipse_confiance[[j]], cbind(el, i))
+          
+        }
       }
     }
-    
   }
   
   check_type_data <- function(data_list){
@@ -738,7 +740,7 @@ graph_biplot_normale <- function(data, metadata_group, nb_graph=1, title=NULL, l
   }
   
   create_graph <- function(data, ellipse){
- 
+    
     graph_bc <- list()
     for(i in 1:nb_graph){
       if(length(ellipse_confiance[[i]])!=0){
@@ -765,6 +767,7 @@ graph_biplot_normale <- function(data, metadata_group, nb_graph=1, title=NULL, l
 }
 
 
+
 comparaison_k_means <- function(data, metadata, nb_cluster=2, nb_graph=1, nb_start=50){
   
   data_ilr <- data %>% MAP() %>% ilr()
@@ -775,8 +778,9 @@ comparaison_k_means <- function(data, metadata, nb_cluster=2, nb_graph=1, nb_sta
   table1 <- table(k_data$cluster, metadata)
   table2 <- table(k_data_ilr$cluster, metadata)
   
-  grob <- c(graph_biplot_normale(data, k_data$cluster, title="comptage", nb_graph = nb_graph), graph_biplot_normale(data, metadata, title = "correct", nb_graph = nb_graph),  graph_biplot_normale(data, k_data_ilr$cluster, title = "ilr", nb_graph = nb_graph))
+  b_coord <- data %>% MAP() %>% biplot()
   
+  grob <- c(graph_biplot_normale(b_coord, k_data$cluster, title="comptage", nb_graph = nb_graph, coord_biplot = TRUE), graph_biplot_normale(b_coord, metadata, title = "correct", nb_graph = nb_graph, coord_biplot = TRUE),  graph_biplot_normale(b_coord, k_data_ilr$cluster, title = "ilr", nb_graph = nb_graph, coord_biplot = TRUE))
   list( comptage_table=table1, ilr_table=table2, graphics=grob)
 }
 
@@ -791,8 +795,109 @@ comparaison_hclust <- function(data, metadata, nb_cluster,nb_graph){
   table1 <- table(hclust_data, metadata)
   table2 <- table(hclust_data_ilr, metadata)
   
-  grob <- c(graph_biplot_normale(data, hclust_data, title="comptage", nb_graph = nb_graph), graph_biplot_normale(data, metadata, title = "correct", nb_graph = nb_graph),  graph_biplot_normale(data, hclust_data_ilr, title = "ilr", nb_graph = nb_graph))
+  b_coord <- data %>% MAP() %>% biplot()
+  grob <- c(graph_biplot_normale(b_coord, hclust_data, title="comptage", nb_graph = nb_graph, coord_biplot = TRUE), graph_biplot_normale(b_coord, metadata, title = "correct", nb_graph = nb_graph, coord_biplot = TRUE),  graph_biplot_normale(b_coord, hclust_data_ilr, title = "ilr", nb_graph = nb_graph, coord_biplot = TRUE))
   
   list( comptage_table=table1, ilr_table=table2, graphics=grob)
+  
+}
+
+
+comparaison_Mclust <- function(data, metadata, nb_cluster, nb_graph){
+  
+  data_ilr <- data %>% MAP() %>% ilr()
+  
+  Mclust_data <- data %>% Mclust(G=nb_cluster)
+  Mclust_data_ilr <- data_ilr %>% Mclust(G=nb_cluster)
+  
+  table1 <- table(Mclust_data$classification, metadata)
+  table2 <- table(Mclust_data_ilr$classification, metadata)
+  
+  b_coord <- data %>% MAP() %>% biplot()
+  grob <- c(graph_biplot_normale(b_coord, Mclust_data$classification, title="comptage", nb_graph = nb_graph, coord_biplot = TRUE), graph_biplot_normale(b_coord, metadata, title = "correct", nb_graph = nb_graph, coord_biplot = TRUE),  graph_biplot_normale(b_coord, Mclust_data_ilr$classification, title = "ilr", nb_graph = nb_graph, coord_biplot =TRUE))
+  
+  list( comptage_table=table1, ilr_table=table2, graphics=grob)
+  
+}
+
+
+adjusted_rand_index <- function(table1){
+  
+  part1 <- table1 %>% rowSums() %>% choose(2) %>% sum()
+  part2 <- table1 %>% colSums() %>% choose(2) %>% sum()  
+  part3 <- table1 %>% sum() %>% choose(2)
+  
+  ARI <- table1 %>% choose(2) %>% sum() - part1*part2/part3
+  ARI_denom <- 0.5*( part1+part2 ) - part1*part2/part3
+  
+  ARI/ARI_denom
+}
+
+
+mutual_information_distance <- function(table1){
+
+  P <- rowSums(table1)/sum(table1)
+  P <- P+(P==0)*1
+  HY <- -P%*%log(P)
+  
+  P <- colSums(table1)/sum(table1)
+  P <- P+(P==0)*1
+  HC <- -P%*%log(P)
+  
+  PC <- t(t(table1)/colSums(table1))
+  PC <- PC+(PC==0)*1
+  HYC <- sum(colSums((-PC)*log(PC)))
+  I <- HY-HYC
+  
+  HC+HY-2*I
+}
+
+
+simu_melange_gaussien <- function(n, probability, mean, Sigma){
+  
+  NB <- round(n*probability)
+  
+  sample1 <- NULL
+  for(i in 1:length(probability)){
+    
+      sample1 <- rbind(sample1, mvrnorm(NB[i], mean[[i]], Sigma[[i]]))
+    
+  }
+  list(data= sample1, metadata= rep(1:length(NB), NB))
+}
+
+
+
+bootstrap_ilr <- function(data, nb_cluster){
+  
+  Mclust_data <- Mclust(data, G=nb_cluster)
+  
+  NB <- Mclust_data$n
+  probability <- Mclust_data$parameters$pro
+  mean_data <- list()
+  Sigma_data <- list()
+  
+  for(i in 1:length(probability)){
+    mean_data[[i]] <- Mclust_data$parameters$mean[,i]
+    Sigma_data[[i]] <- Mclust_data$parameters$variance$sigma[,,i]
+  }
+  
+  new_sample <- simu_melange_gaussien(NB, probability, mean_data, Sigma_data)
+  
+  new_sample
+}
+
+
+bootstrap_comptage <- function(data, nb_cluster){
+  
+  new_sample <- bootstrap_ilr(data %>% MAP() %>% ilr(), nb_cluster)
+  data_ilr <- ilr_inverse(new_sample$data)
+  
+  sample_comptage <- matrix(0, nrow=nrow(data_ilr), ncol=ncol(data_ilr))
+  
+  for(i in 1:nrow(data_ilr)){
+      
+    
+  }
   
 }
