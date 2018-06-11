@@ -50,13 +50,10 @@ Inner_product<-function(x,y){
   somme/(2*D)
 }
 
-
 norm_simplex<-function(x){
 
   sqrt(Inner_product(x,x))
 }
-
-
 
 closure <- function(data, k=1){
   data <- norm_data(data)
@@ -70,7 +67,6 @@ perturbation <- function(data, multiple){
   new.data <- sweep(data, 2, multiple, "*")
   closure(new.data)
 }
-
 
 power <- function(data, alpha){
   data <- norm_data(data)
