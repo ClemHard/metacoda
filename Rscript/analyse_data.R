@@ -2,32 +2,35 @@ source("Rscript/read_metagenomic_data.R")
 source("Rscript/script1.R")
 
 chaillou_p <- count_to_proportion(chaillou)
-mach_p <- count_to_proportion(mach)
+mach_500_p <- count_to_proportion(mach)
 ravel_p <- count_to_proportion(ravel)
 vacher_p <- count_to_proportion(vacher)
 
 
 chaillou_MAP <- MAP(chaillou)
-mach_MAP <- MAP(mach)
+mach_500_MAP <- MAP(mach_500)
 ravel_MAP <- MAP(ravel)
 vacher_MAP <- MAP(vacher)
 
 
 ### reduction de dimension
 bc <- biplot(chaillou_MAP)
-bm <- biplot(mach_MAP)
+bm <- biplot(mach_500_MAP)
 br <- biplot(ravel_MAP)
 bv <- biplot(vacher_MAP)
 
 
 #chaillou
-grid.arrange(grobs=graph_biplot_normale(chaillou, metadata_chaillou$EnvType,4, "Chaillou", "EnvType"), ncol=2)
+grid.arrange(grobs=graph_biplot_normale(chaillou, metadata_chaillou$EnvType, 4, "Chaillou", "EnvType"), ncol=2)
+
 
 #ravel
 grid.arrange(grobs=graph_biplot_normale(ravel, metadata_ravel$CST, 4, "Ravel", "CST"), ncol=2)
 
+
 #mach
-grid.arrange(grobs=graph_biplot_normale(mach, metadata_mach$Weaned, 4, "Mach", "Weaned"), ncol=2)
+grid.arrange(grobs=graph_biplot_normale(mach_500, metadata_mach$Weaned, 4, "Mach", "Weaned"), ncol=2)
+
 
 #vacher
 
@@ -41,11 +44,10 @@ marginal_univariate_distributions(chaillou_MAP)
 Bivariate_angle_distribution(chaillou_MAP)
 Raduis_test(chaillou_MAP)
 
-
 # mach
-marginal_univariate_distributions(mach_MAP)
-Bivariate_angle_distribution(mach_MAP)
-Raduis_test(mach_MAP)
+marginal_univariate_distributions(mach_500_MAP)
+Bivariate_angle_distribution(mach_500_MAP)
+Raduis_test(mach_500_MAP)
 
 # ravel
 marginal_univariate_distributions(ravel_MAP)
@@ -67,7 +69,7 @@ sapply(val,function(x){
 val <- c("TRUE", "FALSE")
 
 sapply(val,function(x){
-  (Raduis_test(mach_MAP[which(metadata_mach$Weaned==x),]))
+  (Raduis_test(mach_500_MAP[which(metadata_mach$Weaned==x),]))
 })
 
 #chaillou
@@ -98,7 +100,7 @@ sapply(val,function(x){
 })
 
 
-#mach
+#mach 500
 val <- c("TRUE", "FALSE")
 
 sapply(val,function(x){
@@ -146,20 +148,18 @@ g
 
 
 
-
-
 #### dans N
-D <- 5
-nb_sample <- 2000
+D <- 50
+nb_sample <- 200
 
 prob1 <- runif(D, 1, 2)
-prob2 <- prob1+((runif(D,-1,1)>0)*2-1)*0.001 # perturbation de +-0.1
+prob2 <- prob1+((runif(D,-1,1)>0)*2-1)*0.05 # perturbation de +-0.1
 
 prob1 <- prob1/sum(prob1)
 prob2 <- prob2/sum(prob2)
 
 
-N=round(10^(seq(2,4.5,length=3)))
+N=round(10^(seq(1,4,length=3)))
 
 total <- 0
 NB <- 500
@@ -180,3 +180,73 @@ m <- data.frame(N=N, power=1-total)
 g <- ggplot(m, aes(N, power))+ geom_line()+labs(title="Evolution de la puissance", x="N multinomiale")+theme(panel.background = element_rect(fill="white"),plot.title = element_text(hjust=0.5), axis.line = element_line(colour="black"))
 g
 
+
+
+###test variation D
+nb_sample <- 200
+D <- round(2^(seq(2,3,length=3)))
+N=500
+
+total <- 0
+NB <- 500
+for(i in 1:NB){
+  
+  total <- total+sapply(D, function(x){
+    
+    
+    prob1 <- runif(x, 1, 2)
+    
+    prob1 <- prob1/sum(prob1)
+    
+    data1 <- t(rmultinom(nb_sample, size=N, prob1)) %>% MAP()
+
+    
+    mean(eigen(var(ilr(data1)))$values)
+    
+  })/NB
+}
+
+m <- data.frame(D=D, power=total)
+g <- ggplot(m, aes(D, power))+ geom_line()+labs(title="Evolution de la puissance", x="N multinomiale")+theme(panel.background = element_rect(fill="white"),plot.title = element_text(hjust=0.5), axis.line = element_line(colour="black"))
+g
+
+
+
+
+
+
+
+
+
+########clustering
+
+
+
+##ravel
+k_ravel <- comparaison_k_means(ravel, metadata_ravel$CST, 5, 1)
+grid.arrange(grobs=k_ravel$graphics, ncol=1)
+
+hclust_ravel <- comparaison_hclust(ravel, metadata_ravel$CST, 5, 1)
+grid.arrange(grobs=hclust_ravel$graphics, ncol=1)
+
+##mach 500
+k_mach_500 <- comparaison_k_means(mach_500, metadata_mach$Weaned, 2, 1)
+grid.arrange(grobs=k_mach_500$graphics, ncol=1)
+
+hclust_mach_500 <- comparaison_hclust(mach_500, metadata_mach$Weaned, 2, 1)
+grid.arrange(grobs=hclust_mach_500$graphics, ncol=1)
+
+##chaillou
+k_chaillou <- comparaison_k_means(chaillou, metadata_chaillou$EnvType, 8, 1)
+grid.arrange(grobs=k_chaillou$graphics, ncol=1)
+
+hclust_chaillou <- comparaison_hclust(chaillou, metadata_chaillou$EnvType, 8, 1)
+grid.arrange(grobs=hclust_chaillou$graphics, ncol=1) 
+
+
+##mach
+k_mach <- comparaison_k_means(mach, metadata_mach$Weaned, 2, 3, 1)
+grid.arrange(grobs=k_mach$graphics, ncol=1)
+
+hclust_mach <- comparaison_hclust(mach, metadata_mach$Weaned, 2, 1)
+grid.arrange(grobs=hclust_mach$graphics, ncol=1)

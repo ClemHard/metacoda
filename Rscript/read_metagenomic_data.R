@@ -55,7 +55,7 @@ mach_MAP <- MAP(mach)
 
 mean_otus_mach <- rbind(apply(mach_MAP, 2, mean), 1:ncol(mach))
 mean_otus_mach <- mean_otus_mach[, order(mean_otus_mach[1,], decreasing = TRUE) ]
-mach <- mach[,mean_otus_mach[2,1:500]]
+mach_500 <- mach[,mean_otus_mach[2,1:500]]
 
 
 
