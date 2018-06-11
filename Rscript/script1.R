@@ -767,41 +767,6 @@ graph_biplot_normale <- function(data, metadata_group, nb_graph=1, title=NULL, l
 }
 
 
-retrouve_groupe <- function(table1){
-  
-  combinaison <- function(data, ligne, val){
-    D <- ncol(data)
-    
-    if(!is.null(D) && D>1){
-      ind <- which(data[,1]>0)
-      
-      if(length(ind)==0){
-        return(rep(NA,ncol(data)) %>% c(0) %>%t())
-      }
-      
-      table2 <- NULL
-      for(i in ind){
-        temp <- cbind(ligne[i], combinaison(data[-i,-1], ligne[-i], val+data[i,1]))
-        table2 <- rbind(table2, temp)
-      }
-      
-      return(table2)
-      
-    }else{
-      if(data>0){
-        return(t(c(ligne, val+data)))
-      }else{
-        return(t(c(NA,0)))
-      }
-    }
-  }
-  combine <- (combinaison(table1, 1:nrow(table1), 0))
-  
-  combine[which.max(combine[,ncol(combine)]),-ncol(combine)]
-  combine
-}
-
-
 
 comparaison_k_means <- function(data, metadata, nb_cluster=2, nb_graph=1, nb_start=50){
   
