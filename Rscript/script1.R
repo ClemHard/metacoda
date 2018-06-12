@@ -40,8 +40,8 @@ Inner_product<-function(x,y){
   tcrossprod(x, y) ## shortcut for x %*% t(y)
 }
 
-norm_simplex<-function(x){
-  diag(sqrt(Inner_product(x, x)))
+norm_simplex<-function(data){
+  data %>% clr() %>% .^2 %>% rowSums() %>% sqrt()
 }
 
 dist_simplex <- function(data) {
