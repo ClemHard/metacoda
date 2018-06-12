@@ -96,9 +96,9 @@ test_that("SIGMA_matrix inverse works properly", {
 
 ## Test ilr
 
-test_that("SIGMA_matrix inverse works properly", {
-  expect_equal(ilr(matrix(c(1,2,3,4,2,1,1,6,1, 5,4,10), nrow=4)), matrix(c(0.49012, 0.23754, 0.47996), nrow = 1), tolerance=1e-2)
-  expect_equal(center_data(matrix(c(1.2, 5.6, 4.6, 3.2, 8.2 ,1.2, 4.3 ,1.56,1, 8.45, 96, 4), nrow=4)), matrix(c(0.2327, 0.21033, 0.55694), nrow = 1), tolerance=1e-2)
+test_that("ilr works properly", {
+  expect_equal(ilr(matrix(c(1,2,3,4,2,1,1,6,1, 5,4,10), nrow=4)), matrix(c(0.49012, -0.49012, -0.77683, 0.28670, -0.28297, 1.03112, 0.68339, 0.58261), nrow = 4), tolerance=1e-2)
+  expect_equal(ilr(matrix(c(1.2, 5.6, 4.6, 3.2, 8.2 ,1.2, 4.3 ,1.56,1, 8.45, 96, 4), nrow=4)), matrix(c(1.35892, -1.0892, -0.04768, -0.50803, -0.9334, 0.96479, 2.50828, 0.47550), nrow = 4), tolerance=1e-2)
   
 })
 

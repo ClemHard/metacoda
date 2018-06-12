@@ -161,13 +161,15 @@ Base_binary_matrix<-function(D){
 
   }
   sapply(1:(D-1), build_row) %>% t()
-}
+  }
 
+}
 
 ilr<-function(data, SIGMA=Base_SIGMA_matrix(ncol(data))){
   data <- norm_data(data)
   clr(data) %*% t(SIGMA)
 
+}
 balance_coordinate=function(data,sequential_binary){
 
   D=dim(sequential_binary)[1]
@@ -182,11 +184,6 @@ balance_coordinate=function(data,sequential_binary){
     }
   }
   mat
-}
-
-ilr<-function(data){
-  clr(data) %*% t(Base_SIGMA_matrix(ncol(data)))
-
 }
 
 ilr_inverse<-function(data, k=1){
@@ -207,6 +204,9 @@ variation_matrix<-function(data){
   for(i in 1:D){
     for(j in 1:D){
       mat[i,j] <- var(log(data[,i]/data[,j]))
+    }
+  }
+}
 
 variation_matrix<-function(data, norm = FALSE) {
   D <- ncol(data)
@@ -263,10 +263,6 @@ normalised_variation_matrix <- function(data){
   }
   mat
 }
-
-
-center_data<-function(data){
-  data <- norm_data(data)
 
 center_data<-function(data) {
 
@@ -880,7 +876,7 @@ simu_melange_gaussien <- function(n, probability, mean, Sigma){
   sample1 <- NULL
   for(i in 1:length(probability)){
 
-      sample1 <- rbind(sample1, mvrnorm(NB[i], mean[[i]], Sigma[[i]]))
+    sample1 <- rbind(sample1, mvrnorm(NB[i], mean[[i]], Sigma[[i]]))
 
   }
   list(data= sample1, metadata= rep(1:length(NB), NB))
@@ -907,5 +903,10 @@ bootstrap_ilr <- function(data, nb_cluster){
   new_sample
 }
 
+bootstrap_comptage <- function(data, nb_cluster){
 
+  new_sample <- bootstrap_ilr(data %>% MAP() %>% ilr(), nb_cluster)
+  data_ilr <- ilr_inverse(new_sample$data)
 
+  sample_comptage <- matrix(0, nrow=nrow(data_ilr), ncol=ncol(data_ilr))
+}
