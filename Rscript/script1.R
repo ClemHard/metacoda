@@ -108,9 +108,9 @@ ternary_diagram<-function(data){
 
 }
 
-ligne<-function(x0,x){
-  alpha=seq(-100,100,length=1000)
-  perturbation(t(sapply(alpha,power,data=x)),x0)
+ligne<-function(x0, x) {
+  alpha=seq(-100, 100, length = 1000)
+  perturbation(t(sapply(alpha, power, data=x)), x0)
 }
 
 simu_simplexe<-function(D, k = 1, N) {
@@ -133,16 +133,14 @@ Base_SIGMA_matrix <- function(D) {
 }
 
 Base_binary_matrix<-function(D){
-  mat=matrix(0,nrow=(D-1),ncol=D)
-  for(i in 1:(D-1)){
-    for(j in 1:(D-i)){
-      mat[D-i,j]=1
-    }
-    mat[D-i,(D-i+1)]=-1
+  build_row <- function(i) {
+    rep(c(1, -1, 0), times = c(i, 1, D - (i+1) ))
   }
-  mat
+  sapply(1:(D-1), build_row) %>% t()
 }
 
+
+## Que fait cette fonction?
 balance_coordinate=function(data,sequential_binary){
 
   D=dim(sequential_binary)[1]
@@ -160,7 +158,6 @@ balance_coordinate=function(data,sequential_binary){
 }
 
 ilr<-function(data){
-  data <- norm_data(data)
   clr(data) %*% t(Base_SIGMA_matrix(ncol(data)))
 }
 
@@ -168,18 +165,26 @@ ilr_inverse<-function(data, k=1){
   exp(data %*% Base_SIGMA_matrix(ncol(data)+1)) %>% closure(k)
 }
 
-variation_matrix<-function(data){
-  D=dim(data)[2]
-  mat=matrix(0,nrow=D,ncol=D)
-  for(i in 1:D){
-    for(j in 1:D){
-      mat[i,j]=var(log(data[,i]/data[,j]))
+variation_matrix<-function(data, norm = FALSE) {
+  D <- ncol(data)
+  log.data <- log(norm_data(data))
+  mat <- matrix(0, nrow=D, ncol=D)
+  for(i in 1:D) {
+    for(j in 1:i) {
+      mat[i, j] <- mat[j, i] <- var(log.data[, i] - log.data[, j])
     }
+  }
+  if (norm) {
+    data <- .5 * data
   }
   mat
 }
 
+normalised_variation_matrix <- function(data){
+  variation_matrix(data, norm = TRUE)
+}
 
+## A vérifier?
 cor_matrix<-function(data){
 
   if(nrow(data)==1){
@@ -196,35 +201,14 @@ cor_matrix<-function(data){
   mat
 }
 
-
-normalised_variation_matrix <- function(data){
-  log.data <- log(norm_data(data))
-  ## test number of samples
-  if (nrow(log.data) == 1) {
-    stop("Variance computation is impossible with one sample only.")
-  }
-  D=ncol(log.data)
-  mat=matrix(0, nrow = D, ncol = D)
-  for(i in 1:D) {
-    for(j in 1:i) {
-      mat[i, j] <- mat[j, i] <- 0.5*var(log.data[, i] - log.data[, j])
-    }
-  }
-  mat
-}
-
-
-center_data<-function(data){
-  data <- norm_data(data)
+center_data<-function(data) {
   ## geometric mean = exponential of mean in log scale
-  closure(exp(colMeans(log(data))))
+  data %>% norm_data %>% log %>% colMeans %>% exp %>% closure
 }
 
 totvar<-function(data){
-  mean(rowSums(normalised_variation_matrix(data)))
+  data %>% variation_matrix(norm = TRUE) %>% rowSums() %>% mean()
 }
-
-
 
 center_scale<-function(data,center=TRUE,scale=TRUE){
   data <- norm_data(data)
