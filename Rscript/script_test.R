@@ -1,6 +1,7 @@
 library(testthat)
 
 source("Rscript/script1.R");
+
 ## Test norm data
 test_that("norm_data detects nonpositive values", {
   expect_warning(norm_data(c(1, -1)), "Non positive values are present in the data.")
@@ -21,8 +22,6 @@ test_that("closure works properly", {
                matrix(c(0.5, 0.2, 0.5, 0.8), nrow = 2))
   expect_equal(closure(c(1, 1), k = 4), matrix(c(2, 2), nrow = 1))
 })
-
-
 
 ## Test Inner product
 

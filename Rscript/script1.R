@@ -26,8 +26,9 @@ norm_data <- function(data) {
   data <- check_data(data)
   ## check presence of 0s or negative values
   if (any(data <= 0)) {
-    stop("All values should be positive")
+    warning("Non positive values are present in the data.")
   }
+  data
 }
 
 Inner_product<-function(x,y){
@@ -68,7 +69,6 @@ perturbation <- function(data, multiple){
   new.data <- sweep(data, 2, multiple, "*")
   closure(new.data)
 }
-
 
 power <- function(data, alpha){
   data <- norm_data(data)
@@ -113,30 +113,24 @@ ligne<-function(x0,x){
   perturbation(t(sapply(alpha,power,data=x)),x0)
 }
 
-simu_simplexe<-function(D,k,N){
-  simplexe=matrix(runif(D*N,max=k),N,D)
-  simplexe=k*apply(simplexe,2,function(x,j){x/j},j=rowSums(simplexe))
-  simplexe
+simu_simplexe<-function(D, k = 1, N) {
+  simplexe <- matrix(runif(D*N, max=k), N, D)
+  closure(simplexe, k)
 }
 
-
-
-clr_inverse<-function(data,k){
-  e=exp(data)
-  closure(e,k)
+clr_inverse<-function(data, k = 1){
+  exp(data) %>% closure(k)
 }
 
-Base_SIGMA_matrix<-function(D){
-  mat=matrix(0,nrow=(D-1),ncol=D)
-  for(i in 1:(D-1)){
-    for(j in 1:(D-i)){
-      mat[D-i,j]=-sqrt(1/((D-i)*(D-i+1)))
-    }
-    mat[D-i,(D-i+1)]=sqrt((D-i)/(D-i+1))
+Base_SIGMA_matrix <- function(D) {
+  build_row <- function(i) {
+    denom <- sqrt(i * (i+1))
+    c(rep(-1 / denom, i),
+      i / denom,
+      rep(0, D - (i+1)))
   }
-  mat
+  sapply(1:(D-1), build_row) %>% t()
 }
-
 
 Base_binary_matrix<-function(D){
   mat=matrix(0,nrow=(D-1),ncol=D)
@@ -166,16 +160,12 @@ balance_coordinate=function(data,sequential_binary){
 }
 
 ilr<-function(data){
-
   data <- norm_data(data)
-  clr(data)%*%t(Base_SIGMA_matrix(ncol(data)))
+  clr(data) %*% t(Base_SIGMA_matrix(ncol(data)))
 }
 
-ilr_inverse<-function(data,k=1){
-
-  x=exp((data%*%Base_SIGMA_matrix(dim(data)[2]+1)))
-
-  closure(x,k)
+ilr_inverse<-function(data, k=1){
+  exp(data %*% Base_SIGMA_matrix(ncol(data)+1)) %>% closure(k)
 }
 
 variation_matrix<-function(data){
