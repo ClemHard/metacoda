@@ -210,7 +210,7 @@ totvar<-function(data){
   data %>% variation_matrix(norm = TRUE) %>% rowSums() %>% mean()
 }
 
-center_scale<-function(data,center=TRUE,scale=TRUE){
+center_scale<-function(data, center = TRUE, scale = TRUE) {
   data <- norm_data(data)
 
   texte <- dimnames(data)
@@ -233,7 +233,7 @@ biplot<-function(data){
 
   data <- center_scale(data, scale=FALSE)
 
-  Z=ilr(data)
+  Z <- ilr(data)
 
   C <- cov(Z)
 
@@ -275,7 +275,7 @@ regularisation <- function(var1){
   }
 }
 
-solve_regularisation<-function(var1){
+solve_regularisation <- function(var1) {
   var1 %>% regularisation() %>% solve()
 }
 
