@@ -3,12 +3,14 @@ title: "R1"
 output: pdf_document
 ---
 
+```{r knitr-setup}
+knitr::opts_chunk$set(root.dir = "..")
+```
+
 
 ```{r setup, include=FALSE}
-setwd("..")
 source("Rscript/read_metagenomic_data.R")
 source("Rscript/script1.R")
-setwd("Rmarkdown")
 ```
 
 ## Réduction de dimension
@@ -33,11 +35,15 @@ Les données brutes (sans réduction de variables) ne suivent pas une loi normal
 
 ## Simulation
 
-!["Dans R"](simu1.jpeg)\newline
+```{r simu1, fig.caption = "Dans R"}
+knitr::include_graphics("simu1.jpeg")
+```
 
 Comme attendu le nombre d'échantillons améliore la puissance du test de normalité.
 
-!["Dans N"](simu2.jpeg)\newline
+```{r simu2, fig.caption = "Dans R"}
+knitr::include_graphics("Simu2.jpeg")
+```
 
 Le bruit améliore la puisssance du test, cependant en augmentant la dimension (D) de la multinomiale, l'inverse se produit à partir d'un certains N. La précision informatique semble étre en cause (les valeurs propres de la matrice de covariance sont très faible).
 
@@ -101,7 +107,7 @@ k_mach_500$graphics[[3]]
 
 ## mach data complete
 
-```{r echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+```{r mach-kmeans, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
 k_mach <- comparaison_k_means(mach, metadata_mach$Weaned, 2, 1);
 
 cat("comptage:\n")
@@ -178,7 +184,7 @@ hclust_chaillou$graphics[[3]]
 
 ## Mach data complete
 
-```{r echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+```{r mach-hclust, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
 
 hclust_mach <- comparaison_hclust(mach, metadata_mach$Weaned, 2, 1)
 
@@ -240,9 +246,9 @@ Mclust_mach_500$graphics[[3]]
 Mclust_chaillou <- comparaison_Mclust(chaillou, metadata_chaillou$EnvType, 8, 1)
 
 cat("comptage:\n")
-print(hclust_chaillou$comptage_table)
+print(Mclust_chaillou$comptage_table)
 cat("\nilr:\n")
-print(hclust_chaillou$ilr_table)
+print(Mclust_chaillou$ilr_table)
 
 Mclust_chaillou$graphics[[1]]
 Mclust_chaillou$graphics[[2]]
@@ -266,4 +272,4 @@ print(Mclust_mach$ilr_table)
 Mclust_mach$graphics[[1]]
 Mclust_mach$graphics[[2]]
 Mclust_mach$graphics[[3]]
-```
+=======

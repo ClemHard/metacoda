@@ -1,6 +1,7 @@
 library(testthat)
 
 source("Rscript/script1.R");
+
 ## Test norm data
 test_that("norm_data detects nonpositive values", {
   expect_warning(norm_data(c(1, -1)), "Non positive values are present in the data.")
@@ -21,8 +22,6 @@ test_that("closure works properly", {
                matrix(c(0.5, 0.2, 0.5, 0.8), nrow = 2))
   expect_equal(closure(c(1, 1), k = 4), matrix(c(2, 2), nrow = 1))
 })
-
-
 
 ## Test Inner product
 
@@ -85,3 +84,29 @@ test_that("Base_SIGMA_matrix inverse works properly", {
   expect_equal(Base_binary_matrix(5), matrix(c(1, 1, 1, 1, -1, 1, 1, 1, 0,  -1, 1, 1, 0, 0, -1, 1, 0, 0, 0, -1), nrow = 4), tolerance=1e-2)
   
 })
+
+
+## Test SIGMA_matrix
+
+test_that("SIGMA_matrix inverse works properly", {
+  expect_equal(SIGMA_matrix(matrix(c(1, 1, 1, -1, -1, 0), nrow=2)), matrix(c(0.40824, 0.7071, 0.40824, -0.70710, -0.81649, 0), nrow = 2), tolerance=1e-2)
+  expect_equal(SIGMA_matrix(matrix(c(1, 1, 1, -1, -1 ,0 ,1, -1, -1 ),nrow=3)), matrix(c(0.40824, 0.81649, 0.70710, -0.81649, -0.40824, 0, 0.40824, -0.40824, -0.70710), nrow = 3), tolerance=1e-2)
+  
+})
+
+## Test ilr
+
+test_that("SIGMA_matrix inverse works properly", {
+  expect_equal(ilr(matrix(c(1,2,3,4,2,1,1,6,1, 5,4,10), nrow=4)), matrix(c(0.49012, 0.23754, 0.47996), nrow = 1), tolerance=1e-2)
+  expect_equal(center_data(matrix(c(1.2, 5.6, 4.6, 3.2, 8.2 ,1.2, 4.3 ,1.56,1, 8.45, 96, 4), nrow=4)), matrix(c(0.2327, 0.21033, 0.55694), nrow = 1), tolerance=1e-2)
+  
+})
+
+## Test center_data
+
+test_that("SIGMA_matrix inverse works properly", {
+  expect_equal(center_data(matrix(c(1,2,3,4,2,1,1,6,1, 5,4,10), nrow=4)), matrix(c(0.28249, 0.23754, 0.47996), nrow = 1), tolerance=1e-2)
+  expect_equal(center_data(matrix(c(1.2, 5.6, 4.6, 3.2, 8.2 ,1.2, 4.3 ,1.56,1, 8.45, 96, 4), nrow=4)), matrix(c(0.2327, 0.21033, 0.55694), nrow = 1), tolerance=1e-2)
+  
+})
+
