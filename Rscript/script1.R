@@ -33,22 +33,20 @@ norm_data <- function(data) {
 }
 
 Inner_product<-function(x,y){
-
   x<-clr(x)
   y<-clr(y)
-
   if (ncol(x) != ncol(y)){
     stop("x and y should have the same dimension")
   }
-  clr(x) %*% t(clr(y))
-
   tcrossprod(x, y) ## shortcut for x %*% t(y)
-
 }
 
+norm_simplex<-function(data){
+  data %>% clr() %>% .^2 %>% rowSums() %>% sqrt()
+}
 
-norm_simplex<-function(x){
-  sqrt(Inner_product(x,x))
+dist_simplex <- function(data) {
+  data %>% clr %>% dist
 }
 
 closure <- function(data, k=1){
@@ -130,14 +128,14 @@ Base_SIGMA_matrix <- function(D) {
 
 
 SIGMA_matrix <- function(sequential_binary){
-    
-  
+
+
   D <- ncol(sequential_binary)
   n <- nrow(sequential_binary)
   rs <- cbind(apply(sequential_binary,1,function(x){return(sum(x==1))}),apply(sequential_binary,1,function(x){return(sum(x==-1))}))
-  
+
   mat <- matrix(0,nrow=n,ncol=D)
-  
+
   for(i in 1:n){
     for(j in 1:D){
       if(sign(sequential_binary[i,j])==1){
@@ -170,6 +168,7 @@ ilr_inverse<-function(data, k=1, SIGMA=Base_SIGMA_matrix(ncol(data)+1)){
   exp(data %*% SIGMA) %>% closure(k)
 
 }
+
 
 
 variation_matrix<-function(data, norm = FALSE) {
@@ -233,22 +232,22 @@ biplot<-function(data){
   data <- center_scale(data, scale=FALSE)
 
 
-  
+
   Z <- ilr(data)
 
-  C <- cov(Z) 
-  
-  if(p>n){     
-    C <- C %>% eigs_sym(k=min(n,p)-1)   
-  }else{    
-    C <- C %>% eigen()   
-  }   
-  
-  vect <- C$vectors   
-  val <- C$values   
-  
+  C <- cov(Z)
+
+  if(p>n){
+    C <- C %>% eigs_sym(k=min(n,p)-1)
+  }else{
+    C <- C %>% eigen()
+  }
+
+  vect <- C$vectors
+  val <- C$values
+
   x <- Z%*%vect
-  
+
   rval <- list(variance_explain=cumsum(val)/sum(val), vector=vect, values=val, coord=x)
 
   class(rval) <- "biplot"
@@ -604,7 +603,7 @@ Graph_cumulative_evolution<-function(data, abscisse=1:nrow(data)){
 
 
 count_to_proportion<-function(data){
-  
+
   data <- check_data(data)
   K <- ncol(data)
   alpha <- rep(2,K)
@@ -720,99 +719,99 @@ graph_biplot_normale <- function(data, metadata_group, nb_graph=1, title=NULL, l
 
 
 comparaison_k_means <- function(data, metadata, nb_cluster=2, nb_graph=1, nb_start=50){
-  
+
   data_ilr <- data %>% MAP() %>% ilr()
-  
+
   k_data_ilr <- kmeans(data_ilr, nb_cluster, nstart=nb_start)
   k_data <- kmeans(data, nb_cluster, nstart=nb_start)
-  
+
   table1 <- table(k_data$cluster, metadata)
   table2 <- table(k_data_ilr$cluster, metadata)
-  
+
   b_coord <- data %>% MAP() %>% biplot()
-  
+
   grob <- c(graph_biplot_normale(b_coord, k_data$cluster, title="comptage", nb_graph = nb_graph, coord_biplot = TRUE), graph_biplot_normale(b_coord, metadata, title = "correct", nb_graph = nb_graph, coord_biplot = TRUE),  graph_biplot_normale(b_coord, k_data_ilr$cluster, title = "ilr", nb_graph = nb_graph, coord_biplot = TRUE))
   list( comptage_table=table1, ilr_table=table2, graphics=grob)
 }
 
 
 comparaison_hclust <- function(data, metadata, nb_cluster,nb_graph){
-  
+
   data_ilr <- data %>% MAP() %>% ilr()
-  
+
   hclust_data <- data %>% dist() %>% as.dist() %>% hclust(method="ward.D") %>% cutree(k=nb_cluster)
   hclust_data_ilr <- data_ilr %>% dist() %>% as.dist() %>% hclust(method="ward.D") %>% cutree(k=nb_cluster)
-  
+
   table1 <- table(hclust_data, metadata)
   table2 <- table(hclust_data_ilr, metadata)
-  
+
   b_coord <- data %>% MAP() %>% biplot()
   grob <- c(graph_biplot_normale(b_coord, hclust_data, title="comptage", nb_graph = nb_graph, coord_biplot = TRUE), graph_biplot_normale(b_coord, metadata, title = "correct", nb_graph = nb_graph, coord_biplot = TRUE),  graph_biplot_normale(b_coord, hclust_data_ilr, title = "ilr", nb_graph = nb_graph, coord_biplot = TRUE))
-  
+
   list( comptage_table=table1, ilr_table=table2, graphics=grob)
-  
+
 }
 
 
 comparaison_Mclust <- function(data, metadata, nb_cluster, nb_graph){
-  
+
   data_ilr <- data %>% MAP() %>% ilr()
-  
+
   Mclust_data <- data %>% Mclust(G=nb_cluster)
   Mclust_data_ilr <- data_ilr %>% Mclust(G=nb_cluster)
-  
+
   table1 <- table(Mclust_data$classification, metadata)
   table2 <- table(Mclust_data_ilr$classification, metadata)
-  
+
   b_coord <- data %>% MAP() %>% biplot()
   grob <- c(graph_biplot_normale(b_coord, Mclust_data$classification, title="comptage", nb_graph = nb_graph, coord_biplot = TRUE), graph_biplot_normale(b_coord, metadata, title = "correct", nb_graph = nb_graph, coord_biplot = TRUE),  graph_biplot_normale(b_coord, Mclust_data_ilr$classification, title = "ilr", nb_graph = nb_graph, coord_biplot =TRUE))
-  
+
   list( comptage_table=table1, ilr_table=table2, graphics=grob)
-  
+
 }
 
 
 adjusted_rand_index <- function(table1){
-  
+
   part1 <- table1 %>% rowSums() %>% choose(2) %>% sum()
   part2 <- table1 %>% colSums() %>% choose(2) %>% sum()
   part3 <- table1 %>% sum() %>% choose(2)
-  
+
   ARI <- table1 %>% choose(2) %>% sum() - part1*part2/part3
   ARI_denom <- 0.5*( part1+part2 ) - part1*part2/part3
-  
+
   ARI/ARI_denom
 }
 
 
 mutual_information_distance <- function(table1){
-  
+
   P <- rowSums(table1)/sum(table1)
   P <- P+(P==0)*1
   HY <- -P%*%log(P)
-  
+
   P <- colSums(table1)/sum(table1)
   P <- P+(P==0)*1
   HC <- -P%*%log(P)
-  
+
   PC <- t(t(table1)/colSums(table1))
   PC <- PC+(PC==0)*1
   HYC <- sum(colSums((-PC)*log(PC)))
   I <- HY-HYC
-  
+
   HC+HY-2*I
 }
 
 
 simu_melange_gaussien <- function(n, probability, mean, Sigma){
-  
+
   NB <- round(n*probability)
-  
+
   sample1 <- NULL
   for(i in 1:length(probability)){
-    
+
     sample1 <- rbind(sample1, mvrnorm(NB[i], mean[[i]], Sigma[[i]]))
-    
+
   }
   list(data= sample1, metadata= rep(1:length(NB), NB))
 }
@@ -820,29 +819,28 @@ simu_melange_gaussien <- function(n, probability, mean, Sigma){
 
 
 bootstrap_ilr <- function(data, nb_cluster){
-  
+
   Mclust_data <- Mclust(data, G=nb_cluster)
-  
+
   NB <- Mclust_data$n
   probability <- Mclust_data$parameters$pro
   mean_data <- list()
   Sigma_data <- list()
-  
+
   for(i in 1:length(probability)){
     mean_data[[i]] <- Mclust_data$parameters$mean[,i]
     Sigma_data[[i]] <- Mclust_data$parameters$variance$sigma[,,i]
   }
-  
+
   new_sample <- simu_melange_gaussien(NB, probability, mean_data, Sigma_data)
-  
+
   new_sample
 }
 
-
 bootstrap_comptage <- function(data, nb_cluster){
-  
+
   new_sample <- bootstrap_ilr(data %>% MAP() %>% ilr(), nb_cluster)
   data_ilr <- ilr_inverse(new_sample$data)
-  
+
   sample_comptage <- matrix(0, nrow=nrow(data_ilr), ncol=ncol(data_ilr))
 }
