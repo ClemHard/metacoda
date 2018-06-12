@@ -39,7 +39,6 @@ Inner_product<-function(x,y){
   if (ncol(x) != ncol(y)){
     stop("x and y should have the same dimension")
   }
-  clr(x) %*% t(clr(y))
 
   tcrossprod(x, y) ## shortcut for x %*% t(y)
 
@@ -129,14 +128,14 @@ Base_SIGMA_matrix <- function(D) {
 
 
 SIGMA_matrix <- function(sequential_binary){
-    
-  
+
+
   D <- ncol(sequential_binary)
   n <- nrow(sequential_binary)
   rs <- cbind(apply(sequential_binary,1,function(x){return(sum(x==1))}),apply(sequential_binary,1,function(x){return(sum(x==-1))}))
-  
+
   mat <- matrix(0,nrow=n,ncol=D)
-  
+
   for(i in 1:n){
     for(j in 1:D){
       if(sign(sequential_binary[i,j])==1){
@@ -198,11 +197,11 @@ ilr_inverse<-function(data, k=1){
 
 
 variation_matrix<-function(data){
-  
+
   if(nrow(data)==1){
     stop("correlation computation is impossible with one sample only.")
   }
-  
+
   D <- ncol(data)
   mat <- matrix(0,nrow=D,ncol=D)
   for(i in 1:D){
@@ -249,7 +248,7 @@ cor_matrix<-function(data){
 
 
 normalised_variation_matrix <- function(data){
-  
+
   log.data <- log(norm_data(data))
   ## test number of samples
   if (nrow(log.data) == 1) {
@@ -303,22 +302,22 @@ biplot<-function(data){
   data <- center_scale(data, scale=FALSE)
 
 
-  
+
   Z <- ilr(data)
 
-  C <- cov(Z) 
-  
-  if(p>n){     
-    C <- C %>% eigs_sym(k=min(n,p)-1)   
-  }else{    
-    C <- C %>% eigen()   
-  }   
-  
-  vect <- C$vectors   
-  val <- C$values   
-  
+  C <- cov(Z)
+
+  if(p>n){
+    C <- C %>% eigs_sym(k=min(n,p)-1)
+  }else{
+    C <- C %>% eigen()
+  }
+
+  vect <- C$vectors
+  val <- C$values
+
   x <- Z%*%vect
-  
+
   rval <- list(variance_explain=cumsum(val)/sum(val), vector=vect, values=val, coord=x)
 
   class(rval) <- "biplot"
@@ -674,7 +673,7 @@ Graph_cumulative_evolution<-function(data, abscisse=1:nrow(data)){
 
 
 count_to_proportion<-function(data){
-  
+
   data <- check_data(data)
   K <- ncol(data)
   alpha <- rep(2,K)
@@ -909,16 +908,4 @@ bootstrap_ilr <- function(data, nb_cluster){
 }
 
 
-bootstrap_comptage <- function(data, nb_cluster){
 
-  new_sample <- bootstrap_ilr(data %>% MAP() %>% ilr(), nb_cluster)
-  data_ilr <- ilr_inverse(new_sample$data)
-
-  sample_comptage <- matrix(0, nrow=nrow(data_ilr), ncol=ncol(data_ilr))
-
-  for(i in 1:nrow(data_ilr)){
-
-
-  }
-
-}
