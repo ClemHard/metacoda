@@ -432,7 +432,7 @@ Raduis_test<-function(data){
 
 }
 
-intervalle_confiance<-function(data,alpha,case=3,moy=NULL,var_matrix=NULL){
+intervalle_confiance<-function(data, alpha, case=3, moy=NULL, var_matrix=NULL){
 
   coord <- function(x,k,sigma,theta){
     u1 <- x[1]-sqrt((sigma[1,1]*sigma[2,2]-sigma[1,2]^2)/sigma[2,2])*sqrt(k)*cos(theta)-sigma[1,2]/sqrt(sigma[2,2])*sqrt(k)*sin(theta)
@@ -477,9 +477,10 @@ intervalle_confiance<-function(data,alpha,case=3,moy=NULL,var_matrix=NULL){
 
 }
 
-testing<-function(data1,data2,alpha,case=1){
-    data1 <- ilr(norm_data(data1))
-    data2 <- ilr(norm_data(data2))
+testing<-function(data1, data2, alpha=0.05, case=1){
+  
+    data1 <- data1 %>% norm_data() %>% ilr()
+    data2 <- data2 %>% norm_data() %>% ilr()
 
     u1 <- apply(data1,2,mean)
     u2 <- apply(data2,2,mean)
@@ -496,7 +497,6 @@ testing<-function(data1,data2,alpha,case=1){
       sigmac <- (n1*sigma1+n2*sigma2)/(n1+n2)+(n1*n2*(u1-u2)%*%t((u1-u2)))/((n1+n2)^2) %>% regularisation()
 
       Q <- n1*log(det(sigmac)/det(sigma1))+n2*log(det(sigmac)/det(sigma2))
-
       quant <- qchisq(1-alpha,0.5*D*(D-1))
 
     }
@@ -604,32 +604,16 @@ Graph_cumulative_evolution<-function(data, abscisse=1:nrow(data)){
 
 count_to_proportion<-function(data){
 
-  data <- check_data(data)
-  K <- ncol(data)
-  alpha <- rep(2,K)
-
-  #new.data <- apply(data, 2, sum) +alpha
-  #somme <- sum(new.data)
-  #new.data <- new.data/somme
-
-  new.data <- sweep(data, 2, alpha, "+")
-  somme <- apply(new.data, 1, sum)
-  new.data <- sweep(new.data, 1, somme, "/")
-
+  data <- norm_data(data)
+  new.data <- data/rowSums(data)
   new.data
 }
 
 
-MAP <- function(data){
+MAP <- function(data, alpha=1){
 
-  data <- check_data(data)
-  K <- ncol(data)
-  alpha <- rep(2,K)
-
-  new.data <- sweep(data, 2, alpha-1, "+")
-  somme <- apply(new.data, 1, sum)
-  new.data <- sweep(new.data, 1, somme, "/")
-
+  data <- norm_data(data+alpha)
+  new.data <- data/rowSums(data)
   new.data
 
 }

@@ -204,3 +204,101 @@ test_that("Raduis_test works properly", {
   expect_equal(test$Watson, 0.03998, tolerance=1e-2)
   
 })
+
+
+## Test testing
+
+test_that("testing works properly", {
+  
+  set.seed(1)
+  
+  u1 <- c(0, 2.3, -6.1)
+  u2 <- c(1, 5, 2)
+  Sigma1 <- matrix(c(1.1, 0,0, 0.1, 5, 0.3, 0, 0.2, 5), nrow = 3)
+  Sigma2 <- matrix(c(1.6, 0.8, 1, 0, 8, 2, 0, 2, 5), nrow = 3)
+  
+  data1 <- mvrnorm(500, u1, Sigma1)
+  data2 <- mvrnorm(500, u1, Sigma1)
+  test <- testing(ilr_inverse(data1), ilr_inverse(data2), case=1)
+  
+  expect_equal(test$statistic, 7.0388, tolerance=1e-2)
+  expect_equal(test$quantile, 12.591, tolerance=1e-2)
+  expect_equal(test$result, TRUE)
+  
+  
+  data2 <- mvrnorm(500, u2, Sigma1)
+  test <- testing(ilr_inverse(data1), ilr_inverse(data2), case=1)
+  
+  expect_equal(test$statistic, 1491.17, tolerance=1e-2)
+  expect_equal(test$quantile, 12.591, tolerance=1e-2)
+  expect_equal(test$result, FALSE)
+  
+  
+  
+  
+  data1 <- mvrnorm(500, u2, Sigma2)
+  test <- testing(ilr_inverse(data1), ilr_inverse(data2), case=1)
+  
+  expect_equal(test$statistic, 80.944, tolerance=1e-2)
+  expect_equal(test$quantile, 12.591, tolerance=1e-2)
+  expect_equal(test$result, FALSE)
+  
+  
+  
+  
+
+  data1 <- mvrnorm(500, u2, Sigma1)
+  data2 <- mvrnorm(500, u1, Sigma1)
+  
+  test <- testing(ilr_inverse(data1), ilr_inverse(data2), case=2)
+  
+  expect_equal(test$statistic, 7.592, tolerance=1e-2)
+  expect_equal(test$quantile, 7.814, tolerance=1e-2)
+  expect_equal(test$result, TRUE)
+  
+  
+  data2 <- mvrnorm(500, u1, Sigma2)
+  test <- testing(ilr_inverse(data1), ilr_inverse(data2), case=2)
+  
+  expect_equal(test$statistic, 85.264, tolerance=1e-2)
+  expect_equal(test$quantile, 7.814, tolerance=1e-2)
+  expect_equal(test$result, FALSE)
+  
+  
+  
+  
+  data1 <- mvrnorm(500, u1, Sigma2)
+  data2 <- mvrnorm(500, u1, Sigma1)
+  
+  test <- testing(ilr_inverse(data1), ilr_inverse(data2), case=3)
+  
+  expect_equal(test$statistic, 0.8905, tolerance=1e-2)
+  expect_equal(test$quantile, 7.814, tolerance=1e-2)
+  expect_equal(test$result, TRUE)
+  
+  
+  data2 <- mvrnorm(500, u2, Sigma1)
+  test <- testing(ilr_inverse(data1), ilr_inverse(data2), case=2)
+  
+  expect_equal(test$statistic, 78.162, tolerance=1e-2)
+  expect_equal(test$quantile, 7.814, tolerance=1e-2)
+  expect_equal(test$result, FALSE)
+  
+})
+
+
+
+## Test count_to_proportion
+
+test_that("count_to_proportion works properly", {
+  expect_equal(count_to_proportion(matrix(c(1, 2, 3, 1.2, 1.3, 6.2, 4.2, 6.2, 0.25),nrow=3)), matrix(c(0.1562, 0.2105, 0.3174, 0.18750, 0.13684, 0.6560, 0.65625, 0.652631, 0.02645), nrow=3), tolerance=1e-2)
+})
+
+
+
+## Test MAP
+
+test_that("MAP works properly", {
+  expect_equal(MAP(matrix(c(1, 2, 3, 1.2, 1.3, 6.2, 4.2, 6.2, 0.25),nrow=3)), matrix(c(0.2127, 0.2400, 0.3212, 0.2340, 0.1840, 0.57831, 0.5531, 0.5760, 0.1004), nrow=3), tolerance=1e-2)
+  expect_warning(count_to_proportion(matrix(c(1, 2, 3, 1.2, 1.3, 6.2, 4.2, -6.2, 0.25),nrow=3)), "Non positive values are present in the data.")
+})
