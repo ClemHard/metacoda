@@ -19,6 +19,7 @@ check_data <- function(data) {
     if (nrow(data) == 0)
       return(NULL)
   }
+
   data
 }
 
@@ -151,18 +152,11 @@ SIGMA_matrix <- function(sequential_binary){
 
 Base_binary_matrix<-function(D){
 
-  mat <- matrix(0,nrow=(D-1),ncol=D)
-  for(i in 1:(D-1)){
-    for(j in 1:(D-i)){
-      mat[D-i,j]=1
-    }
-    mat[D-i,(D-i+1)]=-1
   build_row <- function(i) {
     rep(c(1, -1, 0), times = c(i, 1, D - (i+1) ))
 
   }
   sapply(1:(D-1), build_row) %>% t()
-  }
 
 }
 
@@ -171,47 +165,22 @@ ilr<-function(data, SIGMA=Base_SIGMA_matrix(ncol(data))){
   clr(data) %*% t(SIGMA)
 
 }
-balance_coordinate=function(data,sequential_binary){
 
-  D=dim(sequential_binary)[1]
-  n=dim(data)[1]
-  rs=cbind(apply(sequential_binary,1,function(x){return(sum(x==1))}),apply(sequential_binary,1,function(x){return(sum(x==-1))}))
-
-  mat=matrix(0,nrow=n,ncol=D)
-
-  for(i in 1:n){
-    for(j in 1:D){
-      mat[i,j]=sqrt(rs[j,1]*rs[j,2]/(rs[j,1]+rs[j,2]))*log((prod(data[i,which(sequential_binary[j,]==1)])^(1/rs[j,1]))/(prod(data[i,which(sequential_binary[j,]==-1)])^(1/rs[j,2])))
-    }
-  }
-  mat
-}
-
-ilr_inverse<-function(data, k=1){
-  exp(data %*% Base_SIGMA_matrix(ncol(data)+1)) %>% closure(k)
+ilr_inverse<-function(data, k=1, SIGMA=Base_SIGMA_matrix(ncol(data)+1)){
+  exp(data %*% SIGMA) %>% closure(k)
 
 }
 
 
-
-variation_matrix<-function(data){
+variation_matrix<-function(data, norm = FALSE) {
+  log.data <- log(norm_data(data))
   
-  if(nrow(data)==1){
+  if(nrow(log.data)==1){
     stop("correlation computation is impossible with one sample only.")
   }
   
-  D <- ncol(data)
-  mat <- matrix(0,nrow=D,ncol=D)
-  for(i in 1:D){
-    for(j in 1:D){
-      mat[i,j] <- var(log(data[,i]/data[,j]))
-    }
-  }
-}
+  D <- ncol(log.data)
 
-variation_matrix<-function(data, norm = FALSE) {
-  D <- ncol(data)
-  log.data <- log(norm_data(data))
   mat <- matrix(0, nrow=D, ncol=D)
   for(i in 1:D) {
     for(j in 1:i) {
@@ -220,7 +189,7 @@ variation_matrix<-function(data, norm = FALSE) {
     }
   }
   if (norm) {
-    data <- .5 * data
+    mat <- .5 * mat
   }
   mat
 }
@@ -229,46 +198,11 @@ normalised_variation_matrix <- function(data){
   variation_matrix(data, norm = TRUE)
 }
 
-## A vérifier?
-cor_matrix<-function(data){
-
-  if(nrow(data)==1){
-    stop("correlation computation is impossible with one sample only.")
-  }
-
-  D <- ncol(data)
-  mat <- matrix(0,nrow=D,ncol=D)
-  for(i in 1:D){
-    for(j in 1:D){
-      mat[i,j] <- cor(log(data[,i]/data[,j]))
-    }
-  }
-  mat
-}
-
-
-
-normalised_variation_matrix <- function(data){
-  
-  log.data <- log(norm_data(data))
-  ## test number of samples
-  if (nrow(log.data) == 1) {
-    stop("Variance computation is impossible with one sample only.")
-  }
-  D <- ncol(log.data)
-  mat <- matrix(0, nrow = D, ncol = D)
-  for(i in 1:D) {
-    for(j in 1:i) {
-      mat[i, j] <- mat[j, i] <- 0.5*var(log.data[, i] - log.data[, j])
-    }
-  }
-  mat
-}
 
 center_data<-function(data) {
 
   ## geometric mean = exponential of mean in log scale
-  data %>% norm_data %>% log %>% colMeans %>% exp %>% closure
+  data %>% norm_data() %>% log() %>% colMeans() %>% exp() %>% closure()
 }
 
 totvar<-function(data){
@@ -381,7 +315,7 @@ marginal_univariate_distributions<-function(data){
   Qw <- Qc-((2*n+1)/2.)*(somme_w/n)^2
 
 
-  rval <- list(significance_level=mat, Anderson_Darling=Qa, Cramer_von_Mises=Qc, Watson=Qw)
+  rval <- list(significance_level=mat, Anderson_Darling=Qa, Cramer_von_Mises=Qc, Watson=Qw, marginale_normale=which(Qw<0.116))
   class(rval) <- "marginale univariate"
 
   rval
@@ -402,9 +336,9 @@ Bivariate_angle_distribution<-function(data){
   u_i <- apply(data_ilr,2,mean)
   var_i <- apply(data_ilr,2,var)
 
-  Qa <- matrix(0, ncol = D_1, nrow = D_1)
-  Qc <- matrix(0, ncol = D_1, nrow = D_1)
-  Qw <- matrix(0, ncol = D_1, nrow = D_1)
+  Qa <- matrix(NA, ncol = D_1, nrow = D_1)
+  Qc <- matrix(NA, ncol = D_1, nrow = D_1)
+  Qw <- matrix(NA, ncol = D_1, nrow = D_1)
   for(i in 1:D_1){
     j <- i+1
     while(j<=D_1){
@@ -445,7 +379,7 @@ Bivariate_angle_distribution<-function(data){
   ),nrow=4,byrow=TRUE)
 
 
-  rval <- list(significance_level=mat, Anderson_Darling=Qa, Cramer_von_Mises=Qc, Watson=Qw)
+  rval <- list(significance_level=mat, Anderson_Darling=Qa, Cramer_von_Mises=Qc, Watson=Qw, couple_normal=which(Qw<0.187, arr.ind=TRUE))
   class(rval) <- "Bivariate angle test"
 
   rval
@@ -711,7 +645,7 @@ graph_biplot_normale <- function(data, metadata_group, nb_graph=1, title=NULL, l
     b_data <- biplot(data_MAP);
   }
   else{
-    b_data <- norm_data(data)
+    b_data <-  data
     }
 
   if(ncol(b_data$coord)<nb_graph-1){

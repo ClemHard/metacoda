@@ -102,6 +102,16 @@ test_that("ilr works properly", {
   
 })
 
+
+## Test ilr_inverse
+
+test_that("ilr_inverse works properly", {
+  expect_equal(ilr_inverse(matrix(c(1,2,3,4,2,1,1,6,1, 5,4,10), nrow=4)), matrix(c(2.3167e-02, 4.9454e-04, 7.2938e-04, 4.9256e-08, 9.5293e-02, 8.3671e-03, 5.0759e-02, 1.4099e-05, 0.544, 0.00692, 0.02070, 0.00129, 0.33732, 0.98421, 0.92780, 0.99869), nrow = 4), tolerance=1e-2)
+  expect_equal(ilr_inverse(matrix(c(1.2, 1.6, 0.6, 1.2, 2.12 ,1.2, 1.3 ,1.56,1, 8.45, 2.6, 4), nrow=4)), matrix(c(1.8045e-02, 1.1435e-05, 1.5833e-02, 2.127e-03, 0.09849, 0.000109, 0.03698, 0.01161, 0.56560, 0.00015, 0.11893, 0.03358, 0.3178, 0.9997, 0.8282, 0.9526), nrow = 4), tolerance=1e-2)
+  
+})
+
+
 ## Test center_data
 
 test_that("SIGMA_matrix inverse works properly", {
@@ -110,3 +120,87 @@ test_that("SIGMA_matrix inverse works properly", {
   
 })
 
+x <- matrix(c(48.29,48.83,45.61,45.5,49.27,46.53,48.12,47.93,46.96,49.16,48.41,47.9,48.45,48.98,48.74,49.61,49.2,
+              2.33,2.47,1.7,1.54,3.3,1.99,2.34,2.32,2.01,2.73,2.47,2.24,2.35,2.48,2.44,3.03,2.5, 11.48,12.38,8.33,8.17,12.10,9.49,11.43,11.18,9.9,12.54,11.8,11.17,11.64,12.05,11.6,12.91,12.32,
+              1.59,2.15,2.12,1.6,1.77,2.16,2.26,2.46,2.13,1.83,2.81,2.41,1.04,1.39,1.38,1.6,1.26,
+              10.03,9.41,10.02,10.44,9.89,9.79,9.46,9.36,9.72,10.02,8.91,9.36,10.37,10.17,10.18,9.68,10.13, 0.18,0.17,0.17,0.17,0.17,0.18,0.18,0.18,0.18,0.18,0.18,0.18,0.18,0.18,0.18,0.17,0.18,
+              13.58,11.08,23.06,23.87,10.46,19.28,13.65,14.33,18.31,10.05,12.52,14.64,13.23,11.18,12.35,8.84,10.51,
+              9.85,10.64,6.98,6.79,9.65,8.18,9.87,9.64,8.58,10.55,10.18,9.58,10.13,10.83,10.45,10.96,11.05,
+              1.9,2.02,1.33,1.28,2.25,1.54,1.89,1.86,1.58,2.09,1.93,1.82,1.89,1.73,1.67,2.24,2.02,
+              0.44,0.47,0.32,0.31,0.65,0.38,0.46,0.45,0.37,0.56,0.48,0.41,0.45,0.8,0.79,0.55,0.48,
+              0.23,0.24,0.16,0.15,0.3,0.18,0.22,0.21,0.19,0.26,0.23,0.21,0.23,0.24,0.23,0.27,0.23),
+            nrow=17,
+            dimnames = list(1:17,
+                            paste0("v", 1:11)))
+
+## Test variation_matrix
+
+test_that("center_data works properly", {
+  
+
+  var_x <- matrix(c(0.000, 0.013, 0.006, 0.039, 0.001, 0.001, 0.049, 0.007, 0.009, 0.031, 0.012,
+   0.013, 0.000, 0.003, 0.061, 0.020, 0.017, 0.109, 0.005, 0.002, 0.016, 0.000,
+   0.006, 0.003, 0.000, 0.053, 0.012, 0.009, 0.089, 0.000, 0.002, 0.018, 0.002,
+   0.039, 0.061, 0.053, 0.000, 0.047, 0.037, 0.057, 0.057, 0.053, 0.099, 0.062,
+   0.001, 0.020, 0.012, 0.047, 0.000, 0.001, 0.040, 0.013, 0.016, 0.036, 0.018,
+   0.001, 0.017, 0.009, 0.037, 0.001, 0.000, 0.042, 0.010, 0.013, 0.035, 0.016,
+   0.049, 0.109, 0.089, 0.057, 0.040, 0.042, 0.000, 0.092, 0.097, 0.138, 0.106,
+   0.007, 0.005, 0.000, 0.057, 0.013, 0.010, 0.092, 0.000, 0.003, 0.017, 0.004,
+   0.009, 0.002, 0.002, 0.053, 0.016, 0.013, 0.097, 0.003, 0.000, 0.025, 0.002,
+   0.031, 0.016, 0.018, 0.099, 0.036, 0.035, 0.138, 0.017, 0.025, 0.000, 0.015,
+   0.012, 0.000, 0.002, 0.062, 0.018, 0.016, 0.106, 0.004, 0.002, 0.015, 0.000),nrow=11, byrow=TRUE)
+  expect_equal(normalised_variation_matrix(x), var_x, tolerance=1e-2)
+ 
+})
+
+
+
+## Test totvar
+
+test_that("totvar inverse works properly", {
+  expect_equal(totvar(x), 0.316, tolerance=1e-2)
+})
+
+
+## Test marginal_univariate_distributions
+
+test_that("marginal_univariate_distributions works properly", {
+  
+  set.seed(1)
+  x <- mvrnorm(500, c(0, 2.3), matrix(c(1.1, 0,0, 5.1), nrow = 2))
+  test <- marginal_univariate_distributions(ilr_inverse(x))
+  
+  expect_equal(test$Anderson_Darling, c(0.2368, 0.33341), tolerance=1e-2)
+  expect_equal(test$Cramer_von_Mises, c(0.03092, 0.06432), tolerance=1e-2)
+  expect_equal(test$Watson, c(0.02953, 0.06398), tolerance=1e-2)
+  expect_equal(test$marginale_normale, c(1, 2), tolerance=1e-2)
+})
+
+## Test bivariate_angle_distribution
+
+test_that("bivariate_angle_distribution works properly", {
+  
+  set.seed(1)
+  x <- mvrnorm(400, c(0, 2.3, -6.1), matrix(c(1.1, 0,0, 0.1, 5, 0.3, 0, 0.2, 5), nrow = 3))
+  test <- Bivariate_angle_distribution(ilr_inverse(x))
+  
+  expect_equal(test$Anderson_Darling, matrix(c(NA, NA, NA, 0.68517, NA, NA ,0.5184, 1.3479, NA), nrow=3), tolerance=1e-2)
+  expect_equal(test$Cramer_von_Mises, matrix(c(NA, NA, NA, -4.9167, NA, NA ,4.3443, 8.311, NA), nrow=3), tolerance=1e-2)
+  expect_equal(test$Watson, matrix(c(NA, NA, NA, -4.9012, NA, NA ,4.3321, 8.2877, NA), nrow=3), tolerance=1e-2)
+
+})
+
+
+## Test Raduis_test
+
+test_that("Raduis_test works properly", {
+  
+  set.seed(1)
+  x <- mvrnorm(400, c(0, 2.3, -6.1), matrix(c(1.1, 0,0, 0.1, 5, 0.3, 0, 0.2, 5), nrow = 3))
+  test <- Raduis_test(ilr_inverse(x))
+  
+  expect_equal(test$Anderson_Darling, 0.3567, tolerance=1e-2)
+  expect_equal(test$Cramer_von_Mises, 0.0401, tolerance=1e-2)
+  expect_equal(test$Watson, 0.03998, tolerance=1e-2)
+  
+})
