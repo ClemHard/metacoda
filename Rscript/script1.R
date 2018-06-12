@@ -32,21 +32,20 @@ norm_data <- function(data) {
 }
 
 Inner_product<-function(x,y){
-
   x<-clr(x)
   y<-clr(y)
-
   if (ncol(x) != ncol(y)){
     stop("x and y should have the same dimension")
   }
-
   tcrossprod(x, y) ## shortcut for x %*% t(y)
-
 }
 
-
 norm_simplex<-function(x){
-  sqrt(Inner_product(x,x))
+  diag(sqrt(Inner_product(x, x)))
+}
+
+dist_simplex <- function(data) {
+  data %>% clr %>% dist
 }
 
 closure <- function(data, k=1){
