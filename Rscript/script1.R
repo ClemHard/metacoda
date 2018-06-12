@@ -56,15 +56,7 @@ Inner_product<-function(x,y){
   if(ncol(x)!=ncol(y)){
     stop("x and y should have the same dimension")
   }
-  if(nrow(x)!=1 && nrow(y)!=1){
-    stop("wrong dimension")
-  }
-  D<-ncol(x)
-  somme<-0
-  for(i in 1:D){
-    somme=somme+sum(log(x[i]/x)*log(y[i]/y))  
-  }
-  somme/(2*D)
+  clr(x) %*% t(clr(y))
 }
 
 
@@ -77,7 +69,7 @@ norm_simplex<-function(x){
 
 closure <- function(data, k=1){
   data <- norm_data(data)
-  c=rowSums(data)
+  c <- rowSums(data)
   k * data / c
 }
 
@@ -136,20 +128,23 @@ ligne<-function(x0,x){
 }
 
 simu_simplexe<-function(D,k,N){
-  simplexe=matrix(runif(D*N,max=k),N,D)
-  simplexe=k*apply(simplexe,2,function(x,j){x/j},j=rowSums(simplexe))
+  simplexe <- matrix(runif(D*N,max=k),N,D)
+  simplexe <- k*apply(simplexe,2,function(x,j){x/j},j=rowSums(simplexe))
   simplexe
 }
 
 
 
-clr_inverse<-function(data,k){
-  e=exp(data)
+clr_inverse<-function(data,k=1){
+  
+  e <- exp(data)
   closure(e,k)
 }
 
+
 Base_SIGMA_matrix<-function(D){
-  mat=matrix(0,nrow=(D-1),ncol=D)
+  
+  mat <- matrix(0,nrow=(D-1),ncol=D)
   for(i in 1:(D-1)){
     for(j in 1:(D-i)){
       mat[D-i,j]=-sqrt(1/((D-i)*(D-i+1)))
@@ -160,8 +155,9 @@ Base_SIGMA_matrix<-function(D){
 }
 
 
+
 Base_binary_matrix<-function(D){
-  mat=matrix(0,nrow=(D-1),ncol=D)
+  mat <- matrix(0,nrow=(D-1),ncol=D)
   for(i in 1:(D-1)){
     for(j in 1:(D-i)){
       mat[D-i,j]=1
@@ -173,11 +169,11 @@ Base_binary_matrix<-function(D){
 
 balance_coordinate=function(data,sequential_binary){
   
-  D=dim(sequential_binary)[1]
-  n=dim(data)[1]
-  rs=cbind(apply(sequential_binary,1,function(x){return(sum(x==1))}),apply(sequential_binary,1,function(x){return(sum(x==-1))}))
+  D <- dim(sequential_binary)[1]
+  n <- dim(data)[1]
+  rs <- cbind(apply(sequential_binary,1,function(x){return(sum(x==1))}),apply(sequential_binary,1,function(x){return(sum(x==-1))}))
   
-  mat=matrix(0,nrow=n,ncol=D)
+  mat <- matrix(0,nrow=n,ncol=D)
   
   for(i in 1:n){
     for(j in 1:D){
@@ -195,13 +191,13 @@ ilr<-function(data){
 
 ilr_inverse<-function(data,k=1){
   
-  x=exp((data%*%Base_SIGMA_matrix(dim(data)[2]+1)))  
+  x <- exp((data%*%Base_SIGMA_matrix(dim(data)[2]+1)))  
   
   closure(x,k)
 }
 
 variation_matrix<-function(data){
-  D=dim(data)[2]
+  D <- dim(data)[2]
   mat=matrix(0,nrow=D,ncol=D)
   for(i in 1:D){
     for(j in 1:D){
@@ -235,8 +231,8 @@ normalised_variation_matrix <- function(data){
   if (nrow(log.data) == 1) {
     stop("Variance computation is impossible with one sample only.")
   }
-  D=ncol(log.data)
-  mat=matrix(0, nrow = D, ncol = D)
+  D <- ncol(log.data)
+  mat <- matrix(0, nrow = D, ncol = D)
   for(i in 1:D) {
     for(j in 1:i) {
       mat[i, j] <- mat[j, i] <- 0.5*var(log.data[, i] - log.data[, j])
@@ -281,7 +277,7 @@ biplot<-function(data){
   
   data <- center_scale(data, scale=FALSE)
   
-  Z=ilr(data)
+  Z <- ilr(data)
 
   C <- cov(Z) 
   
@@ -294,9 +290,9 @@ biplot<-function(data){
   vect <- C$vectors   
   val <- C$values   
   
-  x=Z%*%vect
+  x <- Z%*%vect
   
-  n=dim(data)[1]
+  n <- dim(data)[1]
   rval <- list(variance_explain=cumsum(val)/sum(val), vector=vect, values=val, coord=x)
   
   class(rval) <- "biplot"

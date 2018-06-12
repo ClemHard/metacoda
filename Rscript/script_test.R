@@ -27,20 +27,61 @@ test_that("closure works properly", {
 ## Test Inner product
 
 test_that("Inner product works properly", {
-  expect_equal(Inner_product(c(1.2, 1.9),c(8.1, 9.2)),0.02926,tolerance=1e-5)
-  expect_equal(Inner_product(c(7.1, 6.2),c(0.3, 7.5)),-0.21815,tolerance=1e-5)
-  expect_equal(Inner_product(c(12.8, 3.2),c(18.3, 73.5)),-0.96374,tolerance=1e-5)
+  expect_equal(Inner_product(matrix(c(1.2,7.1,1.9,6.2),nrow=2), matrix(c(8.1,0.3,9.2,7.5),nrow=2)), matrix(c(0.029258, -0.00863, 0.7395, -0.2181), nrow=2), tolerance=1e-3)
+  expect_equal(Inner_product(c(7.1, 6.2),c(0.3, 7.5)), as.matrix(-0.21815),tolerance=1e-5)
+  expect_equal(Inner_product(c(12.8, 3.2),c(18.3, 73.5)), as.matrix(-0.96374),tolerance=1e-5)
 
   expect_error(Inner_product(c(1.2, 1.9),c(8.1, 9.2,2.3)), "x and y should have the same dimension")
-  expect_error(Inner_product(matrix(c(8.1, 9.2, 9.2, 8.1),nrow=2),matrix(c(8.1, 9.2, 9.2, 8.1),nrow=2)), "wrong dimension")
-
+  
 })
 
 
 ## Test pertubation
 
 test_that("closure works properly", {
-  expect_equal(perturbation(matrix(c(0.5, 0.8, 0.5, 0.2), nrow = 2), c(2, 3)),matrix(c(0.4, 0.727, 0.6, 0.272), nrow=2), tolerance=1e-2)
+  expect_equal(perturbation(matrix(c(0.5, 0.8, 0.5, 0.2), nrow = 2), c(2, 3)), matrix(c(0.4, 0.727, 0.6, 0.272), nrow=2), tolerance=1e-2)
   expect_equal(perturbation(matrix(c(0.5, 0.8, 0.5, 0.2), nrow = 2), 3 ), matrix(c(0.5, 0.8, 0.5, 0.2), nrow = 2), tolerance=1e-2)
 
+})
+
+## Test power
+
+test_that("power works properly", {
+  expect_equal(power(matrix(c(0.84, 0.89, 0.53, 0.245), nrow = 2), 2.6), matrix(c(0.768, 0.9662, 0.2319, 0.03376), nrow = 2), tolerance=1e-2)
+  expect_equal(power(matrix(c(0.5, 0.8, 0.5, 0.2), nrow = 2),  2), matrix(c(0.5, 0.9411765, 0.5, 0.05882353), nrow = 2), tolerance=1e-2)
+  
+})
+
+## Test clr
+
+test_that("clr works properly", {
+  expect_equal(clr(matrix(c(0.84, 0.89, 0.53, 0.245 ,0.665, 0.452), nrow = 2)), matrix(c(0.23137, 0.65583, -0.2291, -0.63412, -0.00223, -0.02170), nrow = 2), tolerance=1e-2)
+  expect_equal(clr(matrix(c(0.5, 0.8, 0.5, 0.2), nrow = 2)), matrix(c(0, 0.69314, 0, -0.6931), nrow = 2), tolerance=1e-2)
+  
+})
+
+## Test clr inverse
+
+test_that("clr inverse works properly", {
+  expect_equal(clr_inverse(matrix(c(0.84, 0.89, 0.53, 0.245 ,0.665, 0.452), nrow = 2)), matrix(c(0.38866, 0.46083, 0.2850, 0.24178, 0.32626, 0.29738), nrow = 2), tolerance=1e-2)
+  expect_equal(clr_inverse(matrix(c(0.5, 0.8, 0.5, 0.2), nrow = 2)), matrix(c(0.5, 0.6456, 0.5, 0.35434), nrow = 2), tolerance=1e-2)
+  
+})
+
+
+## Test Base_SIGMA_matrix
+
+test_that("Base_SIGMA_matrix inverse works properly", {
+  expect_equal(Base_SIGMA_matrix(3), matrix(c(-0.70710, -0.40824, 0.7071, -0.40824, 0, 0.8164), nrow = 2), tolerance=1e-2)
+  expect_equal(Base_SIGMA_matrix(5), matrix(c(-0.70710, -0.40824, -0.28867, -0.22360, 0.70710, -0.40824, -0.28867, -0.2236, 0,  0.81649, -0.28867, -0.22360, 0, 0, 0.86602, -0.2236, 0, 0, 0, 0.8944), nrow = 4), tolerance=1e-2)
+  
+})
+
+
+## Test Base_binary_matrix
+
+test_that("Base_SIGMA_matrix inverse works properly", {
+  expect_equal(Base_binary_matrix(3), matrix(c(1, 1, -1, 1, 0, -1), nrow = 2), tolerance=1e-2)
+  expect_equal(Base_binary_matrix(5), matrix(c(1, 1, 1, 1, -1, 1, 1, 1, 0,  -1, 1, 1, 0, 0, -1, 1, 0, 0, 0, -1), nrow = 4), tolerance=1e-2)
+  
 })
