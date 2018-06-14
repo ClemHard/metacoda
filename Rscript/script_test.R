@@ -1,6 +1,7 @@
 library(testthat)
 
-source("Rscript/script1.R");
+source("Rscript/coda.R");
+source("Rscript/test_groupe.R")
 
 ## Test norm data
 test_that("norm_data detects nonpositive values", {
@@ -300,5 +301,4 @@ test_that("count_to_proportion works properly", {
 
 test_that("MAP works properly", {
   expect_equal(MAP(matrix(c(1, 2, 3, 1.2, 1.3, 6.2, 4.2, 6.2, 0.25),nrow=3)), matrix(c(0.2127, 0.2400, 0.3212, 0.2340, 0.1840, 0.57831, 0.5531, 0.5760, 0.1004), nrow=3), tolerance=1e-2)
-  expect_warning(count_to_proportion(matrix(c(1, 2, 3, 1.2, 1.3, 6.2, 4.2, -6.2, 0.25),nrow=3)), "Non positive values are present in the data.")
 })

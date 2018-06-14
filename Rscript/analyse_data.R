@@ -1,5 +1,8 @@
 source("Rscript/read_metagenomic_data.R")
-source("Rscript/script1.R")
+source("Rscript/coda.R")
+source("Rscript/graph.R")
+source("Rscript/comparaison_clustering.R")
+source("Rscript/bootstrap.R")
 
 chaillou_p <- count_to_proportion(chaillou)
 mach_500_p <- count_to_proportion(mach)
@@ -267,4 +270,27 @@ grid.arrange(grobs=hclust_mach$graphics, ncol=1)
 
 Mclust_mach <- comparaison_Mclust(mach, metadata_mach$Weaned, 2, 1)
 grid.arrange(grobs=Mclust_mach$graphics, ncol=1)
+
+
+
+
+
+
+
+
+### bootstrap
+
+chaillou_boot <- bootstrap_comptage(chaillou, 8, 2000)
+data <- rbind(chaillou, chaillou_boot$data)
+metadata <- c(as.character(metadata_chaillou$EnvType), as.character(chaillou_boot$metadata)) %>% as.factor()
+
+grid.arrange(grobs=graph_biplot_normale(data, metadata, 4, "chaillou", "EnvType"), ncol=2)
+
+
+
+ravel_boot <- bootstrap_comptage(ravel, 5, 10)
+data <- rbind(ravel, ravel_boot$data)
+metadata <- c(as.character(metadata_ravel$CST), as.character(ravel_boot$metadata)) %>% as.factor()
+
+grid.arrange(grobs=graph_biplot_normale(data, metadata, 4, "chaillou", "EnvType"), ncol=2)
 
