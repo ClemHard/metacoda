@@ -3,7 +3,7 @@ library(phyloseq)
 library(dplyr)
 library(magrittr)
 
-
+source("Rscript/coda.R")
 ## Short template on how to import metagenomic data
 
 ## Count data tables (otus in line, samples in column)

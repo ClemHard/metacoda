@@ -3,6 +3,8 @@ library(gridExtra)
 library(dplyr)
 library(magrittr)
 
+source("Rscript/test_groupe.R")
+
 Graph_proportion_evolution<-function(data, abscisse=1:nrow(data)){
   
   data <- norm_data(data)

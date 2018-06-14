@@ -1,4 +1,6 @@
 library(mclust)
+library(dplyr)
+library(magrittr)
 
 
 comparaison_k_means <- function(data, metadata, nb_cluster=2, nb_graph=1, nb_start=50){

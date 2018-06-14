@@ -3,14 +3,17 @@ title: "R1"
 output: pdf_document
 ---
 
-```{r knitr-setup}
-knitr::opts_chunk$set(root.dir = "..")
+```{r setup, echo=FALSE, include=FALSE}
+knitr::opts_knit$set(root.dir = "..")
 ```
 
 
-```{r setup, include=FALSE}
+```{r chargement source, include=FALSE}
 source("Rscript/read_metagenomic_data.R")
-source("Rscript/script1.R")
+source("Rscript/coda.R")
+source("Rscript/comparaison_clustering.R")
+source("Rscript/graph.R")
+source("Rscript/bootstrap.R")
 ```
 
 ## Réduction de dimension
@@ -35,13 +38,13 @@ Les données brutes (sans réduction de variables) ne suivent pas une loi normal
 
 ## Simulation
 
-```{r simu1, fig.caption = "Dans R"}
+```{r simu1, fig.caption = "Dans R", echo=FALSE}
 knitr::include_graphics("simu1.jpeg")
 ```
 
 Comme attendu le nombre d'échantillons améliore la puissance du test de normalité.
 
-```{r simu2, fig.caption = "Dans R"}
+```{r simu2, fig.caption = "Dans R", echo=FALSE}
 knitr::include_graphics("Simu2.jpeg")
 ```
 
@@ -54,7 +57,7 @@ Le bruit améliore la puisssance du test, cependant en augmentant la dimension (
 
 ## Chaillou
 
-```{r echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+```{r chaillou-kmeans, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
 k_chaillou <- comparaison_k_means(chaillou, metadata_chaillou$EnvType, 8, 1);
 
 cat("comptage:\n")
@@ -71,7 +74,7 @@ k_chaillou$graphics[[3]]
 
 ## ravel
 
-```{r echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+```{r ravel-kmeans, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
 k_ravel <- comparaison_k_means(ravel, metadata_ravel$CST, 5, 1);
 
 cat("comptage:\n")
@@ -89,7 +92,7 @@ k_ravel$graphics[[3]]
 
 ## mach 500
 
-```{r echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+```{r mach_500-kmeans, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
 k_mach_500 <- comparaison_k_means(mach_500, metadata_mach$Weaned, 2, 1);
 
 cat("comptage:\n")
@@ -127,7 +130,7 @@ k_mach$graphics[[3]]
 
 ## Ravel
 
-```{r echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+```{r ravel-hclust, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
 
 hclust_ravel <- comparaison_hclust(ravel, metadata_ravel$CST, 5, 1)
 
@@ -146,7 +149,7 @@ hclust_ravel$graphics[[3]]
 
 ## Mach 500
 
-```{r echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+```{r mach_500-hclust, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
 
 hclust_mach_500 <- comparaison_hclust(mach_500, metadata_mach$Weaned, 2, 1)
 
@@ -165,7 +168,7 @@ hclust_mach_500$graphics[[3]]
 
 ## Chaillou
 
-```{r echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+```{r chaillou-hclust, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
 
 hclust_chaillou <- comparaison_hclust(chaillou, metadata_chaillou$EnvType, 8, 1)
 
@@ -203,7 +206,7 @@ hclust_mach$graphics[[3]]
 
 ## Ravel
 
-```{r echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+```{r ravel-Mclust, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
 
 Mclust_ravel <- comparaison_Mclust(ravel, metadata_ravel$CST, 5, 1)
 
@@ -222,7 +225,7 @@ Mclust_ravel$graphics[[3]]
 
 ## Mach 500
 
-```{r echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+```{r mach_500-Mclust, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
 
 Mclust_mach_500 <- comparaison_Mclust(mach_500, metadata_mach$Weaned, 2, 1)
 
@@ -241,7 +244,7 @@ Mclust_mach_500$graphics[[3]]
 
 ## Chaillou
 
-```{r echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+```{r chaillou-Mclust, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
 
 Mclust_chaillou <- comparaison_Mclust(chaillou, metadata_chaillou$EnvType, 8, 1)
 
@@ -260,7 +263,7 @@ Mclust_chaillou$graphics[[3]]
 
 ## Mach data complete
 
-```{r echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+```{r mach-Mclust, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
 
 Mclust_mach <- comparaison_Mclust(mach, metadata_mach$Weaned, 2, 1)
 
@@ -272,4 +275,4 @@ print(Mclust_mach$ilr_table)
 Mclust_mach$graphics[[1]]
 Mclust_mach$graphics[[2]]
 Mclust_mach$graphics[[3]]
-=======
+```
