@@ -15,11 +15,15 @@ ravel <- read_biom("data/ravel/ravel.biom") %>% biom_data() %>% as.matrix()
 
 
 
+### Read RDS file
+liver <- readRDS("data/liver_qin_nan/microbiota.abundance.2018.RDS")
+metadata_liver <- readRDS("data/liver_qin_nan/metadata.RDS")
+
 
 ## Read a table
 load("data/vacher/oaks.RData")
 vacher <- Data$count %>% t()
-
+metadata_vacher <- Data$covariates
 
 
 
@@ -47,6 +51,9 @@ metadata_mach<- metadata_mach[order(metadata_mach[,1]),]
 
 ravel <- ravel[order(names(ravel[,1])),]
 metadata_ravel<- metadata_ravel[order(metadata_ravel[,1]),]
+
+liver <- liver[order(rownames(liver)),]
+metadata_liver <- metadata_liver[order(rownames(metadata_liver)),]
 
 
 #### 500 otus les plus abondants
