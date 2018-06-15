@@ -9,7 +9,9 @@ simu_melange_gaussien <- function(n, probability, mean, Sigma){
   
   for(i in 1:length(probability)){
     
-    sample1 <- rbind(sample1, mvrnorm(NB[i], mean[[i]], Sigma[[i]]))
+    if(NB[i]>0){
+      sample1 <- rbind(sample1, mvrnorm(NB[i], mean[[i]], Sigma[[i]]))
+    }
     
   }
   
@@ -36,12 +38,13 @@ bootstrap_ilr <- function(data, nb_cluster, nb_sample=nrow(data)){
   new_sample
 }
 
-bootstrap_pca <- function(data, nb_cluster, nb_sample=nrow(data)){
+
+
+bootstrap_pca <- function(data, nb_cluster, nb_sample=nrow(data), nb_axe){
   
   data_biplot <- biplot(data)
   
-  Mclust_data <- Mclust(data_biplot$coord, G=nb_cluster)
-  print(Mclust_data$modelName)
+  Mclust_data <- Mclust(data_biplot$coord[,1:nb_axe], G=nb_cluster)
   probability <- Mclust_data$parameters$pro
   
   mean_data <- list()
@@ -54,20 +57,33 @@ bootstrap_pca <- function(data, nb_cluster, nb_sample=nrow(data)){
   
   new_sample <- simu_melange_gaussien(nb_sample, probability, mean_data, Sigma_data)
   
-  new_sample$data <- ((new_sample$data %*% t(data_biplot$vector) %>% ilr_inverse() %>% perturbation(center_data(data))) ) 
+  D <- ncol(new_sample$data)
+  n <- nrow(new_sample$data)
+  
+  Sigma <- sum(data_biplot$values[(nb_axe+1):length(data_biplot$values)])/length(data_biplot$vector[1,]) 
+  Z <- (new_sample$data + mvrnorm(n, rep(0, D), diag(D)*Sigma) ) %*% t(data_biplot$vector[,1:nb_axe])
+  
+  new_sample$data <- Z %>% ilr_inverse() %>% perturbation(center_data(data))
   
   new_sample
   
 }
-bootstrap_comptage <- function(data, nb_cluster, nb_sample=nrow(data)){
+
+
+bootstrap_comptage <- function(data, nb_cluster, nb_sample=nrow(data), PCA=FALSE){
   
-  new_sample <- bootstrap_ilr(data %>% MAP() %>% ilr(), nb_cluster, nb_sample)
-  data_ilr <- ilr_inverse(new_sample$data)
+  if(!PCA){
+    new_sample <- bootstrap_ilr(data %>% MAP() %>% ilr(), nb_cluster, nb_sample)
+    data_ilr <- ilr_inverse(new_sample$data)
+  }else{
+    new_sample <- bootstrap_pca(data %>% MAP(), nb_cluster, nb_sample, nb_axe=15) 
+    data_ilr <- new_sample$data
+  }
   
   sample_comptage <- matrix(0, nrow=nrow(data_ilr), ncol=ncol(data_ilr))
   
   result_sample <- apply(data_ilr, 1, function(x){
-    round((apply(data, 1 , sum) %>% mean()) * x)
+      rmultinom(1, (data %>% sum())/nrow(data) %>% round(), x)
   }) %>%t()
   
   list(data=result_sample, metadata=new_sample$metadata)
