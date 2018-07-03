@@ -3,6 +3,7 @@ source("Rscript/coda.R")
 source("Rscript/graph.R")
 source("Rscript/comparaison_clustering.R")
 source("Rscript/bootstrap.R")
+source("Rscript/classification.R")
 
 chaillou_p <- count_to_proportion(chaillou)
 mach_500_p <- count_to_proportion(mach)
@@ -36,6 +37,11 @@ grid.arrange(grobs=graph_biplot_normale(mach_500, metadata_mach$Weaned, 4, "Mach
 
 
 #vacher
+grid.arrange(grobs=graph_biplot_normale(vacher, (metadata_vacher$pmInfection>0)*1, 4, "vacher", "pmInfection"), ncol=2)
+
+
+#liver
+grid.arrange(grobs=graph_biplot_normale(liver_500, metadata_liver$status, 4, "liver", "status"), ncol=2)
 
 
 ### test de normalite
@@ -202,7 +208,7 @@ for(i in 1:NB){
     prob1 <- prob1/sum(prob1)
     
     data1 <- t(rmultinom(nb_sample, size=N, prob1)) %>% MAP()
-
+    
     
     mean(eigen(var(ilr(data1)))$values)
     
@@ -273,6 +279,27 @@ grid.arrange(grobs=Mclust_mach$graphics, ncol=1)
 
 
 
+##vacher
+k_vacher <- comparaison_k_means(vacher, (metadata_vacher$pmInfection>0)*1, 2, 1)
+grid.arrange(grobs=k_vacher$graphics, ncol=1)
+
+hclust_vacher <- comparaison_hclust(vacher, (metadata_vacher$pmInfection>0)*1, 2, 1)
+grid.arrange(grobs=hclust_vacher$graphics, ncol=1)
+
+Mclust_vacher <- comparaison_Mclust(vacher, (metadata_vacher$pmInfection>0)*1, 2, 1)
+grid.arrange(grobs=Mclust_vacher$graphics, ncol=1)
+
+
+
+##liver
+k_liver <- comparaison_k_means(liver_500, metadata_liver$status, 2, 1)
+grid.arrange(grobs=k_liver$graphics, ncol=1)
+
+hclust_liver <- comparaison_hclust(liver_500, metadata_liver$status, 2, 1)
+grid.arrange(grobs=hclust_liver$graphics, ncol=1)
+
+Mclust_liver <- comparaison_Mclust(liver_500, metadata_liver$status, 2, 1)
+grid.arrange(grobs=Mclust_liver$graphics, ncol=1)
 
 
 
@@ -280,17 +307,164 @@ grid.arrange(grobs=Mclust_mach$graphics, ncol=1)
 
 ### bootstrap
 
-chaillou_boot <- bootstrap_comptage(chaillou, 8, 2000)
+#chaillou
+
+chaillou_boot <- bootstrap(chaillou, PCA=TRUE, nb_cluster = 15, nb_axe = 16)
 data <- rbind(chaillou, chaillou_boot$data)
-metadata <- c(as.character(metadata_chaillou$EnvType), as.character(chaillou_boot$metadata)) %>% as.factor()
+#metadata <- c(as.character(metadata_chaillou$EnvType), as.character(chaillou_boot$metadata)) %>% as.factor()
+metadata <- c(as.character(rep("real", nrow(chaillou))), rep("simu", nrow(chaillou_boot$data))) %>% as.factor()
 
-grid.arrange(grobs=graph_biplot_normale(data, metadata, 4, "chaillou", "EnvType"), ncol=2)
+grid.arrange(grobs=graph_biplot_normale(data, metadata, 4, "chaillou", "data"), ncol=2)
 
 
 
-ravel_boot <- bootstrap_comptage(ravel, 5, 10)
+#ravel
+
+ravel_boot <- bootstrap_comptage(ravel, PCA=TRUE, nb_sample = 120, nb_axe = 12, nb_cluster = 30)
 data <- rbind(ravel, ravel_boot$data)
-metadata <- c(as.character(metadata_ravel$CST), as.character(ravel_boot$metadata)) %>% as.factor()
+# metadata <- c(as.character(metadata_ravel$CST), as.character(ravel_boot$metadata)) %>% as.factor()
+metadata <- c(rep("real", nrow(ravel)), rep("simu", nrow(ravel_boot$data))) %>% as.factor()
+grid.arrange(grobs=graph_biplot_normale(data, metadata, 4, "ravel", "data"), ncol=2)
 
-grid.arrange(grobs=graph_biplot_normale(data, metadata, 4, "chaillou", "EnvType"), ncol=2)
+
+
+#mach500
+
+mach_boot <- bootstrap_comptage(mach_500, PCA=TRUE)
+data <- rbind(mach_500, mach_boot$data)
+#metadata <- c(as.character(metadata_mach$Weaned), as.character(mach_boot$metadata)) %>% as.factor()
+metadata <- c(rep("real", nrow(mach_500)), rep("simu", nrow(mach_boot$data))) %>% as.factor()
+grid.arrange(grobs=graph_biplot_normale(data, metadata, 4, "mach 500", "data"), ncol=2)
+
+
+
+
+#vacher
+
+vacher_boot <- bootstrap_comptage(vacher, PCA=TRUE)
+data <- rbind(vacher, vacher_boot$data)
+# metadata <- c(as.character(metadata_ravel$CST), as.character(ravel_boot$metadata)) %>% as.factor()
+metadata <- c(rep("real", nrow(vacher)), rep("simu", nrow(vacher_boot$data))) %>% as.factor()
+grid.arrange(grobs=graph_biplot_normale(data, metadata, 4, "vacher", "data"), ncol=2)
+
+
+#liver
+liver_boot <- bootstrap_comptage(liver_500, PCA=TRUE)
+data <- rbind(liver_500, liver_boot$data)
+# metadata <- c(as.character(metadata_ravel$CST), as.character(ravel_boot$metadata)) %>% as.factor()
+metadata <- c(rep("real", nrow(liver)), rep("simu", nrow(liver_boot$data))) %>% as.factor()
+grid.arrange(grobs=graph_biplot_normale(data, metadata, 4, "liver", "data"), ncol=2)
+
+
+
+
+
+
+
+
+
+### classification
+
+#chaillou
+t_chaillou <- test_bootstrap(chaillou, nb_cluster = 15, nb_axe = 16)
+t_chaillou$all
+
+
+abondance_otus <- apply(chaillou %>% MAP(), 2 , function(x){sum(x>1e-4)})
+r <- order(abondance_otus, decreasing = TRUE)
+plot(t_chaillou$misclassification[r])
+
+
+
+
+#mach_500
+t_mach_500 <- test_bootstrap(mach_500, nb_cluster = 4, nb_axe = 4)
+t_mach_500$all
+
+abondance_otus <- apply(mach_500 %>% MAP(), 2 , function(x){sum(x>1e-4)})
+r <- order(abondance_otus, decreasing = TRUE)
+plot(t_mach_500$misclassification[r])
+
+
+
+#vacher
+t_vacher <- test_bootstrap(vacher, nb_cluster = 4, nb_axe = 11)
+t_vacher$all
+
+
+abondance_otus <- apply(vacher %>% MAP(), 2 , function(x){sum(x>1e-4)})
+r <- order(abondance_otus, decreasing = TRUE)
+plot(t_vacher$misclassification[r])
+
+
+
+
+#liver
+t_liver <- test_bootstrap(liver, nb_cluster = 7, nb_axe = 8)
+t_liver$all
+
+
+abondance_otus <- apply(liver %>% MAP(), 2 , function(x){sum(x>1e-4)})
+r <- order(abondance_otus, decreasing = TRUE)
+plot(t_liver$misclassification[r])
+
+
+
+#liver 500
+t_liver_500 <- test_bootstrap(liver_500, nb_cluster = 7, nb_axe = 8)
+t_liver_500$all
+
+
+
+labondance_otus <- apply(liver_500 %>% MAP(), 2 , function(x){sum(x>1e-4)})
+r <- order(abondance_otus, decreasing = TRUE)
+plot(t_liver_500$misclassification[r])
+
+
+
+
+#ravel
+t_ravel <- test_bootstrap(ravel, nb_cluster = 12, nb_axe = 12)
+t_ravel$all
+
+
+abondance_otus <- apply(ravel %>% MAP(), 2 , function(x){sum(x>1e-4)})
+r <- order(abondance_otus, decreasing = TRUE)
+plot(t_ravel$misclassification[r])
+
+
+
+
+
+
+
+
+
+
+
+vraisemblance <- function(data, phi){
+  
+  
+  data_biplot <- biplot(data)
+  
+  norm_2 <- apply(data_biplot$coord, 1, function(x){sqrt(sum(x^2))})
+  
+  n <- nrow(data_biplot$coord)
+  p <- ncol(data_biplot$coord)
+  
+  sigma <- list()
+  
+  for(i in 2:(p-1)){
+    sigma[[i-1]] <- sum(data_biplot$values[i:p])/(p-i+1)
+  }
+  
+  sigma <- unlist(sigma)
+  a <- sigma/phi  
+  
+  vrai <- list()
+  for(d in 1:(p-2)){
+    vrai[[d]] <- -(n*p/2)*log(2*pi)-(n*p/2)*log(2/phi)-n*log(gamma(a[d]+d/2))+(a[d]+(d-p)/2)*sum(log(sqrt(phi)*norm_2/2))+sum(log(besselK(sqrt(phi)*norm_2, nu=(a[d]+(d-p)/2))))
+  }
+  unlist(vrai)
+}
 
