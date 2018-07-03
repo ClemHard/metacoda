@@ -1,5 +1,6 @@
 library(mclust)
 library(MASS)
+library(capushe)
 
 simu_melange_gaussien <- function(n, probability, mean, Sigma){
   
@@ -20,29 +21,68 @@ simu_melange_gaussien <- function(n, probability, mean, Sigma){
 
 
 
-bootstrap_ilr <- function(data, nb_cluster, nb_sample=nrow(data)){
+bootstrap <- function(data, nb_axe=NULL, nb_cluster=NULL, nb_sample=nrow(data), PCA=FALSE, type="comptage"){
   
-  Mclust_data <- Mclust(data, G=nb_cluster)
-  
-  probability <- Mclust_data$parameters$pro
-  mean_data <- list()
-  Sigma_data <- list()
-  
-  for(i in 1:length(probability)){
-    mean_data[[i]] <- Mclust_data$parameters$mean[,i]
-    Sigma_data[[i]] <- Mclust_data$parameters$variance$sigma[,,i]
+  apprent <- apprentissage(data, nb_axe = nb_axe, nb_cluster = nb_cluster)
+  if(type=="comptage"){
+    new.sample <- simulation(apprent, nb_sample = nb_sample)
+  } else if(type=="MAP"){
+    new.sample <- simulation_MAP(apprent, nb_sample = nb_sample)
   }
-
-  new_sample <- simu_melange_gaussien(nb_sample, probability, mean_data, Sigma_data)
-  
-  new_sample
+  new.sample <- list(data=new.sample, d=apprent$d, nb_cluster=apprent$nb_cluster, apprent=apprent)
+  new.sample
 }
 
 
 
-bootstrap_pca <- function(data, nb_cluster, nb_sample=nrow(data), nb_axe){
+nb_cluster_capushe <- function(data, max_nb_cluster=round(nrow(data)/3)){
+  
+  nb_cluster <- 1:max_nb_cluster
+  
+  erreur <- sapply(nb_cluster, function(x){
+    Mclust(data, x)$bic 
+  })
+  
+  which.max(erreur)
+  
+}
+
+
+
+nb_axe_capushe <- function(data, data_biplot=FALSE){
+  
+  new_data <- data
+  if(!data_biplot){
+    new_data <- new_data %>% biplot()
+  }
+  D <- ncol(new_data$coord)
+  RMSE <- sapply(1:D, function(x){mean((new_data$coord[,x]^2))}) %>% sort() %>% cumsum() %>% sort(decreasing = TRUE) 
+  RMSE <- RMSE/sum(RMSE)
+  z <- data.frame(1:D,1:D,1:D,RMSE)
+  
+  i <- nrow(z)
+  while(class(try(capushe(z[1:i,]), silent=TRUE))=="try-error"){
+    i <- round(i*0.9)
+    if(i<=10){
+      stop("impossible de fitter une régression")
+    }
+  }
+  as.numeric(capushe(z[1:i,])@DDSE@model)
+}
+
+
+
+apprentissage_pca <- function(data, nb_cluster=NULL, nb_axe=NULL){
   
   data_biplot <- biplot(data)
+  
+  if(is.null(nb_axe)){
+    nb_axe <- nb_axe_capushe(data_biplot, data_biplot = TRUE)  
+  }
+  
+  if(is.null(nb_cluster)){
+    nb_cluster <- nb_cluster_capushe(data_biplot$coord[,1:nb_axe])
+  }
   
   Mclust_data <- Mclust(data_biplot$coord[,1:nb_axe], G=nb_cluster)
   probability <- Mclust_data$parameters$pro
@@ -55,36 +95,58 @@ bootstrap_pca <- function(data, nb_cluster, nb_sample=nrow(data), nb_axe){
     Sigma_data[[i]] <- Mclust_data$parameters$variance$sigma[,,i]
   }
   
-  new_sample <- simu_melange_gaussien(nb_sample, probability, mean_data, Sigma_data)
+  Sigma <- sum(data_biplot$values[(nb_axe+1):length(data_biplot$values)])/(length(data_biplot$vector[,1])-nb_axe)
+  W <- data_biplot$vector[,1:nb_axe]
   
-  D <- ncol(new_sample$data)
-  n <- nrow(new_sample$data)
+  result <- list(data=data, W=W, pi_k=probability, mean=mean_data, Sigma=Sigma_data, noise=Sigma, d=nb_axe, nb_cluster=nb_cluster)
+  class(result) <- "apprentissage"
   
-  Sigma <- sum(data_biplot$values[(nb_axe+1):length(data_biplot$values)])/length(data_biplot$vector[1,]) 
-  Z <- (new_sample$data + mvrnorm(n, rep(0, D), diag(D)*Sigma) ) %*% t(data_biplot$vector[,1:nb_axe])
-  
-  new_sample$data <- Z %>% ilr_inverse() %>% perturbation(center_data(data))
-  
-  new_sample
-  
+  result
 }
 
 
-bootstrap_comptage <- function(data, nb_cluster, nb_sample=nrow(data), PCA=FALSE){
+apprentissage <- function(data, nb_axe=NULL, nb_cluster=NULL, nb_sample=nrow(data), PCA=FALSE){
   
-  if(!PCA){
-    new_sample <- bootstrap_ilr(data %>% MAP() %>% ilr(), nb_cluster, nb_sample)
-    data_ilr <- ilr_inverse(new_sample$data)
-  }else{
-    new_sample <- bootstrap_pca(data %>% MAP(), nb_cluster, nb_sample, nb_axe=15) 
-    data_ilr <- new_sample$data
-  }
+  new.data <- data %>% MAP()
+  result <- apprentissage_pca(new.data, nb_axe = nb_axe, nb_cluster = nb_cluster)
+  result$data <- data
   
-  sample_comptage <- matrix(0, nrow=nrow(data_ilr), ncol=ncol(data_ilr))
+  result
+}
+
+
+
+simulation_MAP <- function(result, nb_sample=nrow(result$data)){
   
-  result_sample <- apply(data_ilr, 1, function(x){
-      rmultinom(1, (data %>% sum())/nrow(data) %>% round(), x)
+  new_sample <- simu_melange_gaussien(nb_sample, result$pi_k, result$mean, result$Sigma)
+  
+  Z <- t((result$W) %*% t(new_sample$data))
+  
+  D <- ncol(Z)
+  n <- nrow(Z)
+  Z <- Z + mvrnorm(n, rep(0, D), result$noise*diag(D))
+  
+  new_sample <- Z %>% ilr_inverse() %>% perturbation(center_data(result$data %>% MAP()))
+  
+  new_sample
+}
+
+
+
+simulation <- function(result, nb_sample=nrow(result$data)){
+  
+  simu_MAP <- simulation_MAP(result, nb_sample)
+  
+  deep <- apply(result$data, 1, sum)
+  
+  result_sample <- apply(simu_MAP, 1, function(x){
+    deep_simu <- sample(deep, 1)
+    #(round(x*deep_simu-1)>0)*rmultinom(1, round(deep_simu), x)
+    (round(x*deep_simu-1)>0)*(round(x*deep_simu-1))
   }) %>%t()
   
-  list(data=result_sample, metadata=new_sample$metadata)
+  rownames(result_sample) <- paste("sample", 1:nrow(simu_MAP))
+  colnames(result_sample) <- colnames(result$data)
+  
+  result_sample
 }
