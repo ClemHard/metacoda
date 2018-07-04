@@ -14,6 +14,7 @@ source("Rscript/coda.R")
 source("Rscript/comparaison_clustering.R")
 source("Rscript/graph.R")
 source("Rscript/bootstrap.R")
+source("Rscript/classification.R")
 ```
 
 ## Réduction de dimension
@@ -275,4 +276,62 @@ print(Mclust_mach$ilr_table)
 Mclust_mach$graphics[[1]]
 Mclust_mach$graphics[[2]]
 Mclust_mach$graphics[[3]]
+```
+
+
+
+
+
+
+
+
+
+
+# test_bootstrap
+
+## chaillou
+
+
+```{r chaillou-test_bootstap, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+t_chaillou <- test_bootstrap_all(chaillou, nb_cluster = 15, nb_axe = 16, nb_train = 50)
+t_chaillou$all
+
+```
+
+
+## mach 500
+```{r mach_500-test_bootstap, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+t_mach_500 <- test_bootstrap_all(mach_500, nb_cluster = 4, nb_axe = 4, nb_train = 50)
+t_mach_500$all
+
+```
+
+
+## vacher 
+```{r vacher-test_bootstap, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+t_vacher <- test_bootstrap_all(vacher, nb_cluster = 4, nb_axe = 11, nb_train=50)
+t_vacher$all
+
+```
+
+
+
+## liver 500
+```{r liver_500-test_bootstap, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+t_liver_500 <- test_bootstrap_all(liver_500, nb_cluster = 7, nb_axe = 8, nb_train=50)
+t_liver_500$all
+
+```
+
+
+## ravel
+```{r ravel-test_bootstap, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+t_ravel <- test_bootstrap_all(ravel, nb_cluster = 12, nb_axe = 12, nb_train = 50)
+t_ravel$all
+
 ```
