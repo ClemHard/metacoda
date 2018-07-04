@@ -1,20 +1,21 @@
 library(randomForest)
-library(parallel)
+library(doParallel)
 
 source("Rscript/bootstrap.R")
 
 
 
-test_bootstrap <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_sample=nrow(data1)){
+create_data_frame_test <- function(data1, apprent, proportion_real_data=0.1){
   
-  rand_real_data <- sample(1:nrow(data1), floor(nrow(data1)*0.10))
   
-  boot <- bootstrap(data1, PCA=TRUE, nb_cluster = nb_cluster, nb_axe = nb_axe)
-  data_train <- rbind(data1, boot$data)
-  metadata <- c(rep("real", nrow(data1)), rep("simu", nrow(boot$data))) %>% as.factor()
+  rand_real_data <- sample(1:nrow(data1), floor(nrow(data1)*proportion_real_data))
+  
+  boot <- simulation(apprent)
+  data_train <- rbind(data1, boot)
+  metadata <- c(rep("real", nrow(data1)), rep("simu", nrow(boot))) %>% as.factor()
   
   nb_sample <- 1000
-  boot_test <- simulation(boot$apprent, nb_sample = nb_sample)
+  boot_test <- simulation(apprent, nb_sample = nb_sample)
   
   train <- data.frame(data_train, metadata ,row.names = NULL)
   deleted_data_train <- train[rand_real_data, 1:ncol(data_train)]
@@ -23,39 +24,77 @@ test_bootstrap <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_sample=nrow(d
   colnames(train) <- c(paste("X",1:ncol(data_train), sep=""), "metadata")
   
   test <- data.frame(boot_test, row.names = NULL)
+  metadata_test <- c(rep("simu", nrow((test))), rep("real", nrow(deleted_data_train)))
   test <- rbind(test, deleted_data_train)
-  
+
   colnames(test) <- paste("X",1:ncol(test), sep="")
   
+ 
+  list(train=train, test=test, metadata_test=metadata_test) 
+}
+
+
+
+test_bootstrap_all <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_sample=nrow(data1), apprent=NULL, nb_train=1){
   
-  rf <- randomForest(metadata~. , train)
-  all <- predict(rf, test) %>% table(c(rep("simu", nb_sample), rep("real", length(rand_real_data))))
+  if(is.null(apprent)) apprent <- apprentissage(data1, nb_axe = nb_axe, nb_cluster = nb_cluster)
   
   
-  variables <- colnames(test)
+  all <- lapply(1:nb_train, function(x){
+                            data_test <- create_data_frame_test(data1, apprent=apprent, proportion_real_data = 0.1)
   
-  no_cores <- detectCores()-1
-  if(no_cores<1) no_cores <- 1
+                            rf <- randomForest(metadata~. , data_test$train)
+                            pred <- predict(rf, data_test$test) %>% table(data_test$metadata_test)
+                            pred
+                            })
+  sum_table <- 0
   
-  # cl <- makeCluster(no_cores)
-  # 
-  # each <- parSapply(cl, variables, function(x){
-  #   rf <- randomForest(as.formula(paste("metadata~",x)), train)
-  #   predict(rf, test) %>% summary()
-  # })
-  # stopCluster(cl)
+  for(i in 1:length(all)){
+    sum_table <- sum_table+all[[i]]
+  }
+  sum_table <- sum_table/matrix(c(sum(sum_table[,1]), sum(sum_table[,1]), sum(sum_table[,2]), sum(sum_table[,2])), nrow = 2) * 100
+  
+  list(all=sum_table, all_train=all)
+}
+
+
+
+
+test_bootstrap_variable <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_sample=nrow(data1), apprent=NULL, nb_train=1){
+  
+  
+  if(is.null(apprent)) apprent <- apprentissage(data1, nb_axe = nb_axe, nb_cluster = nb_cluster)
+  
+  data_test <- create_data_frame_test(data1, apprent=apprent, proportion_real_data = 0.1)
+  
+  variables <- colnames(data_test$test)
   
   each <- lapply(variables, function(x){
-    rf <- randomForest(as.formula(paste("metadata~",x)), train)
-    predict(rf, test) %>% table(c(rep("simu", nb_sample), rep("real", length(rand_real_data))))
+    rf <- randomForest(as.formula(paste("metadata~",x)), data_test$train)
+    predict(rf, data_test$test) %>% table(data_test$metadata_test)
   })
-
+  
   misclassification_each <- sapply(each, function(x){x[1, 2]})
-
+  
   names(misclassification_each) <- colnames(data1)
   names(each) <- colnames(data1)
   
-  list(all=all, table_each=each, misclassification=misclassification_each)
+  
+  list(table_each=each, misclassification=misclassification_each)
+}
+
+
+
+
+test_bootstrap <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_sample=nrow(data1)){
+  
+  rand_real_data <- sample(1:nrow(data1), floor(nrow(data1)*0.10))
+  
+  apprent <- apprentissage(data1, nb_cluster = nb_cluster, nb_axe = nb_axe)
+  all <- test_bootstrap_all(data1, apprent = apprent)
+  each <- test_bootstrap_variable(data1, apprent = apprent)
+  
+  list(all=all, table_each=each$table_each, misclassification=each$misclassification)
 }
 
 
