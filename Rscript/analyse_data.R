@@ -309,7 +309,7 @@ grid.arrange(grobs=Mclust_liver$graphics, ncol=1)
 
 #chaillou
 
-chaillou_boot <- bootstrap(chaillou, PCA=TRUE, nb_cluster = 15, nb_axe = 16)
+chaillou_boot <- bootstrap(chaillou, nb_cluster = 15, nb_axe = 16)
 data <- rbind(chaillou, chaillou_boot$data)
 #metadata <- c(as.character(metadata_chaillou$EnvType), as.character(chaillou_boot$metadata)) %>% as.factor()
 metadata <- c(as.character(rep("real", nrow(chaillou))), rep("simu", nrow(chaillou_boot$data))) %>% as.factor()
@@ -320,7 +320,7 @@ grid.arrange(grobs=graph_biplot_normale(data, metadata, 4, "chaillou", "data"), 
 
 #ravel
 
-ravel_boot <- bootstrap_comptage(ravel, PCA=TRUE, nb_sample = 120, nb_axe = 12, nb_cluster = 30)
+ravel_boot <- bootstrap(ravel, nb_axe = 12, nb_cluster = 30)
 data <- rbind(ravel, ravel_boot$data)
 # metadata <- c(as.character(metadata_ravel$CST), as.character(ravel_boot$metadata)) %>% as.factor()
 metadata <- c(rep("real", nrow(ravel)), rep("simu", nrow(ravel_boot$data))) %>% as.factor()
@@ -330,7 +330,7 @@ grid.arrange(grobs=graph_biplot_normale(data, metadata, 4, "ravel", "data"), nco
 
 #mach500
 
-mach_boot <- bootstrap_comptage(mach_500, PCA=TRUE)
+mach_boot <- bootstrap(mach_500, PCA=TRUE)
 data <- rbind(mach_500, mach_boot$data)
 #metadata <- c(as.character(metadata_mach$Weaned), as.character(mach_boot$metadata)) %>% as.factor()
 metadata <- c(rep("real", nrow(mach_500)), rep("simu", nrow(mach_boot$data))) %>% as.factor()
@@ -341,7 +341,7 @@ grid.arrange(grobs=graph_biplot_normale(data, metadata, 4, "mach 500", "data"), 
 
 #vacher
 
-vacher_boot <- bootstrap_comptage(vacher, PCA=TRUE)
+vacher_boot <- bootstrap(vacher, PCA=TRUE)
 data <- rbind(vacher, vacher_boot$data)
 # metadata <- c(as.character(metadata_ravel$CST), as.character(ravel_boot$metadata)) %>% as.factor()
 metadata <- c(rep("real", nrow(vacher)), rep("simu", nrow(vacher_boot$data))) %>% as.factor()
@@ -349,7 +349,7 @@ grid.arrange(grobs=graph_biplot_normale(data, metadata, 4, "vacher", "data"), nc
 
 
 #liver
-liver_boot <- bootstrap_comptage(liver_500, PCA=TRUE)
+liver_boot <- bootstrap(liver_500, nb_cluster = 8, nb_axe=7)
 data <- rbind(liver_500, liver_boot$data)
 # metadata <- c(as.character(metadata_ravel$CST), as.character(ravel_boot$metadata)) %>% as.factor()
 metadata <- c(rep("real", nrow(liver)), rep("simu", nrow(liver_boot$data))) %>% as.factor()
@@ -366,7 +366,7 @@ grid.arrange(grobs=graph_biplot_normale(data, metadata, 4, "liver", "data"), nco
 ### classification
 
 #chaillou
-t_chaillou <- test_bootstrap(chaillou, nb_cluster = 15, nb_axe = 16)
+t_chaillou <- test_bootstrap_all(chaillou, nb_cluster = 15, nb_axe = 16, nb_train = 5, type = "comptage")
 t_chaillou$all
 
 
@@ -378,7 +378,7 @@ plot(t_chaillou$misclassification[r])
 
 
 #mach_500
-t_mach_500 <- test_bootstrap(mach_500, nb_cluster = 4, nb_axe = 4)
+t_mach_500 <- test_bootstrap_all(mach_500, nb_cluster = 4, nb_axe = 4, nb_train = 1)
 t_mach_500$all
 
 abondance_otus <- apply(mach_500 %>% MAP(), 2 , function(x){sum(x>1e-4)})
@@ -388,7 +388,7 @@ plot(t_mach_500$misclassification[r])
 
 
 #vacher
-t_vacher <- test_bootstrap(vacher, nb_cluster = 4, nb_axe = 11)
+t_vacher <- test_bootstrap_all(vacher, nb_cluster = 4, nb_axe = 11, nb_train=5)
 t_vacher$all
 
 
@@ -400,7 +400,7 @@ plot(t_vacher$misclassification[r])
 
 
 #liver
-t_liver <- test_bootstrap(liver, nb_cluster = 7, nb_axe = 8)
+t_liver <- test_bootstrap_all(liver, nb_cluster = 7, nb_axe = 8, nb_train = 5)
 t_liver$all
 
 
@@ -411,12 +411,12 @@ plot(t_liver$misclassification[r])
 
 
 #liver 500
-t_liver_500 <- test_bootstrap(liver_500, nb_cluster = 7, nb_axe = 8)
+t_liver_500 <- test_bootstrap_all(liver_500, nb_cluster = 7, nb_axe = 8, nb_train=5)
 t_liver_500$all
 
 
 
-labondance_otus <- apply(liver_500 %>% MAP(), 2 , function(x){sum(x>1e-4)})
+abondance_otus <- apply(liver_500 %>% MAP(), 2 , function(x){sum(x>1e-4)})
 r <- order(abondance_otus, decreasing = TRUE)
 plot(t_liver_500$misclassification[r])
 
@@ -424,7 +424,7 @@ plot(t_liver_500$misclassification[r])
 
 
 #ravel
-t_ravel <- test_bootstrap(ravel, nb_cluster = 12, nb_axe = 12)
+t_ravel <- test_bootstrap_all(ravel, nb_cluster = 12, nb_axe = 12, nb_train = 5)
 t_ravel$all
 
 

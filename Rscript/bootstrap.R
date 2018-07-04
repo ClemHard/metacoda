@@ -21,7 +21,7 @@ simu_melange_gaussien <- function(n, probability, mean, Sigma){
 
 
 
-bootstrap <- function(data, nb_axe=NULL, nb_cluster=NULL, nb_sample=nrow(data), PCA=FALSE, type="comptage"){
+bootstrap <- function(data, nb_axe=NULL, nb_cluster=NULL, nb_sample=nrow(data), type="comptage"){
   
   apprent <- apprentissage(data, nb_axe = nb_axe, nb_cluster = nb_cluster)
   if(type=="comptage"){
@@ -105,7 +105,7 @@ apprentissage_pca <- function(data, nb_cluster=NULL, nb_axe=NULL){
 }
 
 
-apprentissage <- function(data, nb_axe=NULL, nb_cluster=NULL, nb_sample=nrow(data), PCA=FALSE){
+apprentissage <- function(data, nb_axe=NULL, nb_cluster=NULL){
   
   new.data <- data %>% MAP()
   result <- apprentissage_pca(new.data, nb_axe = nb_axe, nb_cluster = nb_cluster)
@@ -116,8 +116,7 @@ apprentissage <- function(data, nb_axe=NULL, nb_cluster=NULL, nb_sample=nrow(dat
 
 
 
-simulation_MAP <- function(result, nb_sample=nrow(result$data)){
-  
+simulation_ilr <- function(result, nb_sample=nrow(result$data)){
   new_sample <- simu_melange_gaussien(nb_sample, result$pi_k, result$mean, result$Sigma)
   
   Z <- t((result$W) %*% t(new_sample$data))
@@ -126,23 +125,43 @@ simulation_MAP <- function(result, nb_sample=nrow(result$data)){
   n <- nrow(Z)
   Z <- Z + mvrnorm(n, rep(0, D), result$noise*diag(D))
   
-  new_sample <- Z %>% ilr_inverse() %>% perturbation(center_data(result$data %>% MAP()))
+}
+
+
+
+simulation_MAP <- function(result, nb_sample=nrow(result$data)){
   
+  Z <- simulation_ilr(result, nb_sample)
+  
+  new_sample <- Z %>% ilr_inverse() %>% perturbation(center_data(result$data %>% MAP())) 
   new_sample
 }
 
 
 
-simulation <- function(result, nb_sample=nrow(result$data)){
+simulation <- function(result, nb_sample=nrow(result$data), type="comptage"){
+  
+  if(type=="ilr"){
+    simu_ilr <- simulation_ilr(result, nb_sample = nb_sample)
+    rownames(simu_ilr) <- paste("sample", 1:nrow(simu_ilr))
+    colnames(simu_ilr) <- paste("coord", 1:ncol(simu_ilr))
+    return(simu_ilr)
+  }
   
   simu_MAP <- simulation_MAP(result, nb_sample)
+  
+  if(type=="MAP"){
+    rownames(simu_MAP) <- paste("sample", 1:nrow(simu_MAP))
+    colnames(simu_MAP) <- colnames(result$data)
+    return(simu_MAP)
+  }
   
   deep <- apply(result$data, 1, sum)
   
   result_sample <- apply(simu_MAP, 1, function(x){
     deep_simu <- sample(deep, 1)
-    #(round(x*deep_simu-1)>0)*rmultinom(1, round(deep_simu), x)
-    (round(x*deep_simu-1)>0)*(round(x*deep_simu-1))
+    (round(x*deep_simu-1)>0)*rmultinom(1, round(deep_simu), x)
+    #(round(x*deep_simu-1)>0)*(round(x*deep_simu-1))
   }) %>%t()
   
   rownames(result_sample) <- paste("sample", 1:nrow(simu_MAP))
