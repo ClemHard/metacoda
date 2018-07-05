@@ -6,10 +6,8 @@ source("Rscript/bootstrap.R")
 
 
 
-create_data_frame_test <- function(data1, apprent, proportion_real_data=0.1, type){
+create_data_frame_test <- function(data1, apprent, test_real_data=NULL, type){
   
-  
-  rand_real_data <- sample(1:nrow(data1), floor(nrow(data1)*proportion_real_data))
   
   boot <- simulation(apprent,type = type)
 
@@ -20,15 +18,14 @@ create_data_frame_test <- function(data1, apprent, proportion_real_data=0.1, typ
   boot_test <- simulation(apprent, nb_sample = nb_sample, type = type)
   
   train <- data.frame(data_train, metadata ,row.names = NULL)
-  deleted_data_train <- train[rand_real_data, 1:ncol(data_train)]
-  train <- train[-rand_real_data,]
+   
   
   colnames(train) <- c(paste("X",1:ncol(data_train), sep=""), "metadata")
   
   test <- data.frame(boot_test, row.names = NULL)
-  metadata_test <- c(rep("simu", nrow((test))), rep("real", nrow(deleted_data_train)))
-  test <- rbind(test, deleted_data_train)
-
+  metadata_test <- c(rep("simu", nrow((test))), rep("real", nrow(test_real_data)))
+  test <- rbind(test, data.frame(test_real_data, row.names = NULL))
+  
   colnames(test) <- paste("X",1:ncol(test), sep="")
   
  
@@ -37,7 +34,7 @@ create_data_frame_test <- function(data1, apprent, proportion_real_data=0.1, typ
 
 
 
-test_bootstrap_all <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_sample=nrow(data1), apprent=NULL, nb_train=1, type="comptage"){
+test_bootstrap_all <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_sample=nrow(data1), apprent=NULL, nb_train=1, proportion_real_data=0.1, type="comptage"){
   
   if(is.null(apprent)) apprent <- apprentissage(data1, nb_axe = nb_axe, nb_cluster = nb_cluster)
   
@@ -46,7 +43,13 @@ test_bootstrap_all <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_sample=nr
   if(type=="MAP") data1 <- data1 %>% MAP()
     
   all <- lapply(1:nb_train, function(x){
-                            data_test <- create_data_frame_test(data1, apprent=apprent, proportion_real_data = 0.1, type=type)
+    
+                            rand_real_data <- sample(1:nrow(data1), floor(nrow(data1)*proportion_real_data))
+                            test_real_data <- data1[rand_real_data,]
+                            data1 <- data1[-rand_real_data,]
+                            
+                            
+                            data_test <- create_data_frame_test(data1, apprent=apprent, test_real_data = test_real_data,type=type)
                             rf <- randomForest(metadata~. , data_test$train)
                             pred <- predict(rf, data_test$test) %>% table(data_test$metadata_test)
                             pred
@@ -64,7 +67,7 @@ test_bootstrap_all <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_sample=nr
 
 
 
-test_bootstrap_variable <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_sample=nrow(data1), apprent=NULL, nb_train=1, type="comptage"){
+test_bootstrap_variable <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_sample=nrow(data1), apprent=NULL, nb_train=1, proportion_real_data=0.1, type="comptage"){
   
   
   if(is.null(apprent)) apprent <- apprentissage(data1, nb_axe = nb_axe, nb_cluster = nb_cluster)
@@ -73,7 +76,11 @@ test_bootstrap_variable <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_samp
   
   if(type=="MAP") data1 <- data1 %>% MAP()
   
-  data_test <- create_data_frame_test(data1, apprent=apprent, proportion_real_data = 0.1, type=type)
+  rand_real_data <- sample(1:nrow(data1), floor(nrow(data1)*proportion_real_data))
+  test_real_data <- data1[rand_real_data,]
+  data1 <- data1[-rand_real_data,]
+  
+  data_test <- create_data_frame_test(data1, apprent=apprent, test_real_data = test_real_data, type=type)
   
   variables <- colnames(data_test$test)
   
@@ -109,12 +116,12 @@ test_bootstrap_variable <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_samp
 
 
 
-test_bootstrap <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_sample=nrow(data1), type="comptage"){
+test_bootstrap <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_sample=nrow(data1), nb_train_all=1, type="comptage"){
   
   rand_real_data <- sample(1:nrow(data1), floor(nrow(data1)*0.10))
   
   apprent <- apprentissage(data1, nb_cluster = nb_cluster, nb_axe = nb_axe)
-  all <- test_bootstrap_all(data1, apprent = apprent, type=type)
+  all <- test_bootstrap_all(data1, apprent = apprent, nb_train = nb_train_all, type=type)
   each <- test_bootstrap_variable(data1, apprent = apprent, type=type)
   
   list(all=all, table_each=each$table_each, misclassification=each$misclassification)
