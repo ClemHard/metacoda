@@ -9,7 +9,7 @@ source("Rscript/bootstrap.R")
 create_data_frame_test <- function(data1, apprent, test_real_data=NULL, type){
   
   
-  boot <- simulation(apprent,type = type)
+  boot <- simulation(apprent, nb_sample = nrow(data1), type = type)
 
   data_train <- rbind(data1, boot)
   metadata <- c(rep("real", nrow(data1)), rep("simu", nrow(boot))) %>% as.factor()
@@ -23,6 +23,9 @@ create_data_frame_test <- function(data1, apprent, test_real_data=NULL, type){
   colnames(train) <- c(paste("X",1:ncol(data_train), sep=""), "metadata")
   
   test <- data.frame(boot_test, row.names = NULL)
+  colnames(test) <- paste("X",1:ncol(test), sep="")
+  colnames(test_real_data) <- paste("X",1:ncol(test), sep="")
+
   metadata_test <- c(rep("simu", nrow((test))), rep("real", nrow(test_real_data)))
   test <- rbind(test, data.frame(test_real_data, row.names = NULL))
   
@@ -37,6 +40,7 @@ create_data_frame_test <- function(data1, apprent, test_real_data=NULL, type){
 test_bootstrap_all <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_sample=nrow(data1), apprent=NULL, nb_train=1, proportion_real_data=0.1, type="comptage"){
   
   if(is.null(apprent)) apprent <- apprentissage(data1, nb_axe = nb_axe, nb_cluster = nb_cluster)
+  simulation_ilr(result = apprent)
   
   if(type=="ilr") data1 <- data1 %>% MAP() %>% ilr()
   
@@ -50,14 +54,15 @@ test_bootstrap_all <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_sample=nr
                             
                             
                             data_test <- create_data_frame_test(data1, apprent=apprent, test_real_data = test_real_data,type=type)
+                
                             rf <- randomForest(metadata~. , data_test$train)
                             pred <- predict(rf, data_test$test) %>% table(data_test$metadata_test)
-                            pred
+                            list(pred=pred, rf=rf, data=data_test$train)
                             })
   sum_table <- 0
   
   for(i in 1:length(all)){
-    sum_table <- sum_table+all[[i]]
+    sum_table <- sum_table+all[[i]][[1]]
   }
   sum_table <- sum_table/matrix(c(sum(sum_table[,1]), sum(sum_table[,1]), sum(sum_table[,2]), sum(sum_table[,2])), nrow = 2) * 100
   

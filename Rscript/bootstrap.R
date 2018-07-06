@@ -119,8 +119,8 @@ apprentissage <- function(data, nb_axe=NULL, nb_cluster=NULL){
 simulation_ilr <- function(result, nb_sample=nrow(result$data)){
   new_sample <- simu_melange_gaussien(nb_sample, result$pi_k, result$mean, result$Sigma)
   
-  Z <- t((result$W) %*% t(new_sample$data))
-  
+  Z <- (new_sample$data %*% t(result$W))
+
   D <- ncol(Z)
   n <- nrow(Z)
   Z <- Z + mvrnorm(n, rep(0, D), result$noise*diag(D))
@@ -163,7 +163,7 @@ simulation <- function(result, nb_sample=nrow(result$data), type="comptage"){
     (round(x*deep_simu-1)>0)*rmultinom(1, round(deep_simu), x)
     #(round(x*deep_simu-1)>0)*(round(x*deep_simu-1))
   }) %>%t()
-  
+  #result_sample <- (result_sample>1)*(result_sample)
   rownames(result_sample) <- paste("sample", 1:nrow(simu_MAP))
   colnames(result_sample) <- colnames(result$data)
   
