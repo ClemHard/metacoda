@@ -1,5 +1,6 @@
 library(biomformat)
 library(phyloseq)
+library(ape)
 library(dplyr)
 library(magrittr)
 
@@ -72,8 +73,13 @@ liver_500 <- liver[,mean_otus_liver[2,1:500]]
 
 
 ###### phyloseq
+delete_tip_tree <- function(tree, data){
+  p <- tree$tip.label[-which(colnames(data) %in% tree$tip.label)]
+  drop.tip(tree, p)
+}
 
-tree_chaillou <- read_tree("data/chaillou/tree.nwk")
-tree_mach <- read_tree("data/mach/tree.nwk")
+tree_chaillou <- read_tree("data/chaillou/tree.nwk") %>% delete_tip_tree(chaillou)
+tree_mach <- read_tree("data/mach/tree.nwk") %>% delete_tip_tree(mach)
+tree_mach_500 <- read_tree("data/mach/tree.nwk") %>% delete_tip_tree(mach_500)
 
 
