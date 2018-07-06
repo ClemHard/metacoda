@@ -61,13 +61,13 @@ Graph_cumulative_evolution<-function(data, abscisse=1:nrow(data)){
 
 
 
-graph_biplot_normale <- function(data, metadata_group, nb_graph=1, title=NULL, legend_title="group", coord_biplot=FALSE){
+graph_biplot_normale <- function(data, metadata_group, nb_graph=1, title=NULL, legend_title="group", coord_biplot=FALSE, base_binaire=Base_binary_matrix(ncol(data))){
   
   b_data <- 0
   
   if(!coord_biplot){
     data_MAP <- MAP(data)
-    b_data <- biplot(data_MAP);
+    b_data <- biplot(data_MAP, base_binaire = base_binaire);
     
   }
   else{

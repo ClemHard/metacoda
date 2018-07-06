@@ -81,8 +81,8 @@ test_that("Base_SIGMA_matrix inverse works properly", {
 ## Test Base_binary_matrix
 
 test_that("Base_SIGMA_matrix inverse works properly", {
-  expect_equal(Base_binary_matrix(3), matrix(c(1, 1, -1, 1, 0, -1), nrow = 2), tolerance=1e-2)
-  expect_equal(Base_binary_matrix(5), matrix(c(1, 1, 1, 1, -1, 1, 1, 1, 0,  -1, 1, 1, 0, 0, -1, 1, 0, 0, 0, -1), nrow = 4), tolerance=1e-2)
+  expect_equal(Base_binary_matrix(3), matrix(c(-1, -1, 1, -1, 0, 1), nrow = 2), tolerance=1e-2)
+  expect_equal(Base_binary_matrix(5), matrix(c(-1, -1, -1, -1, 1, -1, -1, -1, 0,  1, -1, -1, 0, 0, 1, -1, 0, 0, 0, 1), nrow = 4), tolerance=1e-2)
   
 })
 

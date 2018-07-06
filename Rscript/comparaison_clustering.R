@@ -3,9 +3,9 @@ library(dplyr)
 library(magrittr)
 
 
-comparaison_k_means <- function(data, metadata, nb_cluster=2, nb_graph=1, nb_start=50){
+comparaison_k_means <- function(data, metadata, nb_cluster=2, nb_graph=1, nb_start=50, base_binaire=Base_binary_matrix(ncol(data))){
   
-  data_ilr <- data %>% MAP() %>% ilr()
+  data_ilr <- data %>% MAP() %>% ilr(base_binaire = base_binaire)
   
   k_data_ilr <- kmeans(data_ilr, nb_cluster, nstart=nb_start)
   k_data <- kmeans(data, nb_cluster, nstart=nb_start)
@@ -20,9 +20,9 @@ comparaison_k_means <- function(data, metadata, nb_cluster=2, nb_graph=1, nb_sta
 }
 
 
-comparaison_hclust <- function(data, metadata, nb_cluster,nb_graph){
+comparaison_hclust <- function(data, metadata, nb_cluster, nb_graph, base_binaire=Base_binary_matrix(ncol(data))){
   
-  data_ilr <- data %>% MAP() %>% ilr()
+  data_ilr <- data %>% MAP() %>% ilr(base_binaire = base_binaire)
   
   hclust_data <- data %>% dist() %>% as.dist() %>% hclust(method="ward.D") %>% cutree(k=nb_cluster)
   hclust_data_ilr <- data_ilr %>% dist() %>% as.dist() %>% hclust(method="ward.D") %>% cutree(k=nb_cluster)
@@ -38,9 +38,9 @@ comparaison_hclust <- function(data, metadata, nb_cluster,nb_graph){
 }
 
 
-comparaison_Mclust <- function(data, metadata, nb_cluster, nb_graph){
+comparaison_Mclust <- function(data, metadata, nb_cluster, nb_graph, base_binaire=Base_binary_matrix(ncol(data))){
   
-  data_ilr <- data %>% MAP() %>% ilr()
+  data_ilr <- data %>% MAP() %>% ilr(base_binaire = base_binaire)
   
   Mclust_data <- data %>% Mclust(G=nb_cluster)
   Mclust_data_ilr <- data_ilr %>% Mclust(G=nb_cluster)

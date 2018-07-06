@@ -151,17 +151,20 @@ Base_binary_matrix<-function(D){
     rep(c(1, -1, 0), times = c(i, 1, D - (i+1) ))
     
   }
-  sapply(1:(D-1), build_row) %>% t()
+  -sapply(1:(D-1), build_row) %>% t()
   
 }
 
-ilr<-function(data, SIGMA=Base_SIGMA_matrix(ncol(data))){
+ilr<-function(data, base_binaire=Base_binary_matrix(ncol(data))){
+  SIGMA=SIGMA_matrix(base_binaire)
   data <- norm_data(data)
   clr(data) %*% t(SIGMA)
   
 }
 
-ilr_inverse<-function(data, k=1, SIGMA=Base_SIGMA_matrix(ncol(data)+1)){
+ilr_inverse<-function(data, k=1, base_binaire=Base_binary_matrix(ncol(data)+1)){
+  
+  SIGMA=SIGMA_matrix(base_binaire)
   exp(data %*% SIGMA) %>% closure(k)
   
 }
@@ -220,7 +223,7 @@ center_scale<-function(data, center = TRUE, scale = TRUE) {
 }
 
 
-biplot<-function(data){
+biplot<-function(data, base_binaire=Base_binary_matrix(ncol(data))){
   
   data <- norm_data(data)
   n <- nrow(data)
@@ -230,7 +233,7 @@ biplot<-function(data){
   
   
   
-  Z <- ilr(data)
+  Z <- ilr(data, base_binaire = base_binaire)
   
   C <- cov(Z)
   

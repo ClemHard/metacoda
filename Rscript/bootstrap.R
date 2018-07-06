@@ -21,9 +21,9 @@ simu_melange_gaussien <- function(n, probability, mean, Sigma){
 
 
 
-bootstrap <- function(data, nb_axe=NULL, nb_cluster=NULL, nb_sample=nrow(data), type="comptage"){
-  
-  apprent <- apprentissage(data, nb_axe = nb_axe, nb_cluster = nb_cluster)
+bootstrap <- function(data, nb_axe=NULL, nb_cluster=NULL, nb_sample=nrow(data), type="comptage", base_binaire=Base_binary_matrix(ncol(data))){
+
+  apprent <- apprentissage(data, nb_axe = nb_axe, nb_cluster = nb_cluster, base_binaire = base_binaire)
   if(type=="comptage"){
     new.sample <- simulation(apprent, nb_sample = nb_sample)
   } else if(type=="MAP"){
@@ -49,11 +49,11 @@ nb_cluster_capushe <- function(data, max_nb_cluster=round(nrow(data)/3)){
 
 
 
-nb_axe_capushe <- function(data, data_biplot=FALSE){
+nb_axe_capushe <- function(data, data_biplot=FALSE, base_binaire=Base_binary_matrix(ncol(data))){
   
   new_data <- data
   if(!data_biplot){
-    new_data <- new_data %>% biplot()
+    new_data <- new_data %>% biplot(base_binaire = base_binaire)
   }
   D <- ncol(new_data$coord)
   RMSE <- sapply(1:D, function(x){mean((new_data$coord[,x]^2))}) %>% sort() %>% cumsum() %>% sort(decreasing = TRUE) 
@@ -72,9 +72,9 @@ nb_axe_capushe <- function(data, data_biplot=FALSE){
 
 
 
-apprentissage_pca <- function(data, nb_cluster=NULL, nb_axe=NULL){
-  
-  data_biplot <- biplot(data)
+apprentissage_pca <- function(data, nb_cluster=NULL, nb_axe=NULL, base_binaire=Base_binary_matrix(ncol(data))){
+
+  data_biplot <- biplot(data, base_binaire=base_binaire)
   
   if(is.null(nb_axe)){
     nb_axe <- nb_axe_capushe(data_biplot, data_biplot = TRUE)  
@@ -98,17 +98,18 @@ apprentissage_pca <- function(data, nb_cluster=NULL, nb_axe=NULL){
   Sigma <- sum(data_biplot$values[(nb_axe+1):length(data_biplot$values)])/(length(data_biplot$vector[,1])-nb_axe)
   W <- data_biplot$vector[,1:nb_axe]
   
-  result <- list(data=data, W=W, pi_k=probability, mean=mean_data, Sigma=Sigma_data, noise=Sigma, d=nb_axe, nb_cluster=nb_cluster)
+  result <- list(data=data, W=W, pi_k=probability, mean=mean_data, Sigma=Sigma_data, noise=Sigma, d=nb_axe, nb_cluster=nb_cluster, base_binaire=base_binaire)
+
   class(result) <- "apprentissage"
   
   result
 }
 
 
-apprentissage <- function(data, nb_axe=NULL, nb_cluster=NULL){
-  
+apprentissage <- function(data, nb_axe=NULL, nb_cluster=NULL, base_binaire=Base_binary_matrix(ncol(data))){
+
   new.data <- data %>% MAP()
-  result <- apprentissage_pca(new.data, nb_axe = nb_axe, nb_cluster = nb_cluster)
+  result <- apprentissage_pca(new.data, nb_axe = nb_axe, nb_cluster = nb_cluster, base_binaire = base_binaire)
   result$data <- data
   
   result
@@ -120,7 +121,7 @@ simulation_ilr <- function(result, nb_sample=nrow(result$data)){
   new_sample <- simu_melange_gaussien(nb_sample, result$pi_k, result$mean, result$Sigma)
   
   Z <- (new_sample$data %*% t(result$W))
-
+  
   D <- ncol(Z)
   n <- nrow(Z)
   Z <- Z + mvrnorm(n, rep(0, D), result$noise*diag(D))
@@ -132,15 +133,14 @@ simulation_ilr <- function(result, nb_sample=nrow(result$data)){
 simulation_MAP <- function(result, nb_sample=nrow(result$data)){
   
   Z <- simulation_ilr(result, nb_sample)
-  
-  new_sample <- Z %>% ilr_inverse() %>% perturbation(center_data(result$data %>% MAP())) 
+  new_sample <- Z %>% ilr_inverse(base_binaire = result$base_binaire) %>% perturbation(center_data(result$data %>% MAP())) 
   new_sample
 }
 
 
 
 simulation <- function(result, nb_sample=nrow(result$data), type="comptage"){
-  
+
   if(type=="ilr"){
     simu_ilr <- simulation_ilr(result, nb_sample = nb_sample)
     rownames(simu_ilr) <- paste("sample", 1:nrow(simu_ilr))

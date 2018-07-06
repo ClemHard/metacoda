@@ -4,6 +4,9 @@ source("Rscript/graph.R")
 source("Rscript/comparaison_clustering.R")
 source("Rscript/bootstrap.R")
 source("Rscript/classification.R")
+source("Rscript/tree_phyloseq.R")
+
+
 
 chaillou_p <- count_to_proportion(chaillou)
 mach_500_p <- count_to_proportion(mach)
@@ -330,7 +333,7 @@ grid.arrange(grobs=graph_biplot_normale(data, metadata, 4, "ravel", "data"), nco
 
 #mach500
 
-mach_boot <- bootstrap(mach_500, PCA=TRUE)
+mach_boot <- bootstrap(mach_500)
 data <- rbind(mach_500, mach_boot$data)
 #metadata <- c(as.character(metadata_mach$Weaned), as.character(mach_boot$metadata)) %>% as.factor()
 metadata <- c(rep("real", nrow(mach_500)), rep("simu", nrow(mach_boot$data))) %>% as.factor()
@@ -341,7 +344,7 @@ grid.arrange(grobs=graph_biplot_normale(data, metadata, 4, "mach 500", "data"), 
 
 #vacher
 
-vacher_boot <- bootstrap(vacher, PCA=TRUE)
+vacher_boot <- bootstrap(vacher)
 data <- rbind(vacher, vacher_boot$data)
 # metadata <- c(as.character(metadata_ravel$CST), as.character(ravel_boot$metadata)) %>% as.factor()
 metadata <- c(rep("real", nrow(vacher)), rep("simu", nrow(vacher_boot$data))) %>% as.factor()
@@ -366,7 +369,10 @@ grid.arrange(grobs=graph_biplot_normale(data, metadata, 4, "liver", "data"), nco
 ### classification
 
 #chaillou
-t_chaillou <- test_bootstrap_all(chaillou, nb_cluster = 15, nb_axe = 16, nb_train = 5, type = "comptage")
+u <- apply(chaillou, 2, function(x){sum(x>10)}) %>% order(decreasing = TRUE)
+c <- chaillou[,u]
+set.seed(1)
+t_chaillou <- test_bootstrap_all(chaillou, nb_cluster =15, nb_axe = 16, type = "comptage", nb_train=5)
 t_chaillou$all
 
 
@@ -378,7 +384,10 @@ plot(t_chaillou$misclassification[r])
 
 
 #mach_500
-t_mach_500 <- test_bootstrap_all(mach_500, nb_cluster = 4, nb_axe = 4, nb_train = 1)
+u <- apply(mach_500, 2, function(x){sum(x>10)}) %>% order(decreasing = TRUE)
+c <- mach_500[,u]
+
+t_mach_500 <- test_bootstrap_all(mach_500, nb_cluster = 4, nb_axe = 4, nb_train = 5, type="comptage")
 t_mach_500$all
 
 abondance_otus <- apply(mach_500 %>% MAP(), 2 , function(x){sum(x>1e-4)})
@@ -424,7 +433,7 @@ plot(t_liver_500$misclassification[r])
 
 
 #ravel
-t_ravel <- test_bootstrap_all(ravel, nb_cluster = 12, nb_axe = 12, nb_train = 5)
+t_ravel <- test_bootstrap_all(ravel, nb_cluster = 12, nb_axe = 12, nb_train = 50)
 t_ravel$all
 
 
