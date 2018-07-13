@@ -28,6 +28,8 @@ bootstrap <- function(data, nb_axe=NULL, nb_cluster=NULL, nb_sample=nrow(data), 
     new.sample <- simulation(apprent, nb_sample = nb_sample)
   } else if(type=="MAP"){
     new.sample <- simulation_MAP(apprent, nb_sample = nb_sample)
+  } else if(type=="ilr"){
+    new.sample <- simulation_ilr(apprent, nb_sample = nb_sample)
   }
   new.sample <- list(data=new.sample, d=apprent$d, nb_cluster=apprent$nb_cluster, apprent=apprent)
   new.sample
@@ -94,12 +96,20 @@ apprentissage_pca <- function(data, nb_cluster=NULL, nb_axe=NULL, base_binaire=B
     mean_data[[i]] <- Mclust_data$parameters$mean[,i]
     Sigma_data[[i]] <- Mclust_data$parameters$variance$sigma[,,i]
   }
-  
   Sigma <- sum(data_biplot$values[(nb_axe+1):length(data_biplot$values)])/(length(data_biplot$vector[,1])-nb_axe)
   W <- data_biplot$vector[,1:nb_axe]
   
-  result <- list(data=data, W=W, pi_k=probability, mean=mean_data, Sigma=Sigma_data, noise=Sigma, d=nb_axe, nb_cluster=nb_cluster, base_binaire=base_binaire)
-
+  data_ilr <- data %>% ilr()
+  zero_inflated <- apply(data_ilr, 2, function(x){mean(x==0)})
+  iid <- which(zero_inflated>0.5)
+  
+  iid_cluster <- data.frame(cluster=Mclust_data$classification, data=as.vector(data_ilr[, iid]), OTU=rep(iid, nrow(data_ilr)) %>% sort()) %>%
+    group_by(OTU, cluster) %>% summarise(zero=mean(data==0)) 
+  
+  View(iid_cluster)
+  View(which(iid_cluster$zero>0.5))
+  result <- list(data=data, classification_data=Mclust_data$classification, W=W, pi_k=probability, mean=mean_data, Sigma=Sigma_data, noise=Sigma, d=nb_axe, nb_cluster=nb_cluster, base_binaire=base_binaire, zero_inflated=data.frame(coord=iid, percent_zero=zero_inflated[iid]))
+  
   class(result) <- "apprentissage"
   
   result
@@ -126,7 +136,13 @@ simulation_ilr <- function(result, nb_sample=nrow(result$data)){
   n <- nrow(Z)
   Z <- Z + mvrnorm(n, rep(0, D), result$noise*diag(D))
   
+  for(i in 1:ncol(result$zero_inflated)){
+    Z[, result$zero_inflated[i, 1]] <- Z[, result$zero_inflated[i, 1]] * rbinom(nrow(Z), 1, 1-result$zero_inflated[i, 2])
+  }
+
+  Z
 }
+
 
 
 
@@ -160,10 +176,15 @@ simulation <- function(result, nb_sample=nrow(result$data), type="comptage"){
   
   result_sample <- apply(simu_MAP, 1, function(x){
     deep_simu <- sample(deep, 1)
-    (round(x*deep_simu-1)>0)*rmultinom(1, round(deep_simu), x)
+    zix <- x-1/deep_simu
+    #zix[zix <= 1 / deep_simu]  <- 0
+    zix[zix <=0]  <- 0
+    (round(x*deep_simu-1)>0)*rmultinom(1, deep_simu, zix)
     #(round(x*deep_simu-1)>0)*(round(x*deep_simu-1))
   }) %>%t()
   #result_sample <- (result_sample>1)*(result_sample)
+  
+  
   rownames(result_sample) <- paste("sample", 1:nrow(simu_MAP))
   colnames(result_sample) <- colnames(result$data)
   
