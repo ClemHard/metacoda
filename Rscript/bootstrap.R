@@ -7,6 +7,35 @@ is.integer0 <- function(x)
   is.integer(x) && length(x) == 0L
 }
 
+
+max_abundance_value_OTU <- function(data){
+  
+  uni <- apply(data, 2, unique)
+  
+}
+
+
+zero_inflated <- function(data, classification){
+  
+  data <- signif(data, digits = 10)
+  zero_inflated <- apply(data, 2, function(x){mean(x==0)})
+  iid <- which(zero_inflated>0.7)
+  
+  iid_cluster <- NULL
+  
+  if(!(iid %>% is.integer0())){
+    iid_cluster <- data.frame(cluster=classification, data=as.vector(data[, iid]), OTU=rep(iid, nrow(data)) %>% sort()) %>%
+      group_by(OTU, cluster) %>% summarise(zero=mean(data==0)) 
+    
+    iid_cluster$zero_inflated_coeff <- rep(zero_inflated[iid], rep(length(unique(classification)),length(iid) ))
+    iid_cluster <- iid_cluster %>% filter(zero>0.7)
+  }
+  
+  iid_cluster
+}
+
+
+
 simu_melange_gaussien <- function(n, probability, mean, Sigma){
   
   NB <- rmultinom(1, n, probability)
@@ -105,18 +134,8 @@ apprentissage_pca <- function(data, nb_cluster=NULL, nb_axe=NULL, base_binaire=B
   W <- data_biplot$vector[,1:nb_axe]
   
   data_ilr <- data %>% center_scale(scale=FALSE) %>% ilr()
-  zero_inflated <- apply(data_ilr, 2, function(x){mean(abs(x)<1e-15)})
-  iid <- which(zero_inflated>0.5)
   
-  iid_cluster <- NULL
-  
-  if(!(iid %>% is.integer0())){
-    iid_cluster <- data.frame(cluster=Mclust_data$classification, data=as.vector(data_ilr[, iid]), OTU=rep(iid, nrow(data_ilr)) %>% sort()) %>%
-      group_by(OTU, cluster) %>% summarise(zero=mean(abs(data)<1e-15)) 
-  
-    iid_cluster$zero_inflated_coeff <- rep(zero_inflated[iid], rep(length(unique(Mclust_data$classification)),length(iid) ))
-    iid_cluster <- iid_cluster %>% filter(zero>0.5)
-  }
+  iid_cluster <- zero_inflated(data_ilr, Mclust_data$classification)
   
   result <- list(data=data, classification_data=Mclust_data$classification, W=W, pi_k=probability, mean=mean_data, Sigma=Sigma_data, noise=Sigma, d=nb_axe, nb_cluster=nb_cluster, base_binaire=base_binaire, zero_inflated_ilr=iid_cluster)
   
@@ -133,26 +152,12 @@ apprentissage <- function(data, nb_axe=NULL, nb_cluster=NULL, base_binaire=Base_
   result <- apprentissage_pca(new.data, nb_axe = nb_axe, nb_cluster = nb_cluster, base_binaire = base_binaire)
   result$data <- data
   
-  
-  zero_inflated <- apply(data, 2, function(x){mean(x==0)})
-  iid <- which(zero_inflated>0.5)
-  
-  iid_cluster <- NULL
-  
-  if(!(iid %>% is.integer0())){
-    iid_cluster <- data.frame(cluster=result$classification_data, data=as.vector(data[, iid]), OTU=rep(iid, nrow(data)) %>% sort()) %>%
-      group_by(OTU, cluster) %>% summarise(zero=mean(data==0)) 
-    
-    iid_cluster$zero_inflated_coeff <- rep(zero_inflated[iid], rep(length(unique(result$classification_data)),length(iid) ))
-    iid_cluster <- iid_cluster %>% filter(zero>0.5)
-  }
-  
+  iid_cluster <- zero_inflated(data, result$classification_data)
   
   result$zero_inflated_comptage <- iid_cluster
   
   result
 }
-
 
 
 simulation_ilr <- function(result, nb_sample=nrow(result$data)){
