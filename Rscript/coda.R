@@ -1,5 +1,13 @@
 library(rARPACK)
 
+#' verifie si les donnees sont compatibles, les transforme le cas echeant
+#'
+#' @param data les donnees à verifier
+#'
+#' @return les donnee verifie
+#'
+#' @author Clement Hardy
+#' @export
 
 check_data <- function(data) {
   ## transform to column matrix if vector
@@ -20,6 +28,15 @@ check_data <- function(data) {
   data
 }
 
+#' verifie que les donnees ne contiennent pas de zero
+#'
+#' @param data les donnees a verifier
+#'
+#' @return les donnees verifiees
+#'
+#' @author Clement Hardy
+#' @export
+#' 
 norm_data <- function(data) {
   data <- check_data(data)
   ## check presence of 0s or negative values
@@ -29,6 +46,17 @@ norm_data <- function(data) {
   data
 }
 
+#' calcul l'Inner product (donnees compositionnelle)
+#'
+#' @param data1 les donnees à simuler
+#' @param x,y deux donnee compositionnelle
+#'
+#' @return l'inner product
+#'
+#' @author Clement Hardy
+#' @export
+#' 
+#' 
 Inner_product<-function(x,y){
   x<-clr(x)
   y<-clr(y)
@@ -38,13 +66,44 @@ Inner_product<-function(x,y){
   tcrossprod(x, y) ## shortcut for x %*% t(y)
 }
 
+
+#' calcul la norme donnees compositionnelles 
+#'
+#' @param data les donnees
+#' 
+#' @return la norme du simplexe
+#'
+#' @author Clement Hardy
+#' @export
+
+
 norm_simplex<-function(data){
   data %>% clr() %>% .^2 %>% rowSums() %>% sqrt()
 }
 
+
+#' calcul la distance du simplexe
+#'
+#' @param data les donnees
+#' 
+#' @return la distance
+#'
+#' @author Clement Hardy
+#' @export
+
 dist_simplex <- function(data) {
   data %>% clr %>% dist
 }
+
+
+#' calcul la closure 
+#'
+#' @param data les donnees
+#' 
+#' @return les donnees (closure faite)
+#'
+#' @author Clement Hardy
+#' @export
 
 closure <- function(data, k=1){
   data <- norm_data(data)

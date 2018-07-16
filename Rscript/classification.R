@@ -39,21 +39,23 @@ create_data_frame_test <- function(data1, apprent, test_real_data=NULL, type){
 
 test_bootstrap_all <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_sample=nrow(data1), apprent=NULL, nb_train=1, proportion_real_data=0.1, type="comptage", base_binaire=Base_binary_matrix(ncol(data1))){
   
-  if(is.null(apprent)) apprent <- apprentissage(data1, nb_axe = nb_axe, nb_cluster = nb_cluster, base_binaire = base_binaire)
-  simulation_ilr(result = apprent)
   
-  if(type=="ilr") data1 <- data1 %>% MAP() %>% ilr(base_binaire = base_binaire)
+  data2 <- data1
+  if(type=="ilr") data2 <- data1 %>% MAP() %>% center_scale(scale=FALSE) %>% ilr(base_binaire = base_binaire)
   
-  if(type=="MAP") data1 <- data1 %>% MAP()
-    
+  if(type=="MAP") data2 <- data1 %>% MAP()
+  
   all <- lapply(1:nb_train, function(x){
     
                             rand_real_data <- sample(1:nrow(data1), floor(nrow(data1)*proportion_real_data))
-                            test_real_data <- data1[rand_real_data,]
-                            data1 <- data1[-rand_real_data,]
+                            test_real_data <- data2[rand_real_data,]
                             
+                            data3 <- data1[-rand_real_data,]
+                            data_train <- data2[-rand_real_data,]
+                            apprent <- apprentissage(data3, nb_axe = nb_axe, nb_cluster = nb_cluster, base_binaire = base_binaire)
+
                             
-                            data_test <- create_data_frame_test(data1, apprent=apprent, test_real_data = test_real_data,type=type)
+                            data_test <- create_data_frame_test(data_train, apprent=apprent, test_real_data = test_real_data, type=type)
                 
                             rf <- randomForest(metadata~. , data_test$train)
                             pred <- predict(rf, data_test$test) %>% table(data_test$metadata_test)
@@ -64,9 +66,16 @@ test_bootstrap_all <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_sample=nr
   for(i in 1:length(all)){
     sum_table <- sum_table+all[[i]][[1]]
   }
+  
+  sum_importance <- 0
+  
+  for(i in 1:length(all)){
+    sum_importance <- sum_importance + all[[i]][[2]]$importance
+  }
+  
   sum_table <- sum_table/matrix(c(sum(sum_table[,1]), sum(sum_table[,1]), sum(sum_table[,2]), sum(sum_table[,2])), nrow = 2) * 100
   
-  list(all=sum_table, all_train=all)
+  list(all=sum_table, all_importance=sum_importance, all_train=all)
 }
 
 
@@ -75,8 +84,6 @@ test_bootstrap_all <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_sample=nr
 test_bootstrap_variable <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_sample=nrow(data1), apprent=NULL, nb_train=1, proportion_real_data=0.1, type="comptage", base_binaire=Base_binary_matrix(ncol(data1))){
   
   
-  if(is.null(apprent)) apprent <- apprentissage(data1, nb_axe = nb_axe, nb_cluster = nb_cluster, base_binaire = base_binaire)
-  
   if(type=="ilr") data1 <- data1 %>% MAP() %>% center_scale(scale=FALSE) %>% ilr(base_binaire = base_binaire)
   
   if(type=="MAP") data1 <- data1 %>% MAP()
@@ -84,6 +91,7 @@ test_bootstrap_variable <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_samp
   rand_real_data <- sample(1:nrow(data1), floor(nrow(data1)*proportion_real_data))
   test_real_data <- data1[rand_real_data,]
   data1 <- data1[-rand_real_data,]
+  apprent <- apprentissage(data1, nb_axe = nb_axe, nb_cluster = nb_cluster, base_binaire = base_binaire)
   
   data_test <- create_data_frame_test(data1, apprent=apprent, test_real_data = test_real_data, type=type)
   
@@ -121,13 +129,10 @@ test_bootstrap_variable <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_samp
 
 
 
-test_bootstrap <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_sample=nrow(data1), nb_train_all=1, type="comptage", base_binaire=Base_binary_matrix(ncol(data1))){
+test_bootstrap <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_sample=nrow(data1), proportion_real_data=0.1, nb_train_all=1, type="comptage", base_binaire=Base_binary_matrix(ncol(data1))){
   
-  rand_real_data <- sample(1:nrow(data1), floor(nrow(data1)*0.10))
-  
-  apprent <- apprentissage(data1, nb_cluster = nb_cluster, nb_axe = nb_axe, base_binaire = base_binaire)
-  all <- test_bootstrap_all(data1, apprent = apprent, nb_train = nb_train_all, type=type, base_binaire=base_binaire)
-  each <- test_bootstrap_variable(data1, apprent = apprent, type=type, base_binaire=base_binaire)
+  all <- test_bootstrap_all(data1, apprent = apprent, nb_train = nb_train_all, type=type, base_binaire=base_binaire, proportion_real_data = proportion_real_data)
+  each <- test_bootstrap_variable(data1, apprent = apprent, type=type, base_binaire=base_binaire, proportion_real_data = proportion_real_data)
   
   list(all=all, table_each=each$table_each, misclassification=each$misclassification)
 }

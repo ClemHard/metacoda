@@ -2,6 +2,11 @@ library(mclust)
 library(MASS)
 library(capushe)
 
+is.integer0 <- function(x)
+{
+  is.integer(x) && length(x) == 0L
+}
+
 simu_melange_gaussien <- function(n, probability, mean, Sigma){
   
   NB <- rmultinom(1, n, probability)
@@ -99,16 +104,21 @@ apprentissage_pca <- function(data, nb_cluster=NULL, nb_axe=NULL, base_binaire=B
   Sigma <- sum(data_biplot$values[(nb_axe+1):length(data_biplot$values)])/(length(data_biplot$vector[,1])-nb_axe)
   W <- data_biplot$vector[,1:nb_axe]
   
-  data_ilr <- data %>% ilr()
-  zero_inflated <- apply(data_ilr, 2, function(x){mean(x==0)})
+  data_ilr <- data %>% center_scale(scale=FALSE) %>% ilr()
+  zero_inflated <- apply(data_ilr, 2, function(x){mean(abs(x)<1e-15)})
   iid <- which(zero_inflated>0.5)
   
-  iid_cluster <- data.frame(cluster=Mclust_data$classification, data=as.vector(data_ilr[, iid]), OTU=rep(iid, nrow(data_ilr)) %>% sort()) %>%
-    group_by(OTU, cluster) %>% summarise(zero=mean(data==0)) 
+  iid_cluster <- NULL
   
-  View(iid_cluster)
-  View(which(iid_cluster$zero>0.5))
-  result <- list(data=data, classification_data=Mclust_data$classification, W=W, pi_k=probability, mean=mean_data, Sigma=Sigma_data, noise=Sigma, d=nb_axe, nb_cluster=nb_cluster, base_binaire=base_binaire, zero_inflated=data.frame(coord=iid, percent_zero=zero_inflated[iid]))
+  if(!(iid %>% is.integer0())){
+    iid_cluster <- data.frame(cluster=Mclust_data$classification, data=as.vector(data_ilr[, iid]), OTU=rep(iid, nrow(data_ilr)) %>% sort()) %>%
+      group_by(OTU, cluster) %>% summarise(zero=mean(abs(data)<1e-15)) 
+  
+    iid_cluster$zero_inflated_coeff <- rep(zero_inflated[iid], rep(length(unique(Mclust_data$classification)),length(iid) ))
+    iid_cluster <- iid_cluster %>% filter(zero>0.5)
+  }
+  
+  result <- list(data=data, classification_data=Mclust_data$classification, W=W, pi_k=probability, mean=mean_data, Sigma=Sigma_data, noise=Sigma, d=nb_axe, nb_cluster=nb_cluster, base_binaire=base_binaire, zero_inflated_ilr=iid_cluster)
   
   class(result) <- "apprentissage"
   
@@ -116,11 +126,29 @@ apprentissage_pca <- function(data, nb_cluster=NULL, nb_axe=NULL, base_binaire=B
 }
 
 
+
 apprentissage <- function(data, nb_axe=NULL, nb_cluster=NULL, base_binaire=Base_binary_matrix(ncol(data))){
 
   new.data <- data %>% MAP()
   result <- apprentissage_pca(new.data, nb_axe = nb_axe, nb_cluster = nb_cluster, base_binaire = base_binaire)
   result$data <- data
+  
+  
+  zero_inflated <- apply(data, 2, function(x){mean(x==0)})
+  iid <- which(zero_inflated>0.5)
+  
+  iid_cluster <- NULL
+  
+  if(!(iid %>% is.integer0())){
+    iid_cluster <- data.frame(cluster=result$classification_data, data=as.vector(data[, iid]), OTU=rep(iid, nrow(data)) %>% sort()) %>%
+      group_by(OTU, cluster) %>% summarise(zero=mean(data==0)) 
+    
+    iid_cluster$zero_inflated_coeff <- rep(zero_inflated[iid], rep(length(unique(result$classification_data)),length(iid) ))
+    iid_cluster <- iid_cluster %>% filter(zero>0.5)
+  }
+  
+  
+  result$zero_inflated_comptage <- iid_cluster
   
   result
 }
@@ -135,11 +163,17 @@ simulation_ilr <- function(result, nb_sample=nrow(result$data)){
   D <- ncol(Z)
   n <- nrow(Z)
   Z <- Z + mvrnorm(n, rep(0, D), result$noise*diag(D))
-  
-  for(i in 1:ncol(result$zero_inflated)){
-    Z[, result$zero_inflated[i, 1]] <- Z[, result$zero_inflated[i, 1]] * rbinom(nrow(Z), 1, 1-result$zero_inflated[i, 2])
-  }
 
+  # if(!is.null(result$zero_inflated)){
+  #   temp <- result$zero_inflated
+  #   for(i in 1:nrow(temp)){
+  #     e <- rbinom(length(which(result$classification_data==temp$cluster[i])), 1, 1-temp$zero[i])
+  #     Z[which(result$classification_data==temp$cluster[i]), temp$OTU[i]] <- Z[which(result$classification_data==temp$cluster[i]), temp$OTU[i]] * e
+  #   }
+  # }
+  # for(i in 1:ncol(result$zero_inflated)){
+  #   Z[, result$zero_inflated[i, 1]] <- Z[, result$zero_inflated[i, 1]] * rbinom(nrow(Z), 1, 1-result$zero_inflated[i, 2])
+  # }
   Z
 }
 
@@ -184,6 +218,14 @@ simulation <- function(result, nb_sample=nrow(result$data), type="comptage"){
   }) %>%t()
   #result_sample <- (result_sample>1)*(result_sample)
   
+  
+  if(!is.null(result$zero_inflated_comptage)){
+    temp <- result$zero_inflated_comptage
+    for(i in 1:nrow(temp)){
+      e <- rbinom(length(which(result$classification_data==temp$cluster[i])), 1, 1-temp$zero[i])
+      result_sample[which(result$classification_data==temp$cluster[i]), temp$OTU[i]] <- result_sample[which(result$classification_data==temp$cluster[i]), temp$OTU[i]] * e
+    }
+  }
   
   rownames(result_sample) <- paste("sample", 1:nrow(simu_MAP))
   colnames(result_sample) <- colnames(result$data)

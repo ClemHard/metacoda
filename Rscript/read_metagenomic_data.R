@@ -17,7 +17,8 @@ ravel <- read_biom("data/ravel/ravel.biom") %>% biom_data() %>% as.matrix()
 
 
 ### Read RDS file
-liver <- (readRDS("data/liver_qin_nan/microbiota.abundance.2018.RDS")*1e8) %>% round()
+liver <- (readRDS("data/liver_qin_nan/microbiota.abundance.2018.RDS")*1e7) %>% round()
+#liver <- readRDS("data/liver_qin_nan/microbiota.abundance.2018.RDS")
 metadata_liver <- readRDS("data/liver_qin_nan/metadata.RDS")
 
 
@@ -64,7 +65,7 @@ mean_otus_mach <- rbind(apply(mach_MAP, 2, mean), 1:ncol(mach))
 mean_otus_mach <- mean_otus_mach[, order(mean_otus_mach[1,], decreasing = TRUE) ]
 mach_500 <- mach[,mean_otus_mach[2,1:500]]
 
-liver_MAP <- MAP(liver)
+liver_MAP <- liver %>% MAP()
 
 mean_otus_liver <- rbind(apply(liver_MAP, 2, mean), 1:ncol(liver))
 mean_otus_liver <- mean_otus_liver[, order(mean_otus_liver[1,], decreasing = TRUE) ]
