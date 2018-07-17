@@ -10,8 +10,18 @@ is.integer0 <- function(x)
 
 max_abundance_value_OTU <- function(data){
   
+  mat <- matrix(0, nrow=2, ncol=ncol(data))
   uni <- apply(data, 2, unique)
   
+  for(i in 1: length(uni)){
+    temp <-  sapply(uni[[i]], function(x){
+                                          mean(x==data[,i])})
+    
+    mat[1,i] <- max(temp)
+    mat[2,i] <- uni[[i]][which.max(temp)]
+  }
+  
+   mat
 }
 
 
@@ -19,16 +29,22 @@ zero_inflated <- function(data, classification){
   
   data <- signif(data, digits = 10)
   zero_inflated <- apply(data, 2, function(x){mean(x==0)})
-  iid <- which(zero_inflated>0.7)
+  iid <- which(zero_inflated>0.5)
   
   iid_cluster <- NULL
   
+  nb_sample_cluster <- sapply(1:length(unique(classification)), function(x){sum(x==classification)})
+
+  
   if(!(iid %>% is.integer0())){
+    pseudo_comptage <- 0.5
     iid_cluster <- data.frame(cluster=classification, data=as.vector(data[, iid]), OTU=rep(iid, nrow(data)) %>% sort()) %>%
-      group_by(OTU, cluster) %>% summarise(zero=mean(data==0)) 
+      group_by(OTU, cluster) %>% summarise(zero=sum(data==0))
     
+    iid_cluster$nb_sample_cluster <- nb_sample_cluster
+    iid_cluster$zero <- iid_cluster$zero / (iid_cluster$nb_sample_cluster + pseudo_comptage)
     iid_cluster$zero_inflated_coeff <- rep(zero_inflated[iid], rep(length(unique(classification)),length(iid) ))
-    iid_cluster <- iid_cluster %>% filter(zero>0.7)
+    iid_cluster <- iid_cluster %>% filter(zero>0.5)
   }
   
   iid_cluster
@@ -169,13 +185,14 @@ simulation_ilr <- function(result, nb_sample=nrow(result$data)){
   n <- nrow(Z)
   Z <- Z + mvrnorm(n, rep(0, D), result$noise*diag(D))
 
-  # if(!is.null(result$zero_inflated)){
-  #   temp <- result$zero_inflated
-  #   for(i in 1:nrow(temp)){
-  #     e <- rbinom(length(which(result$classification_data==temp$cluster[i])), 1, 1-temp$zero[i])
-  #     Z[which(result$classification_data==temp$cluster[i]), temp$OTU[i]] <- Z[which(result$classification_data==temp$cluster[i]), temp$OTU[i]] * e
-  #   }
-  # }
+  if(!is.null(result$zero_inflated)){
+    temp <- result$zero_inflated
+    for(i in 1:nrow(temp)){
+      e <- rbinom(length(which(result$classification_data==temp$cluster[i])), 1, 1-temp$zero[i])
+      Z[which(result$classification_data==temp$cluster[i]), temp$OTU[i]] <- Z[which(result$classification_data==temp$cluster[i]), temp$OTU[i]] * e
+    }
+  }
+  
   # for(i in 1:ncol(result$zero_inflated)){
   #   Z[, result$zero_inflated[i, 1]] <- Z[, result$zero_inflated[i, 1]] * rbinom(nrow(Z), 1, 1-result$zero_inflated[i, 2])
   # }
