@@ -2,6 +2,7 @@ library(testthat)
 
 source("Rscript/coda.R");
 source("Rscript/test_groupe.R")
+source("Rscript/bootstrap.R")
 
 ## Test norm data
 test_that("norm_data detects nonpositive values", {
@@ -301,4 +302,42 @@ test_that("count_to_proportion works properly", {
 
 test_that("MAP works properly", {
   expect_equal(MAP(matrix(c(1, 2, 3, 1.2, 1.3, 6.2, 4.2, 6.2, 0.25),nrow=3)), matrix(c(0.2127, 0.2400, 0.3212, 0.2340, 0.1840, 0.57831, 0.5531, 0.5760, 0.1004), nrow=3), tolerance=1e-2)
+})
+
+
+
+## Test max_abundance_value_OTU
+
+test_that("max_abundance_value_OTU works properly", {
+  set.seed(20283)
+  
+  data <- matrix(sample(0:5, 100, replace=TRUE), nrow=10)
+  data_result <- data.frame(zero_inflated=c(0.3, 0.4, 0.4, 0.4, 0.6, 0.2, 0.3, 0.3, 0.3, 0.3), value=c(5, 3, 5, 1, 4, 2, 5, 1, 0, 2))
+  expect_identical(max_abundance_value_OTU(data), data_result)
+  
+  
+  data <- matrix(sample(0:5, 100, replace=TRUE), nrow=10)
+  data_result <- data.frame(zero_inflated=c(0.3, 0.3, 0.2, 0.3, 0.3, 0.2, 0.3, 0.4, 0.4, 0.4), value=c(3, 2, 3, 4, 1, 1, 4, 4, 5, 1))
+  expect_identical(max_abundance_value_OTU(data), data_result)
+  
+  unif <- runif(5,0,10)
+  data <- matrix(sample(unif, 100, replace=TRUE), nrow=10)
+  data_result <- data.frame(zero_inflated=c(0.3, 0.4, 0.4, 0.5, 0.3, 0.3, 0.4, 0.4, 0.5, 0.3), value=c(unif[2], unif[1], unif[2], unif[4], unif[5], unif[4], unif[2], unif[4], unif[1], unif[3]))
+  expect_identical(max_abundance_value_OTU(data), data_result)
+  
+})
+
+
+
+
+## Test zero_inflated
+
+test_that("zero_inflatede works properly", {
+  set.seed(20283)
+  
+  data <- matrix(sample(0:5, 200, replace=TRUE), nrow=20)
+  classification <- sample(1:4, 20, replace=TRUE)
+  data_result <- data.frame(zero_inflated=c(0.3, 0.4, 0.4, 0.4, 0.6, 0.2, 0.3, 0.3, 0.3, 0.3), value=c(5, 3, 5, 1, 4, 2, 5, 1, 0, 2))
+  expect_identical(max_abundance_value_OTU(data), data_result)
+  
 })
