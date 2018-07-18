@@ -240,13 +240,8 @@ simulation <- function(result, nb_sample=nrow(result$data), type="comptage"){
   
   result_sample <- apply(simu_MAP$data, 1, function(x){
     deep_simu <- sample(deep, 1)
-    zix <- x-1/deep_simu
-    #zix[zix <= 1 / deep_simu]  <- 0
-    zix[zix <=0]  <- 0
     rmultinom(1, deep_simu, x)
-    #(round(x*deep_simu-1)>0)*(round(x*deep_simu-1))
   }) %>%t()
-  #result_sample <- (result_sample>1)*(result_sample)
   
   
   if(!is.null(result$zero_inflated_comptage)){
