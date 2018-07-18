@@ -3,9 +3,9 @@ source("Rscript/coda.R")
 source("Rscript/graph.R")
 source("Rscript/comparaison_clustering.R")
 source("Rscript/bootstrap.R")
-source("Rscript/classification.R")
+source("Rscript/test_bootstrap.R")
 source("Rscript/tree_phyloseq.R")
-
+source("Rscript/apprentissage_supervise.R")
 
 
 chaillou_p <- count_to_proportion(chaillou)
@@ -312,8 +312,8 @@ grid.arrange(grobs=Mclust_liver$graphics, ncol=1)
 
 #chaillou
 
-chaillou_boot <- bootstrap(chaillou, nb_cluster = 15, nb_axe = 16)
-data <- rbind(chaillou, chaillou_boot$data)
+chaillou_boot <- bootstrap(chaillou, nb_cluster = 15, nb_axe = 16, type="ilr")
+data <- rbind(chaillou %>% MAP() %>% center_scale(scale = FALSE) %>% ilr(), chaillou_boot$data)
 #metadata <- c(as.character(metadata_chaillou$EnvType), as.character(chaillou_boot$metadata)) %>% as.factor()
 metadata <- c(as.character(rep("real", nrow(chaillou))), rep("simu", nrow(chaillou_boot$data))) %>% as.factor()
 
@@ -323,7 +323,7 @@ grid.arrange(grobs=graph_biplot_normale(data, metadata, 4, "chaillou", "data"), 
 
 #ravel
 
-ravel_boot <- bootstrap(ravel, nb_axe = 12, nb_cluster = 30)
+ravel_boot <- bootstrap(ravel, nb_cluster = 4, nb_axe = 4, type="comptage")
 data <- rbind(ravel, ravel_boot$data)
 # metadata <- c(as.character(metadata_ravel$CST), as.character(ravel_boot$metadata)) %>% as.factor()
 metadata <- c(rep("real", nrow(ravel)), rep("simu", nrow(ravel_boot$data))) %>% as.factor()
@@ -333,7 +333,7 @@ grid.arrange(grobs=graph_biplot_normale(data, metadata, 4, "ravel", "data"), nco
 
 #mach500
 
-mach_boot <- bootstrap(mach_500)
+mach_boot <- bootstrap(mach_500, type="comptage", nb_cluster = 4, nb_axe = 10)
 data <- rbind(mach_500, mach_boot$data)
 #metadata <- c(as.character(metadata_mach$Weaned), as.character(mach_boot$metadata)) %>% as.factor()
 metadata <- c(rep("real", nrow(mach_500)), rep("simu", nrow(mach_boot$data))) %>% as.factor()
@@ -344,7 +344,7 @@ grid.arrange(grobs=graph_biplot_normale(data, metadata, 4, "mach 500", "data"), 
 
 #vacher
 
-vacher_boot <- bootstrap(vacher)
+vacher_boot <- bootstrap(vacher, nb_cluster = 4, nb_axe = 11, type="comptage")
 data <- rbind(vacher, vacher_boot$data)
 # metadata <- c(as.character(metadata_ravel$CST), as.character(ravel_boot$metadata)) %>% as.factor()
 metadata <- c(rep("real", nrow(vacher)), rep("simu", nrow(vacher_boot$data))) %>% as.factor()
@@ -352,13 +352,11 @@ grid.arrange(grobs=graph_biplot_normale(data, metadata, 4, "vacher", "data"), nc
 
 
 #liver
-liver_boot <- bootstrap(liver_500, nb_cluster = 8, nb_axe=7)
+liver_boot <- bootstrap(liver_500, nb_cluster = 8, nb_axe=7, nb_sample = 1000)
 data <- rbind(liver_500, liver_boot$data)
 # metadata <- c(as.character(metadata_ravel$CST), as.character(ravel_boot$metadata)) %>% as.factor()
 metadata <- c(rep("real", nrow(liver)), rep("simu", nrow(liver_boot$data))) %>% as.factor()
 grid.arrange(grobs=graph_biplot_normale(data, metadata, 4, "liver", "data"), ncol=2)
-
-
 
 
 
@@ -372,7 +370,7 @@ grid.arrange(grobs=graph_biplot_normale(data, metadata, 4, "liver", "data"), nco
 u <- apply(chaillou, 2, function(x){sum(x>10)}) %>% order(decreasing = TRUE)
 c <- chaillou[,u]
 set.seed(1)
-t_chaillou <- test_bootstrap_all(chaillou, nb_cluster =15, nb_axe = 16, type = "comptage", nb_train=5)
+t_chaillou <- test_bootstrap_all(chaillou, nb_cluster = 15, nb_axe = 16, type = "comptage", nb_train=1)
 t_chaillou$all
 
 
@@ -387,7 +385,7 @@ plot(t_chaillou$misclassification[r])
 u <- apply(mach_500, 2, function(x){sum(x>10)}) %>% order(decreasing = TRUE)
 c <- mach_500[,u]
 
-t_mach_500 <- test_bootstrap_all(mach_500, nb_cluster = 4, nb_axe = 4, nb_train = 5, type="comptage")
+t_mach_500 <- test_bootstrap_all(mach_500, nb_cluster = 4, nb_axe = 10, nb_train = 1, type="comptage")
 t_mach_500$all
 
 abondance_otus <- apply(mach_500 %>% MAP(), 2 , function(x){sum(x>1e-4)})
@@ -397,7 +395,7 @@ plot(t_mach_500$misclassification[r])
 
 
 #vacher
-t_vacher <- test_bootstrap_all(vacher, nb_cluster = 4, nb_axe = 11, nb_train=5)
+t_vacher <- test_bootstrap_all(vacher, nb_cluster = 4, nb_axe = 11, nb_train=1, type="comptage")
 t_vacher$all
 
 
@@ -409,7 +407,7 @@ plot(t_vacher$misclassification[r])
 
 
 #liver
-t_liver <- test_bootstrap_all(liver, nb_cluster = 7, nb_axe = 8, nb_train = 5)
+t_liver <- test_bootstrap_all(liver, nb_cluster = 7, nb_axe = 8, nb_train = 1)
 t_liver$all
 
 
@@ -420,7 +418,7 @@ plot(t_liver$misclassification[r])
 
 
 #liver 500
-t_liver_500 <- test_bootstrap_all(liver_500, nb_cluster = 7, nb_axe = 8, nb_train=5)
+t_liver_500 <- test_bootstrap_all(liver_500, nb_cluster = 7, nb_axe = 8, nb_train=1)
 t_liver_500$all
 
 
@@ -433,47 +431,136 @@ plot(t_liver_500$misclassification[r])
 
 
 #ravel
-t_ravel <- test_bootstrap_all(ravel, nb_cluster = 12, nb_axe = 12, nb_train = 50)
+t_ravel <- test_bootstrap_all(ravel, nb_cluster = 4, nb_axe = 11, nb_train = 1, type="comptage")
 t_ravel$all
 
 
-abondance_otus <- apply(ravel %>% MAP(), 2 , function(x){sum(x>1e-4)})
-r <- order(abondance_otus, decreasing = TRUE)
-plot(t_ravel$misclassification[r])
+
+##### bootstrap supervise
+c_super <- test_bootstrap_supervise(chaillou, metadata_chaillou$EnvType)
+c_super
+r_super <- test_bootstrap_supervise(ravel, metadata_ravel$CST)
+r_super
+l_super <- test_bootstrap_supervise(liver_500, metadata_liver$status)
+l_super
+m_super <- test_bootstrap_supervise(mach_500, metadata_mach$Weaned)
+m_super
 
 
+## idee
 
-
-
-
-
-
-
-
-
-vraisemblance <- function(data, phi){
-  
-  
-  data_biplot <- biplot(data)
-  
-  norm_2 <- apply(data_biplot$coord, 1, function(x){sqrt(sum(x^2))})
-  
-  n <- nrow(data_biplot$coord)
-  p <- ncol(data_biplot$coord)
-  
-  sigma <- list()
-  
-  for(i in 2:(p-1)){
-    sigma[[i-1]] <- sum(data_biplot$values[i:p])/(p-i+1)
-  }
-  
-  sigma <- unlist(sigma)
-  a <- sigma/phi  
-  
-  vrai <- list()
-  for(d in 1:(p-2)){
-    vrai[[d]] <- -(n*p/2)*log(2*pi)-(n*p/2)*log(2/phi)-n*log(gamma(a[d]+d/2))+(a[d]+(d-p)/2)*sum(log(sqrt(phi)*norm_2/2))+sum(log(besselK(sqrt(phi)*norm_2, nu=(a[d]+(d-p)/2))))
-  }
-  unlist(vrai)
+abondance <- function(data, i){
+  sum(data<=i)
 }
+
+x <- 0:8
+y <- sapply(x, abondance, data=chaillou)
+y1 <- sapply(x, abondance, data=(chaillou_boot$data))
+plot(x, y, type='l', ylim=c(min(y, y1), max(y, y1)))
+lines(x, y1 ,col='red')
+
+
+u <- t_chaillou$all_importance
+r <- order(u)
+plotdata <- reshape2::melt(chaillou, value.name = "count", 
+                           varnames = c("sample", "OTU")) %>% 
+  mutate(Status = "real") %>% 
+  bind_rows(reshape2::melt(chaillou_boot$data, value.name = "count", 
+                           varnames = c("sample", "OTU")) %>% 
+              mutate(Status = "simu")) %>% 
+  group_by(OTU, count, Status) %>% 
+  summarize(n_sample = n())
+
+plotdata <- plotdata %>% 
+  inner_join(tibble(OTU = colnames(chaillou), 
+                    importance = u[, 1], 
+                    VIP = rank(-u[ , 1])), 
+             by = "OTU")
+    
+
+ggplot(data = plotdata %>% filter(VIP >= 500), 
+       aes(x = count, y = n_sample, fill = Status)) + 
+  geom_bar(stat = "identity", position = "dodge") + 
+  facet_wrap(~OTU, scales = "free")
+
+for(i in 490:508){hist((chaillou %>% MAP() %>% ilr())[,r[i]], main=i, breaks=500)}
+for(i in 1:10){hist((chaillou %>% MAP() %>% ilr())[,r[i]], main=i, breaks=500)}
+
+
+
+x <- 0:8
+y <- sapply(x, abondance, data=mach_500)
+y1 <- sapply(x, abondance, data=(mach_boot$data))
+plot(x, y, type='l', ylim=c(min(y, y1), max(y,y1)))
+lines(x, y1 ,col='red')
+
+
+
+
+u <- t_ravel$all_importance
+r <- order(u)
+plotdata <- reshape2::melt(ravel, value.name = "count", 
+                           varnames = c("sample", "OTU")) %>% 
+  mutate(Status = "real") %>% 
+  bind_rows(reshape2::melt(ravel_boot$data, value.name = "count", 
+                           varnames = c("sample", "OTU")) %>% 
+              mutate(Status = "simu")) %>% 
+  group_by(OTU, count, Status) %>% 
+  summarize(n_sample = n())
+
+plotdata <- plotdata %>% 
+  inner_join(tibble(OTU = colnames(ravel), 
+                    importance = u[, 1], 
+                    VIP = rank(-u[ , 1])), 
+             by = "OTU")
+
+
+ggplot(data = plotdata %>% filter(VIP >=240), 
+       aes(x = count, y = n_sample, fill = Status)) + 
+  geom_bar(stat = "identity", position = "dodge") + 
+  facet_wrap(~OTU, scales = "free")  
+
+
+u <-  t_liver_500$all_importance
+r <- order(u)
+for(i in 485:500){hist(liver_500[,r[i]], main=i, breaks=5000)}
+for(i in 1:15){hist(liver_500[,r[i]], main=i, breaks=500, xlim=c(0,30))}
+
+
+
+
+x <- 0:8
+y <- sapply(x, abondance, data=vacher)
+y1 <- sapply(x, abondance, data=(vacher_boot$data))
+plot(x, y, type='l', ylim=c(min(y, y1), max(y,y1)))
+lines(x, y1 ,col='red')
+
+
+
+u <- t_vacher$all_importance
+r <- order(u)
+for(i in 100:114){hist(vacher[,r[i]], main=i, breaks=500, xlim=c(0,30))}
+for(i in 1:15){hist(vacher[,r[i]], main=i, breaks=500, xlim=c(0,30))}
+
+
+
+x <- 0:8
+y <- sapply(x, abondance, data=ravel)
+y1 <- sapply(x, abondance, data=(ravel_boot$data))
+plot(x, y, type='l', ylim=c(min(y, y1), max(y,y1)))
+lines(x, y1 ,col='red')
+
+
+u <- t_ravel$all_importance
+r <- order(u)
+for(i in 230:247){hist(ravel[,r[i]], main=i, breaks=500, xlim=c(0,30))}
+for(i in 1:15){hist(ravel[,r[i]], main=i, breaks=500, xlim=c(0,30))}
+
+
+
+#################################################
+#################################################
+
+##apprentissage supervise
+
 
