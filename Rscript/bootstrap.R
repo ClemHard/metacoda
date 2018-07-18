@@ -44,15 +44,15 @@ zero_inflated <- function(data, classification){
 
   
   if(!(iid %>% is.integer0())){
-    pseudo_comptage <- 1
-    iid_cluster <- data.frame(cluster=classification, data=as.vector(data[, iid]), OTU=iid2$iid, value=iid2$value) %>%
+    pseudo_comptage <- 0.5
+    iid_cluster <- data.frame(cluster=classification, data=as.vector(data[, iid]), OTU=iid2$iid, value=iid2$value ,row.names = NULL) %>%
       group_by(OTU, cluster, value) %>% summarise(zero=sum(data==value))
     
     iid_cluster$nb_sample_cluster <- nb_sample_cluster
     iid_cluster$zero <- iid_cluster$zero / (iid_cluster$nb_sample_cluster + pseudo_comptage)
     iid_cluster$zero_inflated_coeff <- rep(zero_inflated$zero_inflated[iid], rep(length(unique(classification)),length(iid) ))
 
-    iid_cluster <- iid_cluster %>% filter(zero>0)
+    iid_cluster <- iid_cluster %>% filter(zero>0.7)
   }
   iid_cluster
 }
@@ -115,15 +115,17 @@ nb_axe_capushe <- function(data, data_biplot=FALSE, base_binaire=Base_binary_mat
     new_data <- new_data %>% biplot(base_binaire = base_binaire)
   }
   D <- ncol(new_data$coord)
+  
   RMSE <- sapply(1:D, function(x){mean((new_data$coord[,x]^2))}) %>% sort() %>% cumsum() %>% sort(decreasing = TRUE) 
   RMSE <- RMSE/sum(RMSE)
-  z <- data.frame(1:D,1:D,1:D,RMSE)
   
+  z <- data.frame(1:D,1:D,1:D,RMSE)
   i <- nrow(z)
   while(class(try(capushe(z[1:i,]), silent=TRUE))=="try-error"){
     i <- round(i*0.9)
-    if(i<=10){
-      stop("impossible de fitter une régression")
+    if(i<=5){
+      warning("impossible de fitter une régression")
+      return(D)
     }
   }
   as.numeric(capushe(z[1:i,])@DDSE@model)
@@ -153,7 +155,10 @@ apprentissage_pca <- function(data, nb_cluster=NULL, nb_axe=NULL, base_binaire=B
     mean_data[[i]] <- Mclust_data$parameters$mean[,i]
     Sigma_data[[i]] <- Mclust_data$parameters$variance$sigma[,,i]
   }
+  
   Sigma <- sum(data_biplot$values[(nb_axe+1):length(data_biplot$values)])/(length(data_biplot$vector[,1])-nb_axe)
+  if(is.na(Sigma) || Sigma<0) Sigma <- 0
+  
   W <- data_biplot$vector[,1:nb_axe]
   
   data_ilr <- data %>% center_scale(scale=FALSE) %>% ilr()
@@ -199,11 +204,6 @@ simulation_ilr <- function(result, nb_sample=nrow(result$data)){
       Z[which(result$classification_data==temp$cluster[i]), temp$OTU[i]] <- Z[which(result$classification_data==temp$cluster[i]), temp$OTU[i]]*(1-e) + temp$value[i]
     }
    }
-  # 
-  # for(i in 1:ncol(result$zero_inflated)){
-  #   Z[, result$zero_inflated[i, 1]] <- Z[, result$zero_inflated[i, 1]] * rbinom(nrow(Z), 1, 1-result$zero_inflated[i, 2])
-  # }
-
   list(data=Z, metadata=new_sample$metadata)
 }
 
