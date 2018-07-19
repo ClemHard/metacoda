@@ -8,8 +8,8 @@ apprentissage_supervise <- function(data, metadata){
   
   name_group <- unique(metadata)
   apprent <- lapply(name_group, function(x){
-                                iid <- which(metadata==x)
-                                apprentissage(data[iid,])
+    iid <- which(metadata==x)
+    apprentissage(data[iid,])
   })
   apprent
 }
@@ -36,16 +36,16 @@ bootstrap_supervise <- function(data, metadata){
 
 test_bootstrap_supervise <- function(data, metadata, nb_train=1, type="comptage"){
   
- apprent <- apprentissage_supervise(data=data, metadata = metadata)
- 
- if(type=="MAP") data <- data %>% MAP()
- if(type=="ilr") data <- data %>% MAP() %>% ilr()
- 
- train <- data.frame(data, as.factor(metadata), row.names = NULL)
- colnames(train) <- c(paste("X",1:ncol(data), sep=""), "metadata")
- 
- l <- lapply(1:nb_train, function(x){
-   
+  apprent <- apprentissage_supervise(data=data, metadata = metadata)
+  
+  if(type=="MAP") data <- data %>% MAP()
+  if(type=="ilr") data <- data %>% MAP() %>% ilr()
+  
+  train <- data.frame(data, as.factor(metadata), row.names = NULL)
+  colnames(train) <- c(paste("X",1:ncol(data), sep=""), "metadata")
+  
+  l <- lapply(1:nb_train, function(x){
+    
     simu <- simulation_supervise(apprent)
     
     if(type=="MAP") simu$data <- simu$data %>% MAP()
@@ -67,18 +67,18 @@ test_bootstrap_supervise <- function(data, metadata, nb_train=1, type="comptage"
     pred_svm <- predict(Svm, test)
     
     list(random_forest=table(pred_forest, simu$metadata), kNN=table(kNN, simu$metadata), Svm=table(pred_svm, simu$metadata))
- })
- 
- 
- sum_table <- list(random_forest=0, kNN=0, Svm=0)
- 
- for(i in 1:length(l)){
-   for(j in 1:length(l[[i]])){
-    sum_table[[j]] <- sum_table[[j]]+l[[i]][[j]]
-   }
- }
- 
- list(all=sum_table, all_train=l)
+  })
+  
+  
+  sum_table <- list(random_forest=0, kNN=0, Svm=0)
+  
+  for(i in 1:length(l)){
+    for(j in 1:length(l[[i]])){
+      sum_table[[j]] <- sum_table[[j]]+l[[i]][[j]]
+    }
+  }
+  
+  list(all=sum_table, all_train=l)
 }
 
 
@@ -123,9 +123,9 @@ validation_croise <- function(data, metadata, k=nrow(data)){
       mat[which(name_group==kNN[i]), which(name_group==metadata[x==iid][i])] <- mat[which(name_group==kNN[i]), which(name_group==metadata[x==iid][i])] + 1
       mat2[which(name_group==pred_Svm[i]), which(name_group==metadata[x==iid][i])] <- mat2[which(name_group==pred_Svm[i]), which(name_group==metadata[x==iid][i])] + 1
     }
-
+    
     list(mat, mat2)
-    })
+  })
   
   stopCluster(cl)
   
