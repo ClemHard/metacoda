@@ -14,7 +14,9 @@ source("Rscript/coda.R")
 source("Rscript/comparaison_clustering.R")
 source("Rscript/graph.R")
 source("Rscript/bootstrap.R")
-source("Rscript/classification.R")
+source("Rscript/test_bootstrap.R")
+source("Rscript/tree_phyloseq.R")
+source("Rscript/apprentissage_supervise.R")
 ```
 
 ## Réduction de dimension
@@ -288,8 +290,8 @@ Mclust_mach$graphics[[3]]
 
 
 # test_bootstrap
-
-## chaillou
+## (round(x*deep_simu-1)>0)*rmultinom(1, round(deep_simu), x) \\
+### chaillou
 
 
 ```{r chaillou-test_bootstap, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
@@ -300,38 +302,257 @@ t_chaillou$all
 ```
 
 
-## mach 500
+### mach 500
 ```{r mach_500-test_bootstap, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
 
-t_mach_500 <- test_bootstrap_all(mach_500, nb_cluster = 4, nb_axe = 4, nb_train = 50)
+t_mach_500 <- test_bootstrap_all(mach_500, nb_cluster = 4, nb_axe = 10, nb_train = 51)
 t_mach_500$all
 
 ```
 
 
-## vacher 
+### vacher 
 ```{r vacher-test_bootstap, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
 
-t_vacher <- test_bootstrap_all(vacher, nb_cluster = 4, nb_axe = 11, nb_train=50)
+t_vacher <- test_bootstrap_all(vacher, nb_cluster = 4, nb_axe = 11, nb_train=51)
 t_vacher$all
 
 ```
 
 
 
-## liver 500
+### liver 500
 ```{r liver_500-test_bootstap, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
 
-t_liver_500 <- test_bootstrap_all(liver_500, nb_cluster = 7, nb_axe = 8, nb_train=50)
+t_liver_500 <- test_bootstrap_all(liver_500, nb_cluster = 7, nb_axe = 8, nb_train=51)
 t_liver_500$all
 
 ```
 
 
-## ravel
+### ravel
 ```{r ravel-test_bootstap, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
 
-t_ravel <- test_bootstrap_all(ravel, nb_cluster = 12, nb_axe = 12, nb_train = 50)
+t_ravel <- test_bootstrap_all(ravel, nb_cluster = 12, nb_axe = 12, nb_train = 51)
 t_ravel$all
 
 ```
+
+
+
+## zero inflated \\
+### chaillou
+
+
+```{r chaillou-test_bootstap_zero, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+t_chaillou <- test_bootstrap_all(chaillou, nb_cluster = 15, nb_axe = 16, nb_train = 50)
+t_chaillou$all
+
+```
+
+
+### mach 500
+```{r mach_500-test_bootstap_zero, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+t_mach_500 <- test_bootstrap_all(mach_500, nb_cluster = 4, nb_axe = 10, nb_train = 51)
+t_mach_500$all
+
+```
+
+
+### vacher 
+```{r vacher-test_bootstap_zero, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+t_vacher <- test_bootstrap_all(vacher, nb_cluster = 4, nb_axe = 11, nb_train=51)
+t_vacher$all
+
+```
+
+
+
+### liver 500
+```{r liver_500-test_bootstap_zero, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+t_liver_500 <- test_bootstrap_all(liver_500, nb_cluster = 7, nb_axe = 8, nb_train=51)
+t_liver_500$all
+
+```
+
+
+### ravel
+```{r ravel-test_bootstap_zero, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+t_ravel <- test_bootstrap_all(ravel, nb_cluster = 12, nb_axe = 12, nb_train = 51)
+t_ravel$all
+
+```
+
+
+
+##sans reduction de dimension\\
+
+### chaillou
+
+
+```{r chaillou-test_bootstap3, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+t_chaillou <- test_bootstrap_all(chaillou, nb_cluster = 22, nb_axe = 62, nb_train = 5)
+t_chaillou$all
+
+```
+
+
+### mach 500
+```{r mach_500-test_bootstap3, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+t_mach_500 <- test_bootstrap_all(mach_500, nb_cluster = 50, nb_axe = 150, nb_train = 5)
+t_mach_500$all
+
+```
+
+
+### vacher 
+```{r vacher-test_bootstap3, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+t_vacher <- test_bootstrap_all(vacher, nb_cluster = 38, nb_axe = 110, nb_train=5)
+t_vacher$all
+
+```
+
+
+
+### liver 500
+```{r liver_500-test_bootstap3, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+t_liver_500 <- test_bootstrap_all(liver_500, nb_cluster = 79, nb_axe = 234, nb_train=5)
+t_liver_500$all
+
+```
+
+
+### ravel
+```{r ravel-test_bootstap3, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+t_ravel <- test_bootstrap_all(ravel, nb_cluster = 120, nb_axe = 210, nb_train = 5)
+t_ravel$all
+
+```
+
+
+#apprentissage supervise
+
+## donne de comptage
+
+### chaillou
+```{r chaillou-apprentissage-supervise, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+c_super <- test_bootstrap_supervise(chaillou, metadata_chaillou$EnvType, type="comptage")
+c_super
+
+```
+
+### ravel
+```{r ravel-apprentissage-supervise, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+r_super <- test_bootstrap_supervise(ravel, metadata_ravel$CST, type="comptage")
+r_super
+
+```
+
+
+### liver_500
+```{r liver_500-apprentissage-supervise, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+l_super <- test_bootstrap_supervise(liver_500, metadata_liver$status, type="comptage")
+l_super
+
+```
+
+
+### mach_500
+```{r mach_500-apprentissage-supervise, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+m_super <- test_bootstrap_supervise(mach_500, metadata_mach$Weaned, type="comptage")
+m_super
+
+```
+
+
+
+
+## donne ilr
+
+
+### chaillou
+```{r chaillou-apprentissage-supervise_ilr, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+c_super_ilr <- test_bootstrap_supervise(chaillou, metadata_chaillou$EnvType, type="ilr")
+c_super_ilr
+
+```
+
+### ravel
+```{r ravel-apprentissage-supervise_ilr, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+r_super_ilr <- test_bootstrap_supervise(ravel, metadata_ravel$CST, type="ilr")
+r_super_ilr
+
+```
+
+
+### liver_500
+```{r liver_500-apprentissage-supervise_ilr, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+l_super_ilr <- test_bootstrap_supervise(liver_500, metadata_liver$status, type="ilr")
+l_super_ilr
+
+```
+
+
+### mach_500
+```{r mach_500-apprentissage-supervise_ilr, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+m_super_ilr <- test_bootstrap_supervise(mach_500, metadata_mach$Weaned, type="ilr")
+m_super_ilr
+
+```
+
+
+
+## validation croise donne comptage (leave one out)
+
+### chaillou
+```{r chaillou-validation_croise, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+v_chaillou <- validation_croise(chaillou, metadata_chaillou$EnvType)
+v_chaillou
+
+```
+
+### ravel
+```{r ravel-validation_croise, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+v_ravel <- validation_croise(ravel, metadata_ravel$CST)
+v_ravel
+
+```
+
+
+### liver_500
+```{r liver_500-validation_croise, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+v_liver_500 <- validation_croise(liver_500, metadata_liver$status)
+v_liver_500
+
+```
+
+
+### mach_500
+```{r mach_500-validation_croise, echo=FALSE, warning=FALSE, cache=TRUE, out.width="400px", out.height="300px", fig.align='center'}
+
+v_mach_500 <- validation_croise(mach_500, metadata_mach$Weaned)
+v_mach_500
+
+```
+
