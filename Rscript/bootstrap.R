@@ -44,7 +44,7 @@ zero_inflated <- function(data, classification){
 
   
   if(!(iid %>% is.integer0())){
-    pseudo_comptage <- 0.5
+    pseudo_comptage <- 0.2
     iid_cluster <- data.frame(cluster=classification, data=as.vector(data[, iid]), OTU=iid2$iid, value=iid2$value ,row.names = NULL) %>%
       group_by(OTU, cluster, value) %>% summarise(zero=sum(data==value))
     
@@ -52,7 +52,7 @@ zero_inflated <- function(data, classification){
     iid_cluster$zero <- iid_cluster$zero / (iid_cluster$nb_sample_cluster + pseudo_comptage)
     iid_cluster$zero_inflated_coeff <- rep(zero_inflated$zero_inflated[iid], rep(length(unique(classification)),length(iid) ))
 
-    iid_cluster <- iid_cluster %>% filter(zero>0.7)
+    iid_cluster <- iid_cluster %>% filter(zero>0.1)
   }
   iid_cluster
 }
@@ -236,6 +236,14 @@ simulation <- function(result, nb_sample=nrow(result$data), type="comptage"){
     return(simu_MAP$data)
   }
   
+  if(!is.null(result$zero_inflated_comptage)){
+    temp <- result$zero_inflated_comptage
+    for(i in 1:nrow(temp)){
+      e <- rbinom(length(which(simu_MAP$metadata==temp$cluster[i])), 1, temp$zero[i])
+      simu_MAP$data[which(simu_MAP$metadata==temp$cluster[i]), temp$OTU[i]] <- simu_MAP$data[which(simu_MAP$metadata==temp$cluster[i]), temp$OTU[i]] * (e*temp$value[i] + (1-e))
+    }
+  }
+  
   deep <- apply(result$data, 1, sum)
   
   result_sample <- apply(simu_MAP$data, 1, function(x){
@@ -243,14 +251,6 @@ simulation <- function(result, nb_sample=nrow(result$data), type="comptage"){
     rmultinom(1, deep_simu, x)
   }) %>%t()
   
-  
-  if(!is.null(result$zero_inflated_comptage)){
-    temp <- result$zero_inflated_comptage
-    for(i in 1:nrow(temp)){
-      e <- rbinom(length(which(simu_MAP$metadata==temp$cluster[i])), 1, temp$zero[i])
-      result_sample[which(simu_MAP$metadata==temp$cluster[i]), temp$OTU[i]] <- result_sample[which(simu_MAP$metadata==temp$cluster[i]), temp$OTU[i]] * (e*temp$value[i] + (1-e))
-    }
-  }
   
   rownames(result_sample) <- paste("sample", 1:nrow(simu_MAP$data))
   colnames(result_sample) <- colnames(result$data)
