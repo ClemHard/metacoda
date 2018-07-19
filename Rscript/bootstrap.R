@@ -2,6 +2,9 @@ library(mclust)
 library(MASS)
 library(capushe)
 
+source("Rscript/coda.R")
+
+
 is.integer0 <- function(x)
 {
   is.integer(x) && length(x) == 0L
@@ -52,7 +55,7 @@ zero_inflated <- function(data, classification){
     iid_cluster$zero <- iid_cluster$zero / (iid_cluster$nb_sample_cluster + pseudo_comptage)
     iid_cluster$zero_inflated_coeff <- rep(zero_inflated$zero_inflated[iid], rep(length(unique(classification)),length(iid) ))
 
-    iid_cluster <- iid_cluster %>% filter(zero>0.1)
+    iid_cluster <- iid_cluster %>% filter(zero>0.5)
   }
   iid_cluster
 }
@@ -136,7 +139,6 @@ nb_axe_capushe <- function(data, data_biplot=FALSE, base_binaire=Base_binary_mat
 apprentissage_pca <- function(data, nb_cluster=NULL, nb_axe=NULL, base_binaire=Base_binary_matrix(ncol(data))){
 
   data_biplot <- biplot(data, base_binaire=base_binaire)
-  
   if(is.null(nb_axe)){
     nb_axe <- nb_axe_capushe(data_biplot, data_biplot = TRUE)  
   }
