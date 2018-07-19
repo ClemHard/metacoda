@@ -41,11 +41,17 @@ test_bootstrap_all <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_sample=nr
   
   
   data2 <- data1
-  if(type=="ilr") data2 <- data1 %>% MAP() %>% center_scale(scale=FALSE) %>% ilr(base_binaire = base_binaire)
   
+  if(type=="ilr") data2 <- data1 %>% MAP() %>% center_scale(scale=FALSE) %>% ilr(base_binaire = base_binaire)
   if(type=="MAP") data2 <- data1 %>% MAP()
   
-  all <- lapply(1:nb_train, function(x){
+  no_cores <- detectCores()-1
+  if(no_cores==0) no_cores <- 1
+    
+  cl <- makeCluster(no_cores)
+  clusterEvalQ(cl, {library(randomForest); library(dplyr); source("Rscript/bootstrap.R"); source("Rscript/test_bootstrap.R")})
+  
+  all <- parLapply(cl, 1:nb_train, function(x){
     
                             rand_real_data <- sample(1:nrow(data1), floor(nrow(data1)*proportion_real_data))
                             test_real_data <- data2[rand_real_data,]
@@ -61,6 +67,8 @@ test_bootstrap_all <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_sample=nr
                             pred <- predict(rf, data_test$test) %>% table(data_test$metadata_test)
                             list(pred=pred, rf=rf, data=data_test$train)
                             })
+  
+  stopCluster(cl)
   sum_table <- 0
   
   for(i in 1:length(all)){
