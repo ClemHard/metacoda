@@ -312,8 +312,8 @@ grid.arrange(grobs=Mclust_liver$graphics, ncol=1)
 
 #chaillou
 
-chaillou_boot <- bootstrap(chaillou, nb_cluster = 15, nb_axe = 16, type="ilr")
-data <- rbind(chaillou %>% MAP() %>% center_scale(scale = FALSE) %>% ilr(), chaillou_boot$data)
+chaillou_boot <- bootstrap(chaillou, nb_cluster = 15, nb_axe = 16, type="comptage")
+data <- rbind(chaillou, chaillou_boot$data)
 #metadata <- c(as.character(metadata_chaillou$EnvType), as.character(chaillou_boot$metadata)) %>% as.factor()
 metadata <- c(as.character(rep("real", nrow(chaillou))), rep("simu", nrow(chaillou_boot$data))) %>% as.factor()
 
@@ -370,7 +370,7 @@ grid.arrange(grobs=graph_biplot_normale(data, metadata, 4, "liver", "data"), nco
 u <- apply(chaillou, 2, function(x){sum(x>10)}) %>% order(decreasing = TRUE)
 c <- chaillou[,u]
 set.seed(1)
-t_chaillou <- test_bootstrap_all(chaillou, nb_cluster = 15, nb_axe = 16, type = "comptage", nb_train=1)
+t_chaillou <- test_bootstrap_all(chaillou, nb_cluster = 15, nb_axe = 16, type = "comptage", nb_train=3)
 t_chaillou$all
 
 
@@ -385,7 +385,7 @@ plot(t_chaillou$misclassification[r])
 u <- apply(mach_500, 2, function(x){sum(x>10)}) %>% order(decreasing = TRUE)
 c <- mach_500[,u]
 
-t_mach_500 <- test_bootstrap_all(mach_500, nb_cluster = 4, nb_axe = 10, nb_train = 1, type="comptage")
+t_mach_500 <- test_bootstrap_all(mach_500, nb_cluster = 4, nb_axe = 10, nb_train = 10, type="comptage")
 t_mach_500$all
 
 abondance_otus <- apply(mach_500 %>% MAP(), 2 , function(x){sum(x>1e-4)})
@@ -395,7 +395,7 @@ plot(t_mach_500$misclassification[r])
 
 
 #vacher
-t_vacher <- test_bootstrap_all(vacher, nb_cluster = 4, nb_axe = 11, nb_train=1, type="comptage")
+t_vacher <- test_bootstrap_all(vacher, nb_cluster = 4, nb_axe = 11, nb_train=3, type="comptage")
 t_vacher$all
 
 
@@ -434,17 +434,6 @@ plot(t_liver_500$misclassification[r])
 t_ravel <- test_bootstrap_all(ravel, nb_cluster = 4, nb_axe = 11, nb_train = 1, type="comptage")
 t_ravel$all
 
-
-
-##### bootstrap supervise
-c_super <- test_bootstrap_supervise(chaillou, metadata_chaillou$EnvType)
-c_super
-r_super <- test_bootstrap_supervise(ravel, metadata_ravel$CST)
-r_super
-l_super <- test_bootstrap_supervise(liver_500, metadata_liver$status)
-l_super
-m_super <- test_bootstrap_supervise(mach_500, metadata_mach$Weaned)
-m_super
 
 
 ## idee
@@ -556,11 +545,5 @@ r <- order(u)
 for(i in 230:247){hist(ravel[,r[i]], main=i, breaks=500, xlim=c(0,30))}
 for(i in 1:15){hist(ravel[,r[i]], main=i, breaks=500, xlim=c(0,30))}
 
-
-
-#################################################
-#################################################
-
-##apprentissage supervise
 
 
