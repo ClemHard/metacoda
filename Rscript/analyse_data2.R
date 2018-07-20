@@ -45,3 +45,15 @@ v_mach_500
 
 
 
+# classificateur supervise apres classificateur real/simu
+c_chaillou <- classificateur_group_real_simu(chaillou, metadata_chaillou$EnvType)
+c_chaillou
+
+c_ravel <- classificateur_group_real_simu(ravel, metadata_ravel$CST)
+c_ravel
+
+c_liver <- classificateur_group_real_simu(liver_500, metadata_liver$status)
+c_liver
+
+c_mach <- classificateur_group_real_simu(mach_500, metadata_mach$Weaned)
+c_mach
