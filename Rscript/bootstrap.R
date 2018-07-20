@@ -55,7 +55,7 @@ zero_inflated <- function(data, classification){
     iid_cluster$zero <- iid_cluster$zero / (iid_cluster$nb_sample_cluster + pseudo_comptage)
     iid_cluster$zero_inflated_coeff <- rep(zero_inflated$zero_inflated[iid], rep(length(unique(classification)),length(iid) ))
 
-    iid_cluster <- iid_cluster %>% filter(zero>0.5)
+    iid_cluster <- iid_cluster %>% filter(zero>0)
   }
   iid_cluster
 }
@@ -198,13 +198,12 @@ simulation_ilr <- function(result, nb_sample=nrow(result$data)){
   D <- ncol(Z)
   n <- nrow(Z)
   Z <- Z + mvrnorm(n, rep(0, D), result$noise*diag(D))
-
   if(!is.null(result$zero_inflated_ilr)){
     temp <- result$zero_inflated_ilr
-    for(i in 1:nrow(temp)){
-      e <- rbinom(length(which(result$classification_data==temp$cluster[i])), 1, temp$zero[i])
-      Z[which(result$classification_data==temp$cluster[i]), temp$OTU[i]] <- Z[which(result$classification_data==temp$cluster[i]), temp$OTU[i]]*(1-e) + temp$value[i]
-    }
+     for(i in 1:nrow(temp)){
+       e <- rbinom(length(which(new_sample$metadata==temp$cluster[i])), 1, temp$zero[i])
+       Z[which(new_sample$metadata==temp$cluster[i]), temp$OTU[i]] <- Z[which(new_sample$metadata==temp$cluster[i]), temp$OTU[i]]*(1-e) + temp$value[i]
+     }
    }
   list(data=Z, metadata=new_sample$metadata)
 }
