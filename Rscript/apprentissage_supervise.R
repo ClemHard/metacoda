@@ -1,6 +1,7 @@
 library(randomForest)
 library(class)
 library(e1071)
+library(dplyr)
 source("Rscript/bootstrap.R")
 
 
@@ -55,7 +56,16 @@ test_bootstrap_supervise <- function(data, metadata, nb_train=1, type="comptage"
   train <- data.frame(data, as.factor(metadata), row.names = NULL)
   colnames(train) <- c(paste("X",1:ncol(data), sep=""), "metadata")
   
-  l <- lapply(1:nb_train, function(x){
+  
+  
+  no_cores <- detectCores()-1
+  if(no_cores==0) no_cores <- 1
+  
+  cl <- makeCluster(no_cores)
+  clusterEvalQ(cl, {source("Rscript/apprentissage_supervise.R")})
+  
+  
+  l <- parLapply(cl, 1:nb_train, function(x){
     
     simu <- simulation_supervise(apprent, nb_sample = nb_sample)
     
@@ -68,6 +78,8 @@ test_bootstrap_supervise <- function(data, metadata, nb_train=1, type="comptage"
     find_group(train, test, simu$metadata)
       
    })
+  
+  stopCluster(cl)
   
   
   sum_table <- list(random_forest=0, kNN=0, Svm=0)
@@ -125,7 +137,7 @@ validation_croise <- function(data, metadata, k=nrow(data)){
   if(no_cores==0) no_cores <- 1
   
   cl <- makeCluster(no_cores)
-  clusterEvalQ(cl, {library(randomForest); library(e1071); library(dplyr); source("Rscript/apprentissage_supervise.R")})
+  clusterEvalQ(cl, {source("Rscript/apprentissage_supervise.R")})
   
   
   l <- parLapply(cl, 1:k, function(x){
@@ -184,30 +196,54 @@ find_nb_sample_cluster <- function(metadata){
 }
 
 
-classificateur_group_real_simu <- function(data, metadata){
+
+classificateur_group_real_simu <- function(data, metadata, nb_train=1){
   
   apprent <- apprentissage_supervise(data, metadata)
-  simu <- simulation_supervise(apprent, nb_sample=10*find_nb_sample_cluster(metadata = metadata))
   
-  s <- sample(1:nrow(simu$data), nrow(data))
-  data_simu_train <- simu$data[s, ]
-  data_simu <- simu$data[-s, ]
-  metadata_simu <- simu$metadata[-s]
   
-  iid_real <- find_real(data_real = data, data_simu_train = data_simu_train, data_simu = data_simu)
+  no_cores <- detectCores()-1
+  if(no_cores==0) no_cores <- 1
   
-  data_real <- data_simu[iid_real, ]
-  metadata_real <- metadata_simu[iid_real]
+  cl <- makeCluster(no_cores)
+  clusterEvalQ(cl, {source("Rscript/apprentissage_supervise.R")})
+  
+  
+  l <- parLapply(cl, 1:nb_train, function(x){
+    simu <- simulation_supervise(apprent, nb_sample=10*find_nb_sample_cluster(metadata = metadata))
+  
+    s <- sample(1:nrow(simu$data), nrow(data))
+    data_simu_train <- simu$data[s, ]
+    data_simu <- simu$data[-s, ]
+    metadata_simu <- simu$metadata[-s]
+  
+    iid_real <- find_real(data_real = data, data_simu_train = data_simu_train, data_simu = data_simu)
+  
+    data_real <- data_simu[iid_real, ]
+    metadata_real <- metadata_simu[iid_real]
 
 
-  train <- data.frame(data, as.factor(metadata), row.names = NULL)
-  colnames(train) <- c(paste("X",1:ncol(data), sep=""), "metadata")
+    train <- data.frame(data, as.factor(metadata), row.names = NULL)
+    colnames(train) <- c(paste("X",1:ncol(data), sep=""), "metadata")
   
-  test <- data.frame(data_real, row.names = NULL)
-  colnames(test) <- paste("X",1:ncol(test), sep="")
+    test <- data.frame(data_real, row.names = NULL)
+    colnames(test) <- paste("X",1:ncol(test), sep="")
   
   
-  find_group(train=train, test = test, metadata_test =  metadata_real)
+    find_group(train=train, test = test, metadata_test =  metadata_real)
+  })
   
+  stopCluster(cl)
+  
+  
+  sum_table <- list(random_forest=0, kNN=0, Svm=0)
+  
+  for(i in 1:length(l)){
+    for(j in 1:length(l[[i]])){
+      sum_table[[j]] <- sum_table[[j]]+l[[i]][[j]]
+    }
+  }
+  
+  list(all=sum_table, all_train=l)
 }
 
