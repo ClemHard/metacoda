@@ -5,33 +5,39 @@ library(dplyr)
 source("Rscript/bootstrap.R")
 
 
+create_data_frame_test <- function(data){
+  test <- data.frame(data, row.names = NULL)
+  colnames(test) <- paste("X",1:ncol(test), sep="")
+  test
+}
 
-create_data_frame_test <- function(data1, apprent, test_real_data=NULL, type){
+
+create_data_frame_train <- function(data, metadata){
+  train <- create_data_frame_test(data)
+  train$metadata <- metadata %>% as.factor()
+  train
+}
+
+
+
+create_data_frame_simu <- function(data1, apprent, test_real_data=NULL, type){
   
   
   boot <- simulation(apprent, nb_sample = nrow(data1), type = type)
 
   data_train <- rbind(data1, boot)
-  metadata <- c(rep("real", nrow(data1)), rep("simu", nrow(boot))) %>% as.factor()
+  metadata <- c(rep("real", nrow(data1)), rep("simu", nrow(boot)))
   
   nb_sample <- 1000
   boot_test <- simulation(apprent, nb_sample = nb_sample, type = type)
   
-  train <- data.frame(data_train, metadata ,row.names = NULL)
-   
+  train <- create_data_frame_train(data=data_train, metadata = metadata)
   
-  colnames(train) <- c(paste("X",1:ncol(data_train), sep=""), "metadata")
-  
-  test <- data.frame(boot_test, row.names = NULL)
-  colnames(test) <- paste("X",1:ncol(test), sep="")
+  test <- create_data_frame_test(rbind(boot_test, test_real_data))
   colnames(test_real_data) <- paste("X",1:ncol(test), sep="")
 
-  metadata_test <- c(rep("simu", nrow((test))), rep("real", nrow(test_real_data)))
-  test <- rbind(test, data.frame(test_real_data, row.names = NULL))
-  
-  colnames(test) <- paste("X",1:ncol(test), sep="")
-  
- 
+  metadata_test <- c(rep("simu", nrow(boot_test)), rep("real", nrow(test_real_data)))
+
   list(train=train, test=test, metadata_test=metadata_test) 
 }
 
@@ -61,7 +67,7 @@ test_bootstrap_all <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_sample=nr
                             apprent <- apprentissage(data3, nb_axe = nb_axe, nb_cluster = nb_cluster, base_binaire = base_binaire)
 
                             
-                            data_test <- create_data_frame_test(data_train, apprent=apprent, test_real_data = test_real_data, type=type)
+                            data_test <- create_data_frame_simu(data_train, apprent=apprent, test_real_data = test_real_data, type=type)
                 
                             rf <- randomForest(metadata~. , data_test$train)
                             pred <- predict(rf, data_test$test) %>% table(data_test$metadata_test)
@@ -101,7 +107,7 @@ test_bootstrap_variable <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_samp
   data1 <- data1[-rand_real_data,]
   apprent <- apprentissage(data1, nb_axe = nb_axe, nb_cluster = nb_cluster, base_binaire = base_binaire)
   
-  data_test <- create_data_frame_test(data1, apprent=apprent, test_real_data = test_real_data, type=type)
+  data_test <- create_data_frame_simu(data1, apprent=apprent, test_real_data = test_real_data, type=type)
   
   variables <- colnames(data_test$test)
   

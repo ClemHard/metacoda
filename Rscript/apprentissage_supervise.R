@@ -2,8 +2,32 @@ library(randomForest)
 library(class)
 library(e1071)
 library(dplyr)
-source("Rscript/bootstrap.R")
+library(doParallel)
 
+source("Rscript/bootstrap.R")
+source("Rscript/test_bootstrap.R")
+
+
+table_to_percentage_table <- function(table){
+  nb_row <- nrow(table)
+  table <- round(table/matrix(rep(apply(table, 2, sum), nb_row), byrow = TRUE, nrow=nb_row)*100, digits=2)
+  table
+}
+
+list_table_sum <- function(l){
+  
+  if(length(l)==0){
+    warning("list de longeur 0")
+    return(NULL)
+  }
+  sum_table <- l[[1]]
+  for(i in 1:length(l)){
+    for(j in 1:length(l[[i]])){
+      sum_table[[j]] <- sum_table[[j]]+l[[i]][[j]]
+    }
+  }
+  sum_table
+}
 
 apprentissage_supervise <- function(data, metadata){
   
@@ -20,6 +44,7 @@ apprentissage_supervise <- function(data, metadata){
 
 
 simulation_supervise <- function(apprent, nb_sample=NULL){
+  
   data <- NULL
   metadata <- NULL
   if(length(nb_sample)!=length(unique(apprent)) || any(nb_sample<0)){
@@ -53,9 +78,7 @@ test_bootstrap_supervise <- function(data, metadata, nb_train=1, type="comptage"
   if(type=="MAP") data <- data %>% MAP()
   if(type=="ilr") data <- data %>% MAP() %>% ilr()
   
-  train <- data.frame(data, as.factor(metadata), row.names = NULL)
-  colnames(train) <- c(paste("X",1:ncol(data), sep=""), "metadata")
-  
+  train <- create_data_frame_train(data=data, metadata = metadata)
   
   
   no_cores <- detectCores()-1
@@ -72,30 +95,20 @@ test_bootstrap_supervise <- function(data, metadata, nb_train=1, type="comptage"
     if(type=="MAP") simu$data <- simu$data %>% MAP()
     if(type=="ilr") simu$data <- simu$data %>% MAP() %>% ilr()
     
-    test <- data.frame(simu$data, row.names = NULL)
-    colnames(test) <- paste("X",1:ncol(test), sep="")
+    test <- create_data_frame_test(data=simu$data)
     
     find_group(train, test, simu$metadata)
       
    })
   
   stopCluster(cl)
-  
-  
-  sum_table <- list(random_forest=0, kNN=0, Svm=0)
-  
-  for(i in 1:length(l)){
-    for(j in 1:length(l[[i]])){
-      sum_table[[j]] <- sum_table[[j]]+l[[i]][[j]]
-    }
-  }
-  
+
+  sum_table <- lapply(list_table_sum(l), table_to_percentage_table)
   list(all=sum_table, all_train=l)
 }
 
 
 find_group <- function(train, test, metadata_test){
-  
   ### random forest
   forest <- randomForest(metadata~., train)
   pred_forest <- predict(forest, test)
@@ -116,22 +129,10 @@ find_group <- function(train, test, metadata_test){
 validation_croise <- function(data, metadata, k=nrow(data)){
   
   name_group <- unique(metadata)
-  table_group_kNN <- matrix(0, nrow=length(name_group), ncol=length(name_group))
-  colnames(table_group_kNN) <- 1:length(name_group)
-  rownames(table_group_kNN) <- name_group
-  
-  table_group_Svm <- matrix(0, nrow=length(name_group), ncol=length(name_group))
-  colnames(table_group_Svm) <- 1:length(name_group)
-  rownames(table_group_Svm) <- name_group
-  
   train <- data.frame(data, as.factor(metadata), row.names = NULL)
   colnames(train) <- c(paste("X",1:ncol(data), sep=""), "metadata")
   
-  
   iid <- sample(rep(1:k,length=nrow(data)))
-  
-  
-  
   
   no_cores <- detectCores()-1
   if(no_cores==0) no_cores <- 1
@@ -142,30 +143,23 @@ validation_croise <- function(data, metadata, k=nrow(data)){
   
   l <- parLapply(cl, 1:k, function(x){
     
-    kNN <- knn(train=data[x!=iid,], test=data[x==iid,], cl=metadata[x!=iid])
+    pred_kNN <- knn(train=data[x!=iid,], test=data[x==iid,], cl=metadata[x!=iid])
     Svm <- svm(metadata~., train[x!=iid,])
     pred_Svm <-  predict(Svm, train[x==iid,])
     
-    mat <- matrix(0, nrow=length(name_group), ncol=length(name_group))
-    mat2 <- matrix(0, nrow=length(name_group), ncol=length(name_group))
+    table1 <- table(metadata[x==iid], pred_kNN)
+    table2 <- table(metadata[x==iid], pred_Svm)
+    colnames(table1) <- 1:length(name_group)
+    colnames(table2) <- 1:length(name_group)
     
-    for(i in 1:length(kNN)){
-      mat[which(name_group==kNN[i]), which(name_group==metadata[x==iid][i])] <- mat[which(name_group==kNN[i]), which(name_group==metadata[x==iid][i])] + 1
-      mat2[which(name_group==pred_Svm[i]), which(name_group==metadata[x==iid][i])] <- mat2[which(name_group==pred_Svm[i]), which(name_group==metadata[x==iid][i])] + 1
-    }
-    
-    list(mat, mat2)
+    list(table1, table2)
   })
   
   stopCluster(cl)
   
-  
-  for(i in 1:length(l)){
-    table_group_kNN <- table_group_kNN+l[[i]][[1]]
-    table_group_Svm <- table_group_Svm+l[[i]][[2]]
-  }
-  
-  list(kNN=table_group_kNN, Svm=table_group_Svm)
+  all <- list_table_sum(l)
+  names(all) <- c("kNN", "Svm")
+  all
 }
 
 
@@ -173,11 +167,9 @@ find_real <- function(data_real, data_simu_train, data_simu){
   
   data_train <- rbind(data_real, data_simu_train)
   metadata <- c(rep("real", nrow(data_real)), rep("simu", nrow(data_simu_train))) %>% as.factor()
-  train <- data.frame(data_train, metadata ,row.names = NULL)
-  colnames(train) <- c(paste("X",1:ncol(data_train), sep=""), "metadata")
-  
-  test <- data.frame(data_simu, row.names = NULL)
-  colnames(test) <- paste("X",1:ncol(test), sep="")
+
+  train <- create_data_frame_train(data=data_train, metadata = metadata)
+  test <- create_data_frame_test(data=data_simu)
 
   
   forest <- randomForest(metadata~., train)
@@ -199,9 +191,12 @@ find_nb_sample_cluster <- function(metadata){
 
 classificateur_group_real_simu <- function(data, metadata, nb_train=1){
   
-  apprent <- apprentissage_supervise(data, metadata)
   
+  boot <- bootstrap(data = data)
+  apprent <- apprentissage_supervise(data=data, metadata=metadata)
   
+  train <- create_data_frame_train(data = data, metadata=metadata)
+
   no_cores <- detectCores()-1
   if(no_cores==0) no_cores <- 1
   
@@ -210,24 +205,15 @@ classificateur_group_real_simu <- function(data, metadata, nb_train=1){
   
   
   l <- parLapply(cl, 1:nb_train, function(x){
+    
     simu <- simulation_supervise(apprent, nb_sample=10*find_nb_sample_cluster(metadata = metadata))
   
-    s <- sample(1:nrow(simu$data), nrow(data))
-    data_simu_train <- simu$data[s, ]
-    data_simu <- simu$data[-s, ]
-    metadata_simu <- simu$metadata[-s]
+    iid_real <- find_real(data_real = data, data_simu_train = boot$data, data_simu = simu$data)
   
-    iid_real <- find_real(data_real = data, data_simu_train = data_simu_train, data_simu = data_simu)
-  
-    data_real <- data_simu[iid_real, ]
-    metadata_real <- metadata_simu[iid_real]
+    data_real <- simu$data[iid_real, ]
+    metadata_real <- simu$metadata[iid_real]
 
-
-    train <- data.frame(data, as.factor(metadata), row.names = NULL)
-    colnames(train) <- c(paste("X",1:ncol(data), sep=""), "metadata")
-  
-    test <- data.frame(data_real, row.names = NULL)
-    colnames(test) <- paste("X",1:ncol(test), sep="")
+    test <- create_data_frame_test(data=data_real)
   
   
     find_group(train=train, test = test, metadata_test =  metadata_real)
@@ -235,15 +221,10 @@ classificateur_group_real_simu <- function(data, metadata, nb_train=1){
   
   stopCluster(cl)
   
+  sum_table <- list_table_sum(l)
+
   
-  sum_table <- list(random_forest=0, kNN=0, Svm=0)
-  
-  for(i in 1:length(l)){
-    for(j in 1:length(l[[i]])){
-      sum_table[[j]] <- sum_table[[j]]+l[[i]][[j]]
-    }
-  }
-  
+  sum_table <- lapply(sum_table, table_to_percentage_table)
   list(all=sum_table, all_train=l)
 }
 

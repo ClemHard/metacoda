@@ -1,6 +1,7 @@
 library(mclust)
 library(MASS)
 library(capushe)
+library(dplyr)
 
 source("Rscript/coda.R")
 
@@ -52,7 +53,7 @@ zero_inflated <- function(data, classification){
       group_by(OTU, cluster, value) %>% summarise(zero=sum(data==value))
     
     iid_cluster$nb_sample_cluster <- nb_sample_cluster
-    iid_cluster$zero <- iid_cluster$zero / (iid_cluster$nb_sample_cluster + pseudo_comptage)
+    iid_cluster$zero <- iid_cluster$zero/ (iid_cluster$nb_sample_cluster + pseudo_comptage)
     iid_cluster$zero_inflated_coeff <- rep(zero_inflated$zero_inflated[iid], rep(length(unique(classification)),length(iid) ))
 
     iid_cluster <- iid_cluster %>% filter(zero>0)
@@ -164,7 +165,6 @@ apprentissage_pca <- function(data, nb_cluster=NULL, nb_axe=NULL, base_binaire=B
   W <- data_biplot$vector[,1:nb_axe]
   
   data_ilr <- data %>% center_scale(scale=FALSE) %>% ilr()
-  
   iid_cluster <- zero_inflated(data_ilr, Mclust_data$classification)
 
   result <- list(data=data, classification_data=Mclust_data$classification, W=W, pi_k=probability, mean=mean_data, Sigma=Sigma_data, noise=Sigma, d=nb_axe, nb_cluster=nb_cluster, base_binaire=base_binaire, zero_inflated_ilr=iid_cluster)
@@ -198,13 +198,15 @@ simulation_ilr <- function(result, nb_sample=nrow(result$data)){
   D <- ncol(Z)
   n <- nrow(Z)
   Z <- Z + mvrnorm(n, rep(0, D), result$noise*diag(D))
+  
   if(!is.null(result$zero_inflated_ilr)){
     temp <- result$zero_inflated_ilr
      for(i in 1:nrow(temp)){
        e <- rbinom(length(which(new_sample$metadata==temp$cluster[i])), 1, temp$zero[i])
        Z[which(new_sample$metadata==temp$cluster[i]), temp$OTU[i]] <- Z[which(new_sample$metadata==temp$cluster[i]), temp$OTU[i]]*(1-e) + temp$value[i]
      }
-   }
+  }
+  
   list(data=Z, metadata=new_sample$metadata)
 }
 
@@ -244,7 +246,7 @@ simulation <- function(result, nb_sample=nrow(result$data), type="comptage"){
       simu_MAP$data[which(simu_MAP$metadata==temp$cluster[i]), temp$OTU[i]] <- simu_MAP$data[which(simu_MAP$metadata==temp$cluster[i]), temp$OTU[i]] * (e*temp$value[i] + (1-e))
     }
   }
-  
+
   deep <- apply(result$data, 1, sum)
   
   result_sample <- apply(simu_MAP$data, 1, function(x){
