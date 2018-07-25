@@ -17,8 +17,7 @@ ravel <- read_biom("data/ravel/ravel.biom") %>% biom_data() %>% as.matrix()
 
 
 ### Read RDS file
-liver <- (readRDS("data/liver_qin_nan/microbiota.abundance.2018.RDS")*1e7) %>% round()
-#liver <- readRDS("data/liver_qin_nan/microbiota.abundance.2018.RDS")
+liver <- readRDS("data/liver_qin_nan/LC_24042018.mgs.matrix.integer.RDS")[[1]]
 metadata_liver <- readRDS("data/liver_qin_nan/metadata.RDS")
 
 
@@ -37,7 +36,7 @@ metadata_mach<- read.table(file = 'data/mach/kinetic_sample_metadata.tsv', sep =
 
 
 ###### transpose
-
+liver <- t(liver)
 chaillou <- t(chaillou)
 mach <- t(mach)
 ravel <- t(ravel)

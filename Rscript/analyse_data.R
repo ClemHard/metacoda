@@ -352,13 +352,11 @@ grid.arrange(grobs=graph_biplot_normale(data, metadata, 4, "vacher", "data"), nc
 
 
 #liver
-liver_boot <- bootstrap(liver_500, nb_cluster = 8, nb_axe=7, nb_sample = 1000)
+liver_boot <- bootstrap(liver_500)
 data <- rbind(liver_500, liver_boot$data)
 # metadata <- c(as.character(metadata_ravel$CST), as.character(ravel_boot$metadata)) %>% as.factor()
 metadata <- c(rep("real", nrow(liver)), rep("simu", nrow(liver_boot$data))) %>% as.factor()
 grid.arrange(grobs=graph_biplot_normale(data, metadata, 4, "liver", "data"), ncol=2)
-
-
 
 
 
@@ -407,7 +405,7 @@ plot(t_vacher$misclassification[r])
 
 
 #liver
-t_liver <- test_bootstrap_all(liver, nb_cluster = 7, nb_axe = 8, nb_train = 1)
+t_liver <- test_bootstrap_all(liver, nb_cluster = 13, nb_axe = 17, nb_train = 1)
 t_liver$all
 
 
@@ -418,7 +416,7 @@ plot(t_liver$misclassification[r])
 
 
 #liver 500
-t_liver_500 <- test_bootstrap_all(liver_500, nb_cluster = 7, nb_axe = 8, nb_train=1)
+t_liver_500 <- test_bootstrap_all(liver_500, nb_cluster = 13, nb_axe = 17, nb_train=1)
 t_liver_500$all
 
 
@@ -431,7 +429,7 @@ plot(t_liver_500$misclassification[r])
 
 
 #ravel
-t_ravel <- test_bootstrap_all(ravel, nb_cluster = 4, nb_axe = 11, nb_train = 1, type="comptage")
+t_ravel <- test_bootstrap_all(ravel, nb_cluster = 12, nb_axe = 12, nb_train = 2, type="comptage")
 t_ravel$all
 
 

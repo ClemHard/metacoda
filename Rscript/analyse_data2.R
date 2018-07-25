@@ -12,7 +12,7 @@ source("Rscript/apprentissage_supervise.R")
 ##### bootstrap supervise
 
 ## donne comptage
-c_super <- test_bootstrap_supervise(chaillou, metadata_chaillou$EnvType, type="comptage", nb_train = 5)
+c_super <- test_bootstrap_supervise(chaillou, metadata_chaillou$EnvType, type="comptage", nb_train = 3)
 c_super$all
 r_super <- test_bootstrap_supervise(ravel, metadata_ravel$CST, type="comptage")
 r_super$all
@@ -46,7 +46,7 @@ v_mach_500
 
 
 # classificateur supervise apres classificateur real/simu
-c_chaillou <- classificateur_group_real_simu(chaillou, metadata_chaillou$EnvType)
+c_chaillou <- classificateur_group_real_simu(chaillou, metadata_chaillou$EnvType, nb_train=1)
 c_chaillou
 
 c_ravel <- classificateur_group_real_simu(ravel, metadata_ravel$CST)
@@ -57,3 +57,4 @@ c_liver
 
 c_mach <- classificateur_group_real_simu(mach_500, metadata_mach$Weaned)
 c_mach
+
