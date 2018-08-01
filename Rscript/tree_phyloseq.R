@@ -1,6 +1,6 @@
 library(phyloseq)
 library(dplyr)
-
+library(ape)
 
 tree_binaire_matrice <- function(tree){
   
@@ -26,11 +26,16 @@ tree_binaire_matrice <- function(tree){
       if(tree1$edge[i,2]<=nb_otus){
         mat[tree1$edge[i,1]-nb_otus,tree1$edge[i,2]] <- -1
       }else{
-        mat[tree1$edge[i,1]-nb_otus,] <- -abs(mat[tree1$edge[i,2]-nb_otus,]) +mat[tree1$edge[i,1]-nb_otus,]
+        mat[tree1$edge[i,1]-nb_otus,] <- -abs(mat[tree1$edge[i,2]-nb_otus,]) + mat[tree1$edge[i,1]-nb_otus,]
       }
     }
   }
   mat
 }
 
+
+
+random_binary_base <- function(D){
+  rtree(D) %>% tree_binaire_matrice()
+}
 
