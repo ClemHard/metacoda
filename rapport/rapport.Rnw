@@ -1,0 +1,236 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{tikz}
+\usepackage{amsfonts,amsmath,amssymb}
+\usepackage{enumerate}
+\usepackage{enumitem}
+\usepackage{mathrsfs}
+\usepackage{graphicx}
+\usepackage[caption = false]{subfig}
+\usepackage{bbm}
+\usepackage[singlespacing]{setspace}
+\usepackage[utf8]{inputenc}
+\usepackage{float}
+\usepackage{textcomp}
+\usepackage{tabularx}
+\usepackage{makecell} 
+\usepackage{blkarray}
+\usepackage{calc}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{bigdelim}
+\usetikzlibrary{calc,trees,positioning,arrows,chains,shapes.geometric,%
+    decorations.pathreplacing,decorations.pathmorphing,shapes,%
+    matrix,shapes}
+
+\tikzstyle{decision} = [diamond, draw, text width=4.5em, 
+                        text badly centered, node distance=2cm, 
+                        inner sep=0pt]
+\tikzstyle{block} = [rectangle, draw, 
+                     text centered, rounded corners, 
+                     minimum height=4em]
+\tikzstyle{line} = [draw, -latex']
+\tikzstyle{cloud} = [draw, circle, minimum height=3em]
+
+\newcommand{\ER}{\ensuremath{\mathbb{R}}}
+\newcommand{\EE}{\ensuremath{\mathbb{E}}}
+
+\tikzset{
+>=stealth',
+  decoration={brace},
+  tuborg/.style={decorate},
+  tubnode/.style={midway, right=2pt},
+}
+
+\title{Exploration des méthodes d'analyse de données compositionnelles pour l'étude du lien entre microbiote intestinal et santé.}
+\author{Clément Hardy}
+\date{}
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+
+
+\section{Contexte biologique et enjeux}
+\subsection{Séqueçage}
+\subsection{Données de comptage}
+\subsection{Problème compositionnel}
+
+
+\section{Géométrie de Aitchison}
+
+\subsection{Simplexe}
+Un vecteur \(x=\left[x_1,x_2,...x_D\right]\) est définie comme une D compositions lorsque toutes ces composantes sont strictement positives et ne contienne que de l'information relative.
+\vspace*{0.3cm}. 
+\\
+Le simplexe est l'espace de probabilité des données compositionnelles  et est défini par: 
+\[
+    S^D=\lbrace x=\left[x_1, x_2,...,x_D\right]|x_i>0,i=1,2,...,D;\sum_{i=1}^Dx_i=\kappa\rbrace
+\]
+ 
+ L'opération permettant de modifier la somme des composantes d'une compositions ( le \(\kappa\))se nomme la closure:
+  
+ \[
+C(x)=\left[\frac{\kappa*x_1}{\sum_{i=1}^Dx_i},\frac{\kappa*x_2}{\sum_{i=1}^Dx_i},...,\frac{\kappa*x_D}{\sum_{i=1}^Dx_i}     \right]
+\]
+Cette opération permet notamment de définir une sous-composition.
+\vspace*{0.3cm}
+Soit \(x\) une composition, une sous composition \(x_s\) de taille \(s\) est obtenue en appliquant la closure a un sous vecteur \(\left[x_{i1},x_{i2},...,x_{is}\right]\) de \(x\). 
+\vspace*{0.2cm} \\
+Deux vecteurs \(x,y\in\mathbb{R}^D_{+}\) tels que \(x_i,\ y_i>0,\ \forall i=1,...,D\) sont dits compositionnellement équivalents s'il existe un \(\lambda\in \mathbb{R}^{+}\) tel que \(x=\lambda y\) ce qui est équivalents à \(C(x)=C(y)\).
+
+
+\subsection{Opération dans le simplexe}
+Perturbation d'une composition \(x\in S^D\) par une composition \(y\in S^D\),
+\[
+x\oplus y=C\left[x_1y_1,x_2y_2,...,x_Dy_D\right]
+\]
+
+La puissance d'une composition \(x\in S^D\) par une constante \(\alpha\in \mathbb{R}\), 
+\[
+x\in S^D,\ \alpha\in \mathbb{R},\ \alpha\odot =C\left[x_1^{\alpha},x_2^{\alpha},...,x_D^{\alpha}\right]
+\]
+
+Inner Product de deux composition \(x,y\in S^D\),
+\[
+x,y\in S^D,\ \left\langle x,y\right\rangle_a=\frac{1}{2D}\sum_{i=1}^D\sum_{j=1}^Dln
+\frac{x_i}{x_j}ln\frac{y_i}{y_j}
+\]
+
+Norme d'une \(x\in S^D\),
+\[
+\left\|x\right\|_a=\sqrt{\frac{1}{2D}\sum_{i=1}^D\sum_{j=1}^D\left(ln\frac{x_i}{x_j}\right)^2}
+\]
+
+Distance entre \(x\) et \(y\in S^D\),
+\[
+x,y\in S^D,\ d_a\left(x,y\right)=\sqrt{\frac{1}{2D}\sum_{i=1}^D\sum_{j=1}^D\left(ln\frac{x_i}{x_j}-ln\frac{y_i}{y_j}\right)^2}
+\]
+\subsection{Transformation}
+
+alr:
+\[
+alr:S^D\rightarrow R^{D-1},\ alr\left(x\right)=\left[ln\left(\frac{x_1}{x_D}\right), ln\left(\frac{x_2}{x_D}\right),...,ln\left(\frac{x_{D-1}}{x_D}\right)\right]
+\]
+	
+La transformation clr qui donne les coordonnées d'une composition dans le centred logration coefficients,
+\[
+clr\left(x\right)=\left[ln\frac{x_1}{g(x)},...,ln\frac{x_D}{g(x)}\right]=\xi
+\]	
+avec \(g\) le centre de la composition définie par:
+\[
+ g(x)=\left(\prod^D_{i=1}x_i\right)^{1/D}
+\]
+ainsi que sa transformation inverse,	
+\[
+clr^{-1}\left(\xi\right)=C\left[exp\left(\xi_1\right),exp\left(\xi_2\right),...exp\left(\xi_D\right)\right]=x
+\]
+
+
+ilr:
+
+\[
+ilr\left(x\right)=clr\left(x\right)\Psi^{'}
+\]
+
+
+\[
+g=\left[g_1,g_2,...,g_D\right],\ g_i=\left(\prod_{j=1}^n x_ij\right)^{1/n},\ i=1,2,...D
+\]
+
+
+\section{Analyse Multivariée}
+
+\subsection{Réduction de dimension}
+Dans notre cas, nous cherchons à appliquer un modèle probabiliste à nos données. L'ACP dans sa définition la plus commune ne permet pas de prendre en compte un modèle probabiliste. Pour ce faire, nous allons donc utiliser une variante de l'ACP qui n'est autre que l'ACP probabiliste définit comme:
+\[
+X_i=Wy_i+ \mu +\epsilon_i
+\]
+où \(y_i\sim \mathcal{N}\left(0,I_d\right) \), \(\epsilon_i \sim \mathcal{N}\left(0,\ \sigma^2I_p\right)\) est un bruit gaussien et \(W\) une \(p \times d\) matrice.
+\\
+Si nous notons \(A\) la matrice des vecteurs propres de la matrice \(X^TX\), \(\Lambda\) la matrice diagonal contenant les valeurs propres associées et \(R\) une matrice orthogonal arbitraire. Nous avons que le maximum de vraisemblance de \(W\) s'exprime comme:
+
+\[
+W_{ML}=A\left(\Lambda-\sigma^2I_d\right)^{1/2}R
+\]
+De même, l'estimateur du maximun de vraisemblance \(\sigma^2\)
+\[
+\sigma^2_{ML}=\frac{1}{d-q}\sum_{j=q+1}^d \lambda_j
+\]
+
+
+\subsection{Mélange Gaussien}
+\[
+g\left(x, \Theta\right)=\sum_{k=1}^K \pi_kf(x,\theta_k)
+\]
+
+
+\subsection{Schéma simulation}
+\begin{center}
+\begin{tikzpicture}[node distance=2cm, auto]
+     \node[cloud] (X) {X};
+     \node[cloud, below of=X] (S)      {\(S^p\)};
+     \node[cloud, below of=S] (Y)      {Y};
+     \node[block, below of=Y](apprentissage) {apprentissage};
+     \node[cloud, below of=apprentissage] (Y_tilde) {\(\tilde{Y}\)};
+     \node[cloud, below of=Y_tilde] (S1) {\(S^p\)};
+     \node[block, below of=S1](ZIB) {Zero inflated};
+     \node[cloud, below of=ZIB] (X_tilde) {\(\tilde{X}\)};
+     
+     
+  %\draw[tuborg, decoration={brace}] let %\p1=(Y.north), \p2=(Y_tilde.south) in
+%    ($(2, \y1)$) -- ($(2, \y2)$) node[tubnode] {Pro};
+    
+  \path[line] (X) --  node[midway, right] {MAP} (S);
+  \path[line] (S) --  node[midway, right] {\(ilr\)} (Y);
+  \path[line] (Y) --  node[midway, right] {} (apprentissage);
+  \path[line] (apprentissage) --  node[midway, right] {} (Y_tilde);
+  \path[line] (Y_tilde) --  node[midway, right] {\(ilr^{-1}\)} (S1);
+  \path[line] (S1) --  node[midway, right] {multinomiale} (ZIB);
+  \path[line] (ZIB) --  node[midway, right] {} (X_tilde);
+ 
+  \end{tikzpicture}
+\end{center}
+
+\subsection{Apprentissage} 
+\subsection{Maximum a posteriori}
+Nos jeux de données étant des jeux de données de comptage, de nombreux zéro sont présents comme expliqué précédemment, les transformations logarithmique (ilr, clr) ne peuvent ainsi pas être directement appliqué.\\
+Pour ce faire, nous allons utilisé pas utilisé l'estimateur du maximum de vraisemblance pour estimé la proportion de chaque OTU dans un échantillon.\\
+En mettant une distribution a priori sur les observations \(X\) et en utilisant le théorème de Bayes
+ 
+ 
+\begin{align*}
+P\left(\theta|X\right)&=\frac{P\left(X|\theta\right)P\left(\theta\right)}{P\left(X\right)} \\
+&\propto P\left(X|\theta\right)P\left(\theta\right)
+\end{align*}
+
+Dans notre cas, nous allons prendre un a priori 
+Ce qui mène à l'estimateur suivant:
+\[
+MAP(p)=\underset{p}{argmax}\left(p|x\right)=\frac{x_i+1}{\sum_{i=1}^D\left(x_i+1\right)}
+\]
+ Cela revient simplement à ajouter un comptage pour chaque OTU.
+\subsection{Zero inflated}
+Les jeux de données contiennent un nombre excessif de zéro, la modélisation faite par un mélange gaussien ne parvient pas à bien prendre en compte tous ces zéros. Pour résoudre à ce problème, nous allons modéliser cette particularité indépendamment. \\
+Commençons par estimer la proportion de zéro pour chaque OTU de chaque gaussienne que nous notons \(\pi_{ik}\), cette estimation est faite via le MAP comme pour la proportion d'un OTU dans un échantillon mais cette fois ci en prenant un pseudo comptage plus faible.\\
+Par la suite, nous modélisons les zéro par une loi de Bernoulli,
+
+\[P\left(Z=x\right)=\left\{
+    \begin{array}{ll}
+         \pi_{ik} & \text{ si } x=0 \\
+         1 - \pi_{ik} & \text{ si } x=1 \\
+    \end{array}
+\right.
+\]
+Ce qui permet d'exprimer \(\tilde{X_{i}}\) comme 
+
+\[
+\tilde{X}_{i}=\left(Z_{1k},...,Z_{Dk}\right)*X_i
+\]
+où \(Z_{ik}\sim Bern\left(\pi_{ik}\right)\), \(X_{i}\sim  \mathcal{N}\left(\mu_k, \Sigma_k\right)\)
+ 
+\section{Transformation ilr et classification supervise}
+
+
+\section{Conclusion}
+\end{document}
