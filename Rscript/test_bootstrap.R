@@ -1,8 +1,35 @@
 library(randomForest)
 library(doParallel)
 library(dplyr)
+library(class)
+library(e1071)
+library(nnet)
+
 
 source("Rscript/bootstrap.R")
+
+
+table_to_percentage_table <- function(table){
+  nb_row <- nrow(table)
+  table <- round(table/matrix(rep(apply(table, 2, sum), nb_row), byrow = TRUE, nrow=nb_row)*100, digits=2)
+  table
+}
+
+
+list_table_sum <- function(l){
+  
+  if(length(l)==0){
+    warning("list de longeur 0")
+    return(NULL)
+  }
+  sum_table <- l[[1]]
+  for(i in 1:length(l)){
+    for(j in 1:length(l[[i]])){
+      sum_table[[j]] <- sum_table[[j]]+l[[i]][[j]]
+    }
+  }
+  sum_table
+}
 
 
 create_data_frame_test <- function(data){
@@ -22,9 +49,7 @@ create_data_frame_train <- function(data, metadata){
 
 create_data_frame_simu <- function(data1, apprent, test_real_data=NULL, type){
   
-  
   boot <- simulation(apprent, nb_sample = nrow(data1), type = type)
-
   data_train <- rbind(data1, boot)
   metadata <- c(rep("real", nrow(data1)), rep("simu", nrow(boot)))
   
@@ -42,22 +67,43 @@ create_data_frame_simu <- function(data1, apprent, test_real_data=NULL, type){
 }
 
 
+pred_real_simu <- function(train, test){
+  
+  rf <- randomForest(metadata~. , train)
+  pred_forest <- predict(rf, test)
+  
+  pred_kNN <- knn(train[,-ncol(train)], 
+                  test, 
+                  cl=train[,ncol(train)], 
+                  k=sqrt(nrow(train)))
+  
+  logi <- glm(metadata~., family = binomial, data=train, control = list(maxit = 200))
+  pred_logi <- (predict(logi, test)>0.5)
+  
+  nn <- nnet(metadata~., train, size=1, MaxNWts=1000000, maxit=500)
+  pred_nnet <- predict(nn, test, type="class")
+  
+  
+  list(random_forest=pred_forest, kNN=pred_kNN, logi=pred_logi, neuronal=pred_nnet)
+}
 
-test_bootstrap_all <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_sample=nrow(data1), apprent=NULL, nb_train=1, proportion_real_data=0.1, type="comptage", base_binaire=Base_binary_matrix(ncol(data1))){
+
+test_bootstrap_all <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_train=1, proportion_real_data=0.1, type="comptage", base_binaire=Base_binary_matrix(ncol(data1))){
   
   
   data2 <- data1
-  
-  if(type=="ilr") data2 <- data1 %>% MAP() %>% center_scale(scale=FALSE) %>% ilr(base_binaire = base_binaire)
+
+  if(type=="ilr") data2 <- data1 %>% MAP() %>% ilr(base_binaire = base_binaire)
   if(type=="MAP") data2 <- data1 %>% MAP()
   
   no_cores <- detectCores()-1
   if(no_cores==0) no_cores <- 1
     
   cl <- makeCluster(no_cores)
-  clusterEvalQ(cl, {library(randomForest); library(dplyr); source("Rscript/bootstrap.R"); source("Rscript/test_bootstrap.R")})
+  clusterEvalQ(cl, {source("Rscript/test_bootstrap.R")})
+  clusterExport(cl, list("data1", "data2", "nb_cluster", "nb_axe", "base_binaire"), envir = environment())
   
-  all <- parLapply(cl, 1:nb_train, function(x){
+  l <- lapply(1:nb_train, function(x){
     
                             rand_real_data <- sample(1:nrow(data1), floor(nrow(data1)*proportion_real_data))
                             test_real_data <- data2[rand_real_data,]
@@ -68,34 +114,25 @@ test_bootstrap_all <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_sample=nr
 
                             
                             data_test <- create_data_frame_simu(data_train, apprent=apprent, test_real_data = test_real_data, type=type)
-                
-                            rf <- randomForest(metadata~. , data_test$train)
-                            pred <- predict(rf, data_test$test) %>% table(data_test$metadata_test)
-                            list(pred=pred, rf=rf, data=data_test$train)
+                    
+                            
+                            pred <- pred_real_simu(data_test$train ,data_test$test)
+                            
+                            lapply(pred, function(x){x %>% table(data_test$metadata)})
                             })
   
   stopCluster(cl)
-  sum_table <- 0
   
-  for(i in 1:length(all)){
-    sum_table <- sum_table+all[[i]][[1]]
-  }
+  all <- l %>% list_table_sum()
+  all <- lapply(all, table_to_percentage_table)
   
-  sum_importance <- 0
-  
-  for(i in 1:length(all)){
-    sum_importance <- sum_importance + all[[i]][[2]]$importance
-  }
-  
-  sum_table <- sum_table/matrix(c(sum(sum_table[,1]), sum(sum_table[,1]), sum(sum_table[,2]), sum(sum_table[,2])), nrow = 2) * 100
-  
-  list(all=sum_table, all_importance=sum_importance, all_train=all)
+  list(all=all, all_train=l)
 }
 
 
 
 
-test_bootstrap_variable <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_sample=nrow(data1), apprent=NULL, nb_train=1, proportion_real_data=0.1, type="comptage", base_binaire=Base_binary_matrix(ncol(data1))){
+test_bootstrap_variable <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_train=1, proportion_real_data=0.1, type="comptage", base_binaire=Base_binary_matrix(ncol(data1))){
   
   
   if(type=="ilr") data1 <- data1 %>% MAP() %>% center_scale(scale=FALSE) %>% ilr(base_binaire = base_binaire)
@@ -117,10 +154,12 @@ test_bootstrap_variable <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_samp
     
     cl <- makeCluster(no_cores)
     clusterEvalQ(cl, {library(randomForest); library(dplyr)})
-      each <- parLapply(cl, variables, function(x){
+    clusterExport(cl, list("data_test"), envir = environment())
+    
+      each <- lapply(variables, function(x){
                                               rf <- randomForest(as.formula(paste("metadata~",x)), data_test$train)
                                               predict(rf, data_test$test) %>% table(data_test$metadata_test)
-                                          })
+                                              })
       
     stopCluster(cl)
     
@@ -143,10 +182,10 @@ test_bootstrap_variable <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_samp
 
 
 
-test_bootstrap <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_sample=nrow(data1), proportion_real_data=0.1, nb_train_all=1, type="comptage", base_binaire=Base_binary_matrix(ncol(data1))){
+test_bootstrap <- function(data1, nb_cluster=NULL, nb_axe=NULL, proportion_real_data=0.1, nb_train_all=1, type="comptage", base_binaire=Base_binary_matrix(ncol(data1))){
   
-  all <- test_bootstrap_all(data1, apprent = apprent, nb_train = nb_train_all, type=type, base_binaire=base_binaire, proportion_real_data = proportion_real_data)
-  each <- test_bootstrap_variable(data1, apprent = apprent, type=type, base_binaire=base_binaire, proportion_real_data = proportion_real_data)
+  all <- test_bootstrap_all(data1, nb_train = nb_train_all, type=type, base_binaire=base_binaire, proportion_real_data = proportion_real_data)
+  each <- test_bootstrap_variable(data1, type=type, base_binaire=base_binaire, proportion_real_data = proportion_real_data)
   
   list(all=all, table_each=each$table_each, misclassification=each$misclassification)
 }
