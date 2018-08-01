@@ -8,27 +8,6 @@ source("Rscript/bootstrap.R")
 source("Rscript/test_bootstrap.R")
 
 
-table_to_percentage_table <- function(table){
-  nb_row <- nrow(table)
-  table <- round(table/matrix(rep(apply(table, 2, sum), nb_row), byrow = TRUE, nrow=nb_row)*100, digits=2)
-  table
-}
-
-list_table_sum <- function(l){
-  
-  if(length(l)==0){
-    warning("list de longeur 0")
-    return(NULL)
-  }
-  sum_table <- l[[1]]
-  for(i in 1:length(l)){
-    for(j in 1:length(l[[i]])){
-      sum_table[[j]] <- sum_table[[j]]+l[[i]][[j]]
-    }
-  }
-  sum_table
-}
-
 apprentissage_supervise <- function(data, metadata){
   
   name_group <- unique(metadata)
@@ -120,7 +99,11 @@ find_group <- function(train, test, metadata_test){
   Svm <- svm(metadata~., train)
   pred_svm <- predict(Svm, test)
   
-  list(random_forest=table(pred_forest, metadata_test), kNN=table(kNN, metadata_test), Svm=table(pred_svm, metadata_test))
+  ### neuronal
+  nn <- nnet(metadata~., train, size=1, MaxNWts=1000000, maxit=500)
+  pred_nn <- predict(nn, test, type="class")
+  
+  list(random_forest=table(pred_forest, metadata_test), kNN=table(kNN, metadata_test), Svm=table(pred_svm, metadata_test), neuronal=table(pred_nn, metadata_test))
 }
 
 
@@ -163,7 +146,7 @@ validation_croise <- function(data, metadata, k=nrow(data)){
 }
 
 
-find_real <- function(data_real, data_simu_train, data_simu){
+find_real <- function(data_real, data_simu_train, data_simu, algo="randomForest"){
   
   data_train <- rbind(data_real, data_simu_train)
   metadata <- c(rep("real", nrow(data_real)), rep("simu", nrow(data_simu_train))) %>% as.factor()
@@ -171,10 +154,31 @@ find_real <- function(data_real, data_simu_train, data_simu){
   train <- create_data_frame_train(data=data_train, metadata = metadata)
   test <- create_data_frame_test(data=data_simu)
 
+  pred <- NULL
   
-  forest <- randomForest(metadata~., train)
-  pred <- predict(forest, test)
+  
+  if(algo=='randomForest'){
+    forest <- randomForest(metadata~., train)
+    pred <- predict(forest, test)
+  }
 
+  if(algo=="kNN"){
+    pred <- knn(train[,-ncol(train)], 
+                    test, 
+                    cl=train[,ncol(train)], 
+                    k=sqrt(nrow(train)))
+  }
+  
+  if(algo=="logistic"){
+    logi <- glm(metadata~., family = binomial, data=train, control = list(maxit = 200))
+    pred <- predict(logi, test)>0.5
+  }
+  
+  if(algo=="neural"){
+    nn <- nnet(metadata~., train, size=1, MaxNWts=1000000, maxit=500)
+    pred <- predict(nn, test, type="class")
+  }
+  
   iid <- which(pred=="real")
   
   iid
@@ -189,11 +193,23 @@ find_nb_sample_cluster <- function(metadata){
 
 
 
-classificateur_group_real_simu <- function(data, metadata, nb_train=1){
+classificateur_group_real_simu <- function(data, metadata, nb_train=1, type="comptage"){
   
   
   boot <- bootstrap(data = data)
+  
   apprent <- apprentissage_supervise(data=data, metadata=metadata)
+  
+  if(type=="ilr"){
+    data <- data %>% MAP() %>% ilr()
+    boot$data <- boot$data %>% MAP() %>% ilr()
+  }
+  
+  if(type=="MAP"){
+    data <- data %>% MAP()
+    boot$data <- boot$data %>% MAP()
+  }
+  
   
   train <- create_data_frame_train(data = data, metadata=metadata)
 
@@ -204,10 +220,18 @@ classificateur_group_real_simu <- function(data, metadata, nb_train=1){
   clusterEvalQ(cl, {source("Rscript/apprentissage_supervise.R")})
   
   
-  l <- parLapply(cl, 1:nb_train, function(x){
+  l <-  lapply(1:nb_train, function(x){
     
     simu <- simulation_supervise(apprent, nb_sample=10*find_nb_sample_cluster(metadata = metadata))
   
+    if(type=="ilr"){
+      simu$data <- simu$data %>% MAP() %>% ilr()
+    }
+    
+    if(type=="MAP"){
+      simu$data <- simu$data %>% MAP()
+    }
+    
     iid_real <- find_real(data_real = data, data_simu_train = boot$data, data_simu = simu$data)
   
     data_real <- simu$data[iid_real, ]
