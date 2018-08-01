@@ -82,7 +82,7 @@ norm_simplex<-function(data){
 }
 
 
-#' calcul la distance du simplexe
+#' calcul la distance dans le simplexe
 #'
 #' @param data les donnees
 #' 
@@ -223,12 +223,22 @@ ilr<-function(data, base_binaire=Base_binary_matrix(ncol(data))){
 
 ilr_inverse<-function(data, k=1, base_binaire=Base_binary_matrix(ncol(data)+1)){
   
+  data <- check_data(data)
   SIGMA=SIGMA_matrix(base_binaire)
   exp(data %*% SIGMA) %>% closure(k)
   
 }
 
 
+alr <- function(data){
+  data <- norm_data(data)
+  data <- (data[, -ncol(data)] / data[, ncol(data)]) %>% log()
+  data
+}
+
+alr_inverse <- function(data){
+  ((1/sum(exp(data)) * cbind(exp(data),1))) %>% closure()
+}
 
 variation_matrix<-function(data, norm = FALSE) {
   log.data <- log(norm_data(data))
