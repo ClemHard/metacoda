@@ -131,20 +131,7 @@ graph_biplot_normale <- function(data, metadata_group, nb_graph=1, title=NULL, l
       if(nrow(ellipse_confiance[[i]])!=0){
         data_ellipse <- ellipse_confiance[[i]]
         g <- g + geom_path(data = data_ellipse, aes(x=x, y=y, group=group, col=group))
-        # g <- eval(substitute( ggplot(m)+geom_point(aes_string(x=names(m)[i], y=names(m)[i+1],col="group"))
-        #                       +labs(title=title, y=paste("comp",i+1), x=paste("comp",i))
-        #                       +scale_color_discrete(name=legend_title)
-        #                       +geom_path(aes(x=ellipse_confiance[[i]][,1], y=ellipse_confiance[[i]][,2], group=ellipse_confiance[[i]][,3],col=ellipse_confiance[[i]][,3]),ellipse_confiance[[i]])
-        #                       +theme(plot.title = element_text(hjust=0.5))
-        # ))
       }
-      # }else{
-      #   g <- eval(substitute( ggplot()+geom_point(aes(x=m[,i], y=m[,(i+1)],col=group),m)
-      #                         +scale_color_discrete(name=legend_title)
-      #                         +labs(title=title, y=paste("comp",i+1), x=paste("comp",i))
-      #                         +theme(plot.title = element_text(hjust=0.5))
-      #   ))
-      # }
       graph_bc[[i]] <- g
     }
     graph_bc
