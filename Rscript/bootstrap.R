@@ -16,20 +16,20 @@ max_abundance_value_OTU <- function(data){
   
   mat <- matrix(0, ncol=2, nrow=ncol(data))
   uni <- apply(data, 2, unique)
-
+  
   if(class(uni)=="matrix") return(NULL)
   
   for(i in 1: length(uni)){
-
+    
     temp <-  sapply(uni[[i]], function(x){
-                                          mean(x==data[,i])})
+      mean(x==data[,i])})
     
     mat[i, 1] <- max(temp)
     mat[i, 2] <- uni[[i]][which.max(temp)]
   }
   
-   colnames(mat) <- c("zero_inflated", "value")
-   as.data.frame(mat)
+  colnames(mat) <- c("zero_inflated", "value")
+  as.data.frame(mat)
 }
 
 
@@ -37,27 +37,27 @@ zero_inflated <- function(data, classification){
   
   data <- signif(data, digits = 10)
   zero_inflated <- max_abundance_value_OTU(data)
-  iid <- which(zero_inflated$zero_inflated>0)
-
+  iid <- which(zero_inflated$zero_inflated>=0)
+  
   iid2 <- data.frame(iid=(iid %>% rep(nrow(data))), value=(zero_inflated$value[iid] %>% rep(nrow(data))))
- 
+  
   iid2 <- iid2[order(iid2$iid), ]
   iid_cluster <- NULL
   
   nb_sample_cluster <- sapply(1:length(unique(classification)), function(x){sum(x==classification)})
-
+  
   
   if(!(iid %>% is.integer0())){
-    pseudo_comptage <- 0.2
+    pseudo_comptage <- 0.1
     iid_cluster <- data.frame(cluster=classification, data=as.vector(data[, iid]), OTU=iid2$iid, value=iid2$value ,row.names = NULL) %>%
       group_by(OTU, cluster, value) %>% summarise(zero=sum(data==value))
     
     iid_cluster$nb_sample_cluster <- nb_sample_cluster
     iid_cluster$zero <- iid_cluster$zero/ (iid_cluster$nb_sample_cluster + pseudo_comptage)
     iid_cluster$zero_inflated_coeff <- rep(zero_inflated$zero_inflated[iid], rep(length(unique(classification)),length(iid) ))
-
-    iid_cluster <- iid_cluster %>% filter(zero>0)
+    
   }
+  
   iid_cluster
 }
 
@@ -83,7 +83,7 @@ simu_melange_gaussien <- function(n, probability, mean, Sigma){
 
 
 bootstrap <- function(data, nb_axe=NULL, nb_cluster=NULL, nb_sample=nrow(data), type="comptage", base_binaire=Base_binary_matrix(ncol(data))){
-
+  
   apprent <- apprentissage(data, nb_axe = nb_axe, nb_cluster = nb_cluster, base_binaire = base_binaire)
   if(type=="comptage"){
     new.sample <- simulation(apprent, nb_sample = nb_sample)
@@ -138,7 +138,7 @@ nb_axe_capushe <- function(data, data_biplot=FALSE, base_binaire=Base_binary_mat
 
 
 apprentissage_pca <- function(data, nb_cluster=NULL, nb_axe=NULL, base_binaire=Base_binary_matrix(ncol(data))){
-
+  
   data_biplot <- biplot(data, base_binaire=base_binaire)
   if(is.null(nb_axe)){
     nb_axe <- nb_axe_capushe(data_biplot, data_biplot = TRUE)  
@@ -166,7 +166,7 @@ apprentissage_pca <- function(data, nb_cluster=NULL, nb_axe=NULL, base_binaire=B
   
   data_ilr <- data %>% center_scale(scale=FALSE) %>% ilr()
   iid_cluster <- zero_inflated(data_ilr, Mclust_data$classification)
-
+  
   result <- list(data=data, classification_data=Mclust_data$classification, W=W, pi_k=probability, mean=mean_data, Sigma=Sigma_data, noise=Sigma, d=nb_axe, nb_cluster=nb_cluster, base_binaire=base_binaire, zero_inflated_ilr=iid_cluster)
   
   class(result) <- "apprentissage"
@@ -177,7 +177,7 @@ apprentissage_pca <- function(data, nb_cluster=NULL, nb_axe=NULL, base_binaire=B
 
 
 apprentissage <- function(data, nb_axe=NULL, nb_cluster=NULL, base_binaire=Base_binary_matrix(ncol(data))){
-
+  
   new.data <- data %>% MAP()
   result <- apprentissage_pca(new.data, nb_axe = nb_axe, nb_cluster = nb_cluster, base_binaire = base_binaire)
   result$data <- data
@@ -199,14 +199,14 @@ simulation_ilr <- function(result, nb_sample=nrow(result$data)){
   n <- nrow(Z)
   Z <- Z + mvrnorm(n, rep(0, D), result$noise*diag(D))
   
-  if(!is.null(result$zero_inflated_ilr)){
-    temp <- result$zero_inflated_ilr
-     for(i in 1:nrow(temp)){
-       e <- rbinom(length(which(new_sample$metadata==temp$cluster[i])), 1, temp$zero[i])
-       Z[which(new_sample$metadata==temp$cluster[i]), temp$OTU[i]] <- Z[which(new_sample$metadata==temp$cluster[i]), temp$OTU[i]]*(1-e) + temp$value[i]
-     }
-  }
-  
+  # if(!is.null(result$zero_inflated_ilr)){
+  #   temp <- result$zero_inflated_ilr
+  #    for(i in 1:nrow(temp)){
+  #      e <- rbinom(length(which(new_sample$metadata==temp$cluster[i])), 1, temp$zero[i])
+  #      Z[which(new_sample$metadata==temp$cluster[i]), temp$OTU[i]] <- Z[which(new_sample$metadata==temp$cluster[i]), temp$OTU[i]]*(1-e) + temp$value[i]
+  #    }
+  # }
+  # 
   list(data=Z, metadata=new_sample$metadata)
 }
 
@@ -223,7 +223,7 @@ simulation_MAP <- function(result, nb_sample=nrow(result$data)){
 
 
 simulation <- function(result, nb_sample=nrow(result$data), type="comptage"){
-
+  
   if(type=="ilr"){
     simu_ilr <- simulation_ilr(result, nb_sample = nb_sample)
     rownames(simu_ilr$data) <- paste("sample", 1:nrow(simu_ilr$data))
@@ -239,20 +239,42 @@ simulation <- function(result, nb_sample=nrow(result$data), type="comptage"){
     return(simu_MAP$data)
   }
   
+  
+  deep <- apply(result$data, 1, sum)
+  zero_inflated_comptage <- result$zero_inflated_comptage
+  
+  result_sample <- sapply(1:nrow(simu_MAP$data), function(x){
+    
+    deep_simu <- sample(deep, 1)
+    temp <- zero_inflated_comptage[which(zero_inflated_comptage$cluster==simu_MAP$metadata[x]),]
+    coeff <- (1-temp$zero) %*% simu_MAP$data[x, ]
+    
+    deep_simu <- deep_simu/coeff
+    
+    if(any(x>0)){
+      r <- rmultinom(1, round(deep_simu), simu_MAP$data[x, ])
+    }
+    else rep(0, length(simu_MAP[x, ]))
+  }) %>% t()
+  
+  
+  
   if(!is.null(result$zero_inflated_comptage)){
-    temp <- result$zero_inflated_comptage
-    for(i in 1:nrow(temp)){
-      e <- rbinom(length(which(simu_MAP$metadata==temp$cluster[i])), 1, temp$zero[i])
-      simu_MAP$data[which(simu_MAP$metadata==temp$cluster[i]), temp$OTU[i]] <- simu_MAP$data[which(simu_MAP$metadata==temp$cluster[i]), temp$OTU[i]] * (e*temp$value[i] + (1-e))
+    for(i in 1:nrow(zero_inflated_comptage)){
+      if(zero_inflated_comptage$value[i]==0) {
+        if(length(result_sample[which(simu_MAP$metadata==zero_inflated_comptage$cluster[i]), zero_inflated_comptage$OTU[i]])!=0) p_simu <- mean(result_sample[which(simu_MAP$metadata==zero_inflated_comptage$cluster[i]), zero_inflated_comptage$OTU[i]]==0)
+        
+        p <- 0
+        if(p_simu<zero_inflated_comptage$zero[i]) p <- (zero_inflated_comptage$zero[i]-p_simu)/(1-p_simu)
+        else p <- 0
+        p[p<0] <- 0
+        p[p>1] <- 1
+        
+        e <- rbinom(length(which(simu_MAP$metadata==zero_inflated_comptage$cluster[i])), 1, 1-p)
+        result_sample[which(simu_MAP$metadata==zero_inflated_comptage$cluster[i]), zero_inflated_comptage$OTU[i]] <- result_sample[which(simu_MAP$metadata==zero_inflated_comptage$cluster[i]), zero_inflated_comptage$OTU[i]] * e
+      }
     }
   }
-
-  deep <- apply(result$data, 1, sum)
-  
-  result_sample <- apply(simu_MAP$data, 1, function(x){
-    deep_simu <- sample(deep, 1)
-    rmultinom(1, deep_simu, x)
-  }) %>%t()
   
   
   rownames(result_sample) <- paste("sample", 1:nrow(simu_MAP$data))
