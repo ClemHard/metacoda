@@ -9,6 +9,52 @@ library(nnet)
 source("Rscript/bootstrap.R")
 
 
+
+check_table <- function(table1, table2){
+  
+  c <- colnames(table1) %in% colnames(table2)
+  if(any(c==FALSE)){
+    name <- colnames(table1)[which(c==FALSE)]
+    temp <- matrix(0, ncol=length(name), nrow=nrow(table1))
+    colnames(temp) <- name
+    table2 <- cbind(table2, temp)
+  }
+  
+  c <- colnames(table2) %in% colnames(table1)
+  if(any(c==FALSE)){
+    name <- colnames(table2)[which(c==FALSE)]
+    temp <- matrix(0, ncol=length(name), nrow=nrow(table2))
+    colnames(temp) <- name
+    table1 <- cbind(table1, temp)
+  }
+  
+  c <- rownames(table1) %in% rownames(table2)
+  if(any(c==FALSE)){
+    name <- rownames(table1)[which(c==FALSE)]
+    temp <- matrix(0, nrow=length(name), ncol=ncol(table1))
+    rownames(temp) <- name
+    table2 <- rbind(table2, temp)
+  }
+  
+  c <- rownames(table2) %in% rownames(table1)
+  if(any(c==FALSE)){
+    name <- rownames(table2)[which(c==FALSE)]
+    temp <- matrix(0, nrow=length(name), ncol=ncol(table2))
+    rownames(temp) <- name
+    table1 <- rbind(table1, temp)
+  }
+  
+  table1 <- table1[ ,order(colnames(table1))]
+  table2 <- table2[ ,order(colnames(table2))]
+  
+  table1 <- table1[order(rownames(table1)), ]
+  table2 <- table2[order(rownames(table2)), ]
+  
+  list(table1, table2)
+}
+
+
+
 table_to_percentage_table <- function(table){
   nb_row <- nrow(table)
   table <- round(table/matrix(rep(apply(table, 2, sum), nb_row), byrow = TRUE, nrow=nb_row)*100, digits=2)
@@ -19,12 +65,15 @@ table_to_percentage_table <- function(table){
 list_table_sum <- function(l){
   
   if(length(l)==0){
-    warning("list de longeur 0")
+    warning("list de longueur 0")
     return(NULL)
   }
   sum_table <- l[[1]]
   for(i in 1:length(l)){
     for(j in 1:length(l[[i]])){
+      temp <- check_table(sum_table[[j]], l[[i]][[j]])
+      sum_table[[j]] <- temp[[1]]
+      l[[i]][[j]] <- temp[[2]]
       sum_table[[j]] <- sum_table[[j]]+l[[i]][[j]]
     }
   }
@@ -103,7 +152,7 @@ test_bootstrap_all <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_train=1, 
   clusterEvalQ(cl, {source("Rscript/test_bootstrap.R")})
   clusterExport(cl, list("data1", "data2", "nb_cluster", "nb_axe", "base_binaire"), envir = environment())
   
-  l <- lapply(1:nb_train, function(x){
+  l <- parLapply(cl, 1:nb_train, function(x){
     
                             rand_real_data <- sample(1:nrow(data1), floor(nrow(data1)*proportion_real_data))
                             test_real_data <- data2[rand_real_data,]

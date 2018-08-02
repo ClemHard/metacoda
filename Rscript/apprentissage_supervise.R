@@ -7,7 +7,6 @@ library(doParallel)
 source("Rscript/bootstrap.R")
 source("Rscript/test_bootstrap.R")
 
-
 apprentissage_supervise <- function(data, metadata){
   
   name_group <- unique(metadata)
@@ -220,7 +219,7 @@ classificateur_group_real_simu <- function(data, metadata, nb_train=1, type="com
   clusterEvalQ(cl, {source("Rscript/apprentissage_supervise.R")})
   
   
-  l <-  lapply(1:nb_train, function(x){
+  l <-  parLapply(cl, 1:nb_train, function(x){
     
     simu <- simulation_supervise(apprent, nb_sample=10*find_nb_sample_cluster(metadata = metadata))
   
