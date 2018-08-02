@@ -11,13 +11,13 @@ source("Rscript/bootstrap.R")
 
 
 check_table <- function(table1, table2){
-  
+
   c <- colnames(table1) %in% colnames(table2)
   if(any(c==FALSE)){
     name <- colnames(table1)[which(c==FALSE)]
     temp <- matrix(0, ncol=length(name), nrow=nrow(table1))
     colnames(temp) <- name
-    table2 <- cbind(table2, temp)
+    table2 <- cbind(table2, temp) %>% as.table()
   }
   
   c <- colnames(table2) %in% colnames(table1)
@@ -25,7 +25,7 @@ check_table <- function(table1, table2){
     name <- colnames(table2)[which(c==FALSE)]
     temp <- matrix(0, ncol=length(name), nrow=nrow(table2))
     colnames(temp) <- name
-    table1 <- cbind(table1, temp)
+    table1 <- cbind(table1, temp) %>% as.table()
   }
   
   c <- rownames(table1) %in% rownames(table2)
@@ -33,7 +33,7 @@ check_table <- function(table1, table2){
     name <- rownames(table1)[which(c==FALSE)]
     temp <- matrix(0, nrow=length(name), ncol=ncol(table1))
     rownames(temp) <- name
-    table2 <- rbind(table2, temp)
+    table2 <- rbind(table2, temp) %>% as.table()
   }
   
   c <- rownames(table2) %in% rownames(table1)
@@ -41,14 +41,26 @@ check_table <- function(table1, table2){
     name <- rownames(table2)[which(c==FALSE)]
     temp <- matrix(0, nrow=length(name), ncol=ncol(table2))
     rownames(temp) <- name
-    table1 <- rbind(table1, temp)
+    table1 <- rbind(table1, temp) %>% as.table()
   }
   
-  table1 <- table1[ ,order(colnames(table1))]
-  table2 <- table2[ ,order(colnames(table2))]
+  row_name <- (rownames(table1))
+  if(ncol(table1)>1){
+    table1 <- table1[ ,order(colnames(table1))]
+    table2 <- table2[ ,order(colnames(table2))]
+  }
   
-  table1 <- table1[order(rownames(table1)), ]
-  table2 <- table2[order(rownames(table2)), ]
+  if(class(table1)=="table" && class(table2)=="table"){
+    table1 <- table1[order(rownames(table1)), ]
+    table2 <- table2[order(rownames(table2)), ]
+  }
+  
+  if(class(table1)=="integer"){
+    table1 <- table1 %>% as.matrix %>% t()
+    table2 <- table2 %>% as.matrix() %>% t()
+    rownames(table1) <- row_name
+    rownames(table2) <- row_name
+  }
   
   list(table1, table2)
 }
@@ -69,7 +81,7 @@ list_table_sum <- function(l){
     return(NULL)
   }
   sum_table <- l[[1]]
-  for(i in 1:length(l)){
+  for(i in 2:length(l)){
     for(j in 1:length(l[[i]])){
       temp <- check_table(sum_table[[j]], l[[i]][[j]])
       sum_table[[j]] <- temp[[1]]
@@ -98,12 +110,24 @@ create_data_frame_train <- function(data, metadata){
 
 create_data_frame_simu <- function(data1, apprent, test_real_data=NULL, type){
   
-  boot <- simulation(apprent, nb_sample = nrow(data1), type = type)
+  boot <- simulation(apprent, nb_sample = nrow(data1), type = "comptage")
+  nb_sample <- 1000
+  boot_test <- simulation(apprent, nb_sample = nb_sample, type = "comptage")
+  
+  
+  if(type=="MAP") {
+    boot_test <- boot_test %>% MAP()
+    boot <- boot %>% MAP()
+  }
+  
+  if(type=="ilr"){
+    boot_test <- boot_test %>% MAP() %>% ilr()
+    boot <- boot %>% MAP() %>% ilr()
+  }
+  
+  
   data_train <- rbind(data1, boot)
   metadata <- c(rep("real", nrow(data1)), rep("simu", nrow(boot)))
-  
-  nb_sample <- 1000
-  boot_test <- simulation(apprent, nb_sample = nb_sample, type = type)
   
   train <- create_data_frame_train(data=data_train, metadata = metadata)
   
@@ -129,11 +153,11 @@ pred_real_simu <- function(train, test){
   logi <- glm(metadata~., family = binomial, data=train, control = list(maxit = 200))
   pred_logi <- (predict(logi, test)>0.5)
   
-  nn <- nnet(metadata~., train, size=1, MaxNWts=1000000, maxit=500)
-  pred_nnet <- predict(nn, test, type="class")
+  #nn <- nnet(metadata~., train, size=5, MaxNWts=1000000, maxit=500)
+  #pred_nnet <- predict(nn, test, type="class")
   
   
-  list(random_forest=pred_forest, kNN=pred_kNN, logi=pred_logi, neuronal=pred_nnet)
+  list(random_forest=pred_forest, kNN=pred_kNN, logi=pred_logi)
 }
 
 

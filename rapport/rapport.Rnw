@@ -60,7 +60,7 @@
 \section{Géométrie de Aitchison}
 
 \subsection{Simplexe}
-Un vecteur \(x=\left[x_1,x_2,...x_D\right]\) est définie comme une D compositions lorsque toutes ces composantes sont strictement positives et ne contienne que de l'information relative.
+Un vecteur \(x=\left[x_1,x_2,...x_D\right]\) est définie comme une D compositions lorsque toutes ces composantes sont strictement positives et ne contiennent que de l'information relative.
 \vspace*{0.3cm}. 
 \\
 Le simplexe est l'espace de probabilité des données compositionnelles  et est défini par: 
@@ -68,7 +68,7 @@ Le simplexe est l'espace de probabilité des données compositionnelles  et est 
     S^D=\lbrace x=\left[x_1, x_2,...,x_D\right]|x_i>0,i=1,2,...,D;\sum_{i=1}^Dx_i=\kappa\rbrace
 \]
  
- L'opération permettant de modifier la somme des composantes d'une compositions ( le \(\kappa\))se nomme la closure:
+ L'opération permettant de modifier la somme des composantes d'une compositions (le \(\kappa\)) se nomme la closure:
   
  \[
 C(x)=\left[\frac{\kappa*x_1}{\sum_{i=1}^Dx_i},\frac{\kappa*x_2}{\sum_{i=1}^Dx_i},...,\frac{\kappa*x_D}{\sum_{i=1}^Dx_i}     \right]
@@ -107,13 +107,22 @@ Distance entre \(x\) et \(y\in S^D\),
 x,y\in S^D,\ d_a\left(x,y\right)=\sqrt{\frac{1}{2D}\sum_{i=1}^D\sum_{j=1}^D\left(ln\frac{x_i}{x_j}-ln\frac{y_i}{y_j}\right)^2}
 \]
 \subsection{Transformation}
+Comme on a pu le voir, l'espace du simplexe nécessite une redéfinition des opérations de base. Dans cette partie, nous allons voir des transformations permettant de repasser dans un espace euclidien.\\
+Tout d'abord, remarquons que la valeur de \(\kappa\)(somme des composantes d'une compositions n'a pas fondamentalement une grande importance (def?). Les rapports relatifs sont bien plus intéressant. Il n'est donc pas étonnant que les transformations reposent sur des log ratios de composantes.\\
 
-alr:
+Commençons par l'additive log-ratio transformation(alr).
 \[
 alr:S^D\rightarrow R^{D-1},\ alr\left(x\right)=\left[ln\left(\frac{x_1}{x_D}\right), ln\left(\frac{x_2}{x_D}\right),...,ln\left(\frac{x_{D-1}}{x_D}\right)\right]
 \]
-	
-La transformation clr qui donne les coordonnées d'une composition dans le centred logration coefficients,
+La dernière composante d'une composition pouvant s'exprimer comme 
+\[
+x_D=\kappa -\sum_{i=1}^{D-1}x_i
+\]
+, le système sera alors lié. L'alr résout se problème en prenant une composante comme dénominateur (la coordonnée est ainsi nul).
+Cependant, cette transformation est grandement dépendante de la composante choisit comme dénominateur. De plus, cette transformation ne préserve pas les distances.\\
+\\
+La transformation centred log-ratio n'a pas cette problématique.
+Elle s'exprime comme suit:
 \[
 clr\left(x\right)=\left[ln\frac{x_1}{g(x)},...,ln\frac{x_D}{g(x)}\right]=\xi
 \]	
@@ -121,19 +130,22 @@ avec \(g\) le centre de la composition définie par:
 \[
  g(x)=\left(\prod^D_{i=1}x_i\right)^{1/D}
 \]
+Cependant, comme vue précédemment la dernière composante peut s'exprimer en fonction des autres, cette transformation conservant le nombre de coordonnées, les coordonnées ne seront pas indépendantes. En conséquence, la matrice de covariance est singulière. Notons que la somme des coordonnées est égale à 0.
+
+
+
+
 ainsi que sa transformation inverse,	
 \[
 clr^{-1}\left(\xi\right)=C\left[exp\left(\xi_1\right),exp\left(\xi_2\right),...exp\left(\xi_D\right)\right]=x
 \]
 
 
-ilr:
-
+Voyons enfin l'isometric log-ration transformation (ilr),
 \[
 ilr\left(x\right)=clr\left(x\right)\Psi^{'}
 \]
-
-
+cette transformation permet de résoudre les problématiques des autres transformations, elle préserve les distances et ne génère pas une matrice de covariance lié. Pour cela, elle utilise un type de coordonnée particulier nommée balance.
 \[
 g=\left[g_1,g_2,...,g_D\right],\ g_i=\left(\prod_{j=1}^n x_ij\right)^{1/n},\ i=1,2,...D
 \]
@@ -230,6 +242,7 @@ Ce qui permet d'exprimer \(\tilde{X_{i}}\) comme
 où \(Z_{ik}\sim Bern\left(\pi_{ik}\right)\), \(X_{i}\sim  \mathcal{N}\left(\mu_k, \Sigma_k\right)\)
  
 \section{Transformation ilr et classification supervise}
+Mettons maintenant en pratique ces techniques.
 
 
 \section{Conclusion}
