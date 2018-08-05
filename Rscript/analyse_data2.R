@@ -158,9 +158,32 @@ c_mach_ilr
 #      )
 
 
-# # base binaire aléatoire
-# l <- lapply(1:10, function(x){
-#                 r <- random_binary_base(ncol(vacher))
-#                 t_vacher <- test_bootstrap_all(vacher, nb_cluster = 4, nb_axe = 11, nb_train=30, type="comptage", base_binaire = r)
-#                 t_vacher$all$randomForest
-#               })
+# base binaire aléatoire
+plot_aleatoire <- function(l){
+  misclass_simu_forest <- sapply(l, function(x){x$random_forest[1,2]})
+  misclass_real_forest <- sapply(l, function(x){x$random_forest[2,1]})
+  misclass_simu_kNN <- sapply(l, function(x){x$kNN[1,2]})
+  misclass_real_kNN <- sapply(l, function(x){x$kNN[2,1]})
+  
+  data <- data.frame(x=1:length(misclass_real_forest), misclass_real_forest=misclass_real_forest, misclass_simu_forest=misclass_simu_forest, misclass_real_kNN=misclass_real_kNN, misclass_simu_kNN=misclass_simu_kNN)
+  
+  ggplot(data) + geom_line(aes(x, misclass_real_forest), linetype=2) +
+    geom_line(aes(x, misclass_simu_forest)) +
+    geom_line(aes(x, misclass_real_kNN), colour=2, linetype=2) +
+    geom_line(aes(x, misclass_simu_kNN), colour=2) + labs(y="misclass", x= "index")
+}
+
+
+aleatoire_vacher <- lapply(1:20, function(x){
+                r <- random_binary_base(ncol(vacher))
+                t_vacher <- test_bootstrap_all(vacher, nb_cluster = 4, nb_axe = 11, nb_train=20, type="comptage", base_binaire = r)
+                t_vacher$all
+              })
+
+aleatoire_chaillou <- lapply(1:20, function(x){
+  r <- random_binary_base(ncol(chaillou))
+  t_chaillou <- test_bootstrap_all(chaillou, nb_cluster = 15, nb_axe = 16, nb_train=20, type="comptage", base_binaire = r)
+  t_chaillou$all
+})
+
+save(aleatoire_chaillou, aleatoire_vacher, file = "aleatoire.RData")
