@@ -332,12 +332,70 @@ test_that("max_abundance_value_OTU works properly", {
 
 ## Test zero_inflated
 
-test_that("zero_inflatede works properly", {
+test_that("zero_inflated works properly", {
   set.seed(20283)
   
   data <- matrix(sample(0:5, 200, replace=TRUE), nrow=20)
   classification <- sample(1:4, 20, replace=TRUE)
-  data_result <- data.frame(zero_inflated=c(0.3, 0.4, 0.4, 0.4, 0.6, 0.2, 0.3, 0.3, 0.3, 0.3), value=c(5, 3, 5, 1, 4, 2, 5, 1, 0, 2))
-  expect_identical(max_abundance_value_OTU(data), data_result)
+  data_result <- tibble(OTU=c(1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7, 8,
+                              8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10) ,
+                        cluster=c(1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4),
+                        value=c(3, 3, 3, 3, 1, 1, 1, 1, 4, 4, 4, 4, 1, 1, 1, 1, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 4, 4, 4, 4, 5, 5, 5, 5),
+                        zero=c(0.488, 0.164, 0.423, 0, 0, 0.328, 0.282, 0.968, 0, 0.820, 0.282, 0.323, 0.488, 0,
+                                0.423, 0.323, 0, 0.492, 0.282, 0, 0.488, 0.164, 0.141, 0.323, 0.732, 0, 0.141, 0.323,
+                                0.244, 0.328, 0.141, 0.323, 0.244, 0.328, 0.282, 0.645, 0.488, 0.328, 0, 0.323),
+                        nb_sample_cluster=c(4, 6, 7, 3, 4, 6, 7, 3, 4, 6, 7, 3, 4, 6, 7, 3, 4, 6, 7, 3, 4, 6, 7, 3, 4, 6, 7, 3, 4, 6, 7, 3, 4, 6, 7, 3, 4, 6, 7, 3),
+                        zero_inflated_coeff=c(0.30, 0.30, 0.30, 0.30, 0.35, 0.35, 0.35, 0.35, 0.40, 0.40, 0.40, 0.40, 0.30, 0.30, 0.30, 0.30, 0.25,
+                                               0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.35, 0.35,
+                                               0.35, 0.35, 0.25, 0.25, 0.25, 0.25)) %>% as.matrix()
+  
+  
+  expect_equal(zero_inflated(data, classification) %>% as.matrix(), data_result, tolerance=1e-2)
   
 })
+
+
+## Test check_table
+
+test_that("check_table properly", {
+  
+  table1 <- table(c(1,2,3,1,2,2,3,2,1,2,2), c("e","r",rep("e",5), rep("t",4)))
+  table2 <- table(c(1,2,3,1,2,2,3,2,1,2,2), c("e",rep("z",3),rep("r",5), rep("t",2)))
+  
+  table_result1 <- matrix(c(2, 2, 2, 0, 1, 0, 1, 3, 0, 0, 0, 0), nrow=3, dimnames = list(c("1", "2", "3"), c("e", "r", "t", "z"))) %>% as.table()
+  table_result2 <- matrix(c(1, 0, 0, 1, 3, 1, 0, 2, 0, 1, 1, 1), nrow=3, dimnames = list(c("1", "2", "3"), c("e", "r", "t", "z"))) %>% as.table()
+  
+  expect_equal(check_table(table1, table2)[[1]], table_result1)
+  expect_equal(check_table(table1, table2)[[2]], table_result2, check.attributes=FALSE)
+  expect_equal(check_table(table1, table2) %>% length(), 2)
+})
+
+
+
+test_that("table_to_percentage_table", {
+  
+  table1 <- table(c(rep(0, 100), rep(1, 120), rep(3, 238)), c(rep("e", 144), rep("z", 314)))
+  table_result <- matrix(c(69.44, 30.56, 0, 0, 24.2, 75.8), nrow=3, dimnames = list(c(0, 1, 3), c("e", "z")))
+  expect_equal(table_to_percentage_table(table1), as.table(table_result), tolerance=1e-1, check.attributes=FALSE)
+  
+})
+
+
+test_that("list_table_sum", {
+  
+  table1 <- table(c(rep(0, 100), rep(1, 120), rep(3, 238)), c(rep("e", 144), rep("z", 314)))
+  table3 <- table(c(rep(1, 100), rep(0, 120), rep(4, 238)), c(rep("i", 144), rep("z", 314)))
+  table2 <- table(c(1,2,3,1,2,2,3,2,1,2,2), c("e",rep("z",3),rep("r",5), rep("t",2)))
+  table4 <- table(c(1,2,3,1,2,2,3,2,1,2,2), c("e",rep("p",3),rep("q",5), rep("t",2)))
+  l <- list(list(table1, table2), list(table3, table4))
+  
+  table_result <- matrix(c(100, 44, 0, 0, 44, 100, 0, 0, 76, 76, 238, 238), nrow=4, dimnames = list(c(0, 1, 3, 4), c("e", "i", "z"))) %>% as.table()
+  table_result1 <- matrix(c(2, 0, 0, 1, 1, 1, 1, 3, 1, 1, 3, 1, 0, 4, 0, 1, 1, 1), nrow=3, dimnames = list(c(1, 2, 3), c("e", "p", "q", "r", "t", "z"))) %>% as.table()
+  
+  expect_error(list_table_sum(table1), "l isn't a list")
+  expect_warning(list_table_sum(list()), "list is empty")
+  expect_equal(list(table1) %>% list_table_sum(), table1)
+  expect_equal(list(list(table1, table2), list(table3, table4)) %>% list_table_sum(), list(table_result, table_result1))
+  
+})
+
