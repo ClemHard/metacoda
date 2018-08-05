@@ -45,6 +45,7 @@ check_table <- function(table1, table2){
   }
   
   row_name <- (rownames(table1))
+  
   if(ncol(table1)>1){
     table1 <- table1[ ,order(colnames(table1))]
     table2 <- table2[ ,order(colnames(table2))]
@@ -76,11 +77,18 @@ table_to_percentage_table <- function(table){
 
 list_table_sum <- function(l){
   
+  if(class(l)!="list") stop("l isn't a list")
+    
   if(length(l)==0){
-    warning("list de longueur 0")
+    warning("list is empty")
     return(NULL)
   }
+  if(length(l)==1){
+    return(l[[1]])
+  }
+  
   sum_table <- l[[1]]
+  
   for(i in 2:length(l)){
     for(j in 1:length(l[[i]])){
       temp <- check_table(sum_table[[j]], l[[i]][[j]])
@@ -89,6 +97,7 @@ list_table_sum <- function(l){
       sum_table[[j]] <- sum_table[[j]]+l[[i]][[j]]
     }
   }
+  
   sum_table
 }
 
@@ -197,6 +206,7 @@ test_bootstrap_all <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_train=1, 
   stopCluster(cl)
   
   all <- l %>% list_table_sum()
+  
   all <- lapply(all, table_to_percentage_table)
   
   list(all=all, all_train=l)
