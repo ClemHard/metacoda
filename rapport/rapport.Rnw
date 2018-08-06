@@ -5,12 +5,14 @@
 \usepackage{enumitem}
 \usepackage{mathrsfs}
 \usepackage{graphicx}
+\usepackage{appendix}
 \usepackage[caption = false]{subfig}
 \usepackage{bbm}
 \usepackage[singlespacing]{setspace}
 \usepackage[utf8]{inputenc}
 \usepackage{float}
 \usepackage{textcomp}
+\usepackage{apptools}
 \usepackage{tabularx}
 \usepackage{makecell} 
 \usepackage{blkarray}
@@ -43,7 +45,6 @@
 
 <<setup, include=FALSE, echo=FALSE>>=
 library(knitr)
-library(weaver)
 library(kableExtra)
 library(xtable)
 library(doParallel)
@@ -68,13 +69,37 @@ source("Rscript/tree_phyloseq.R")
 source("Rscript/apprentissage_supervise.R")
 @
 
+<<validation croise (leave one out), cache=TRUE>>=
+v_chaillou <- validation_croise(chaillou, metadata_chaillou$EnvType)
+v_ravel <- validation_croise(ravel, metadata_ravel$CST)
+v_liver_500 <- validation_croise(liver_500, metadata_liver$status)
+v_mach_500 <- validation_croise(mach_500, metadata_mach$Weaned)
+@
+
+
+<<validation croise donne ilr (leave one out), cache=TRUE>>=
+v_chaillou_ilr <- validation_croise(chaillou %>% MAP() %>% ilr(), metadata_chaillou$EnvType)
+v_ravel_ilr <- validation_croise(ravel %>% MAP() %>% ilr(), metadata_ravel$CST)
+v_liver_500_ilr <- validation_croise(liver_500 %>% MAP() %>% ilr(), metadata_liver$status)
+v_mach_500_ilr <- validation_croise(mach_500 %>% MAP() %>% ilr(), metadata_mach$Weaned)
+@
+
+<<bootstrap all donnee comptage, cache=TRUE>>=
+t_chaillou <- test_bootstrap_all(chaillou, nb_cluster = 15, nb_axe = 16, nb_train = 10)
+t_mach_500 <- test_bootstrap_all(mach_500, nb_cluster = 4, nb_axe = 10, nb_train = 10)
+t_vacher <- test_bootstrap_all(vacher, nb_cluster = 4, nb_axe = 11, nb_train = 10)
+
+t_liver_500 <- test_bootstrap_all(liver_500, nb_cluster = 7, nb_axe = 8, nb_train = 10)
+t_ravel <- test_bootstrap_all(ravel, nb_cluster = 12, nb_axe = 12, nb_train = 10)
+@
+
 \maketitle
 
 \tableofcontents
 
 
 \section{Contexte biologique et enjeux}
-\subsection{Séqueçage}
+\subsection{Séquençage}
 \subsection{Données de comptage}
 \subsection{Problème compositionnel}
 
@@ -210,38 +235,14 @@ La deuxième : les trois premières composantes sur la quatrième et ainsi de su
 \\
 Ces trois transformations ont bien entendue leur transformations inverse qui sont définie par:\\
 \begin{align*}
-&alr^{-1}\left(\xi\right)=C\left( \frac{\exp\left(\xi_1\right)}{\sum_{i=1}^{d-1} \exp\left(y_i\right) + 1},\ ...,\  \frac{1}{\sum_{i=1}^{d-1} \exp\left(y_i\right) + 1} \right)\\
+&alr^{-1}\left(\xi\right)=C\left( \frac{\exp\left(\xi_1\right)}{\sum_{i=1}^{d-1} \exp\left(\xi_i\right) + 1},\ ...,\  \frac{1}{\sum_{i=1}^{d-1} \exp\left(\xi_i\right) + 1} \right)\\
 &clr^{-1}\left(\xi\right)=C\left( \exp\left(\xi_1\right),\ ...,\  \exp\left(\xi_D\right)\ \right)\\
-&ilr^{-1}=\left(x\right)=C\left(\exp{x\Psi}\right)
+&ilr^{-1}\left(\xi\right)=C\left(\exp{\xi\Psi}\right)
 \end{align*}
 
 \section{Analyse Multivariée}
 
-\subsection{Réduction de dimension}
-Dans notre cas, nous cherchons à appliquer un modèle probabiliste à nos données. L'ACP dans sa définition la plus commune ne permet pas de prendre en compte un tel modèle. Pour ce faire, nous allons donc utiliser une variante de l'ACP qui n'est autre que l'ACP probabiliste qui est définie comme:
-\[
-X_i=Wy_i + \mu + \epsilon_i
-\]
-où \(y_i\sim \mathcal{N}\left(0,I_d\right) \), \(\epsilon_i \sim \mathcal{N}\left(0,\ \sigma^2I_p\right)\) est un bruit gaussien et \(W\) une \(p \times d\) matrice.
-\\
-Si nous notons \(A\) la matrice des vecteurs propres de la matrice \(X^TX\), \(\Lambda\) la matrice diagonale contenant les valeurs propres associées et \(R\) une matrice orthogonale arbitraire, nous avons que le maximum de vraisemblance de \(W\) s'exprime comme:
-
-\[
-W_{ML}=A\left(\Lambda-\sigma^2I_d\right)^{1/2}R
-\]
-De même, l'estimateur du maximun de vraisemblance de \(\sigma^2\)
-\[
-\sigma^2_{ML}=\frac{1}{d-q}\sum_{j=q+1}^d \lambda_j
-\]
-Cet estimateur peut être perçu comme la variance perdue lors de la projection.\\
-Pour la sélection de la dimension, nous avons tout simplement utilisé la méthode du coude.\\
-\subsection{Mélange Gaussien}
-\[
-g\left(x; \pi,\theta\right)=\sum_{k=1}^K \pi_kf(x,\theta_k)
-\]
-où \(\theta=\left(\theta_1,...,\theta_k\right)\) sont les paramètres des lois gaussiennes et \( \pi=\left(\pi_1,...,\pi_K\right)\) sont les proportions du mélange Gaussien dont la somme est égale à 1.
-
-\subsection{Schéma simulation}
+\subsection{Schéma simulateur}
 \begin{center}
 \begin{tikzpicture}[node distance=2cm, auto]
      \node[cloud] (X) {X};
@@ -268,7 +269,42 @@ où \(\theta=\left(\theta_1,...,\theta_k\right)\) sont les paramètres des lois 
   \end{tikzpicture}
 \end{center}
 
-\subsection{Apprentissage} 
+
+La partie apprentissage sera divisé en cinq parties:
+\begin{itemize}
+\item apprentissage des zero (pour le zero inflated)
+\item réduction de dimension
+\item apprentissage de la densité (par mélange gaussien)
+\item simulation de nouvelles données
+\item ajout du bruit (le bruit de la PPCA)
+\end{itemize}
+
+\subsection{Réduction de dimension}
+Dans notre cas, nous cherchons à appliquer un modèle probabiliste à nos données. L'ACP dans sa définition la plus commune ne permet pas de prendre en compte un tel modèle. Pour ce faire, nous allons donc utiliser une variante de l'ACP qui n'est autre que l'ACP probabiliste qui est définie comme:
+\[
+X_i=Wy_i + \mu + \epsilon_i
+\]
+où \(y_i\sim \mathcal{N}\left(0,I_d\right) \), \(\epsilon_i \sim \mathcal{N}\left(0,\ \sigma^2I_p\right)\) est un bruit gaussien et \(W\) une \(p \times d\) matrice.
+\\
+Si nous notons \(A\) la matrice des vecteurs propres de la matrice \(X^TX\), \(\Lambda\) la matrice diagonale contenant les valeurs propres associées et \(R\) une matrice orthogonale arbitraire, nous avons que le maximum de vraisemblance de \(W\) s'exprime comme:
+
+\[
+W_{ML}=A\left(\Lambda-\sigma^2I_d\right)^{1/2}R
+\]
+De même, l'estimateur du maximun de vraisemblance de \(\sigma^2\)
+\[
+\sigma^2_{ML}=\frac{1}{d-q}\sum_{j=q+1}^d \lambda_j
+\]
+Cet estimateur peut être perçu comme la variance perdue lors de la projection.\\
+Pour la sélection de la dimension, nous avons tout simplement utilisé la méthode du coude.\\
+\subsection{Mélange Gaussien}
+\[
+g\left(x; \pi,\theta\right)=\sum_{k=1}^K \pi_kf(x,\theta_k)
+\]
+où \(\theta=\left(\theta_1,...,\theta_k\right)\) sont les paramètres des lois gaussiennes et \( \pi=\left(\pi_1,...,\pi_K\right)\) sont les proportions du mélange Gaussien dont la somme est égale à 1.
+
+
+
 \subsection{Maximum a posteriori}
 Nos jeux de données étant des jeux de données de comptage, de nombreux zéros sont présents comme expliqué précédemment ; les transformations logarithmiques (ilr, clr) ne peuvent ainsi pas être directement appliquées.\\
 Pour ce faire, nous n'allons pas utiliser l'estimateur du maximum de vraisemblance pour estimer la proportion de chaque OTU dans un échantillon.\\
@@ -280,7 +316,7 @@ P\left(\theta|X\right)&=\frac{P\left(X|\theta\right)P\left(\theta\right)}{P\left
 &\propto P\left(X|\theta\right)P\left(\theta\right)
 \end{align*}
 
-Dans notre cas, nous allons prendre un a priori 
+Dans notre cas, nous allons prendre un a priori de Dirichlet sur les données,
 ce qui mène à l'estimateur suivant:
 \[
 MAP(p)=\underset{p}{argmax}\left(p|x\right)=\frac{x_i+1}{\sum_{i=1}^D\left(x_i+1\right)}
@@ -305,10 +341,9 @@ Ce qui permet d'exprimer \(\tilde{X_{i}}\) comme
 \]
 où \(Z_{ik}\sim Bern\left(\pi_{ik}\right)\), \(X_{i}\sim  \mathcal{N}\left(\mu_k, \Sigma_k\right)\)
  
-\section{Transformation ilr et classification supervise}
-Mettons maintenant en pratique ces techniques.\\
+\section{Transformation ilr et classification}
 
-\subsection*{Jeux de données}
+\subsection{Jeux de données}
 Pour cela, cinq jeux de données sont mis à ma disposition qui sont Chaillou, Mach, Liver, Ravel ainsi que Vacher.\\
 
 \subsubsection*{Chaillou}
@@ -328,28 +363,112 @@ De plus, durant cette étude, les échantillons ont été classés dans cinq clu
 
 \subsubsection*{Vacher}
 
-\subsection*{Classification supervise}
-Regardons maintenant les performances de classification supervisée (en faisant du leave one out) par le biais de trois algorithmes qui sont le random Forest, le k nearest neighbors et le support machine vector. \\
-Pour montrer l'intérêt de passer par les données compositionnelles pour la classification, nous allons comparer les résultats d'une classification effectuée sur les données initiales (de comptage) et les données compositionnelles (après transformation ilr).\\
 
-<<validation croise (leave one out), cache=TRUE>>=
-v_chaillou <- validation_croise(chaillou, metadata_chaillou$EnvType)
-v_ravel <- validation_croise(ravel, metadata_ravel$CST)
-v_liver_500 <- validation_croise(liver_500, metadata_liver$status)
-v_mach_500 <- validation_croise(mach_500, metadata_mach$Weaned)
+
+\subsection{Classification supervise}
+Regardons maintenant les performances de classification supervisée (en faisant du leave one out) par le biais de deux algorithmes qui sont, le k nearest neighbors et le support machine vector. \\
+Pour montrer l'intérêt de passer par les données compositionnelles pour la classification, nous allons comparer les résultats d'une classification effectuée sur les données initiales (de comptage) et les données compositionnelles (après transformation \(ilr\)).\\
+
+
+\begin{center}
+\subsubsection*{Mach}
+
+\begin{tabular}{cc}
+\multicolumn{2}{c}{kNN} \\
+comptage & ilr \\
+<<>>=
+kable(v_mach_500$kNN)
 @
-
-
-<<validation croise donne ilr (leave one out), cache=TRUE>>=
-v_chaillou_ilr <- validation_croise(chaillou %>% MAP() %>% ilr(), metadata_chaillou$EnvType)
-v_ravel_ilr <- validation_croise(ravel %>% MAP() %>% ilr(), metadata_ravel$CST)
-v_liver_500_ilr <- validation_croise(liver_500 %>% MAP() %>% ilr(), metadata_liver$status)
-v_mach_500_ilr <- validation_croise(mach_500 %>% MAP() %>% ilr(), metadata_mach$Weaned)
+&
+<<>>=
+kable(v_mach_500_ilr$kNN)
 @
+\end{tabular}
 
+
+\begin{tabular}{cc}
+\multicolumn{2}{c}{svm} \\
+comptage & ilr \\
+<<>>=
+kable(v_mach_500$Svm)
+@
+&
+<<>>=
+kable(v_mach_500_ilr$Svm)
+@
+\end{tabular}
+\end{center}
+Nous remarquons que la classification supervise après transformation \(ilr\) permet d'améliorer sensiblement les résultats.\\
+Dans le cas de certains classificateur tels que le svm, la classification supervise sur les données de comptage ne donne pas du tout des résultats concluant (voir Annexe \ref{annexe classification supervise}).
+
+\section{Performance simulateur}
+Maintenant que nous avons vue qu'il y a un certain intérêt à passer par une transformation \(ilr\) pour faire de la classification, nous allons tester la performance de notre simulateur.
+
+\subsection{Méthode}
+Nous allons simuler deux nouveaux jeux de données, l'un d'entre eux servira de jeux d'entrainement (avec les données réels) à un classificateur, l'autre jeu de données servira quant à lui de test. Une petite partie des données réels ne sont pas incluse dans le jeu d'entrainement, elles serviront elles aussi de test.\\
+L'objectif d'une telle démarche est de regarder si un classificateur parvient à faire la différence entre les données réels et les données simulées.
+
+\subsection{Résultats}
+Dans notre cas, nous allons utilisé deux classificateurs, le random Forest ainsi que le k nearest neighbors (le classificateur svm a été ignoré pour sa faible efficacité pour les données de comptage).\\
+
+\begin{center}
+\subsubsection*{Mach}
+
+\begin{tabular}{cc}
+Random forest & kNN \\
+<<>>=
+kable(t_mach_500$all$random_forest)
+@
+&
+<<>>=
+kable(t_mach_500$all$kNN)
+@
+\end{tabular}
+\end{center}
+
+\subsection{Classification}
+Passons à une autre méthode d'évaluation de l'efficacité du simulateur.\\
+La simulation ne se fera plus sur l'ensemble du jeux de données mais séparément sur chaque groupe du jeu de donnée.\\
+Les groupes des données simulées seront alors connu et nous pourrons vérifier si le classificateur retrouve bien ses groupes.\\
+Voici un schéma illustratif de la méthode avec un jeu de données de deux groupes  (dans le cas de mach Sevre, non Sevre).
+\begin{center}
+\begin{tikzpicture}[node distance=2cm, auto]
+     \node[cloud] (X1) {X1};
+     \node[right of=X1, node distance=1cm] (temp) {};
+     \node[cloud, right of=temp, node distance=1cm] (X2)      {X2};
+     \node[cloud, below of=X2] (X2_tilde)   {\(\tilde{X2}\)};
+     \node[cloud, below of=X1] (X1_tilde)   {\(\tilde{X1}\)};
+     \node[below of=temp] (temp2) {};
+     \node[cloud, below of=temp2](X_tilde) {\(\tilde{X}\)};
+     \node[below of=X_tilde] (temp3) {};
+     \node[cloud, left of=temp3, node distance=1cm] (X3_tilde) {\(\tilde{X3}\)};
+     \node[cloud, right of=temp3, node distance=1cm] (X4_tilde) {\(\tilde{X4}\)};
+     
+    % \draw[tuborg, decoration={brace}] let \p1=(X2.south), %\p2=(X2_tilde.north) in
+  %  ($(2, \y1)$) -- ($(2, \y2)$) node[tubnode] {Pro};
+     
+   	\path[line] (X1) --  (X1_tilde);
+  	\path[line] (X2) --  node[midway, right] {Apprentissage, simulation}(X2_tilde);
+ 	\path[line] (X1_tilde) --  (X_tilde);
+ 	\path[line] (X2_tilde) --  (X_tilde);
+ 	\path[line] (X_tilde) --  (X3_tilde);
+ 	\path[line] (X_tilde) --  node[midway, right] {Classification}(X4_tilde);
+ 	
+  \end{tikzpicture}
+\end{center}
+Une simulation bien devrait résulter en la présence des mêmes échantillons dans \(\tilde{X1}\) et \(\tilde{X3}\), de même que dans \(\tilde{X2}\) et \(\tilde{X4}\).
+\section{Conclusion}
+
+\section{Annexe}
+\appendix
+\subsection{classification supervise}\label{annexe classification supervise}
+\subsubsection*{Chaillou}
+
+\begin{center}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{cc}
-Chaillou & \\
+\multicolumn{2}{c}{kNN} \\
+comptage & ilr \\
 <<>>=
 kable(v_chaillou$kNN)
 @
@@ -359,6 +478,42 @@ kable(v_chaillou_ilr$kNN)
 @
 \end{tabular}
 }
+\end{center}
 
-\section{Conclusion}
+
+\begin{center}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{cc}
+\multicolumn{2}{c}{svm} \\
+comptage & ilr \\
+<<>>=
+kable(v_chaillou$Svm)
+@
+&
+<<>>=
+kable(v_chaillou_ilr$Svm)
+@
+\end{tabular}
+}
+\end{center}
+
+
+
+\subsection{Performance simulateur}
+\subsubsection*{Chaillou}
+
+\begin{center}
+\begin{tabular}{cc}
+Random forest & kNN \\
+<<>>=
+kable(t_chaillou$all$random_forest)
+@
+&
+<<>>=
+kable(t_chaillou$all$kNN)
+@
+\end{tabular}
+\end{center}
+
+
 \end{document}
