@@ -199,14 +199,6 @@ simulation_ilr <- function(result, nb_sample=nrow(result$data)){
   n <- nrow(Z)
   Z <- Z + mvrnorm(n, rep(0, D), result$noise*diag(D))
   
-  # if(!is.null(result$zero_inflated_ilr)){
-  #   temp <- result$zero_inflated_ilr
-  #    for(i in 1:nrow(temp)){
-  #      e <- rbinom(length(which(new_sample$metadata==temp$cluster[i])), 1, temp$zero[i])
-  #      Z[which(new_sample$metadata==temp$cluster[i]), temp$OTU[i]] <- Z[which(new_sample$metadata==temp$cluster[i]), temp$OTU[i]]*(1-e) + temp$value[i]
-  #    }
-  # }
-  # 
   list(data=Z, metadata=new_sample$metadata)
 }
 
@@ -262,6 +254,7 @@ simulation <- function(result, nb_sample=nrow(result$data), type="comptage"){
   if(!is.null(result$zero_inflated_comptage)){
     for(i in 1:nrow(zero_inflated_comptage)){
       if(zero_inflated_comptage$value[i]==0) {
+        p_simu <- 1
         if(length(result_sample[which(simu_MAP$metadata==zero_inflated_comptage$cluster[i]), zero_inflated_comptage$OTU[i]])!=0) p_simu <- mean(result_sample[which(simu_MAP$metadata==zero_inflated_comptage$cluster[i]), zero_inflated_comptage$OTU[i]]==0)
         
         p <- 0

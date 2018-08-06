@@ -99,10 +99,10 @@ find_group <- function(train, test, metadata_test){
   pred_svm <- predict(Svm, test)
   
   ### neuronal
-  nn <- nnet(metadata~., train, size=1, MaxNWts=1000000, maxit=500)
-  pred_nn <- predict(nn, test, type="class")
+ # nn <- nnet(metadata~., train, size=5, MaxNWts=1000000, maxit=500)
+ # pred_nn <- predict(nn, test, type="class")
   
-  list(random_forest=table(pred_forest, metadata_test), kNN=table(kNN, metadata_test), Svm=table(pred_svm, metadata_test), neuronal=table(pred_nn, metadata_test))
+  list(random_forest=table(pred_forest, metadata_test), kNN=table(kNN, metadata_test), Svm=table(pred_svm, metadata_test))
 }
 
 
@@ -122,13 +122,12 @@ validation_croise <- function(data, metadata, k=nrow(data)){
   cl <- makeCluster(no_cores)
   clusterEvalQ(cl, {source("Rscript/apprentissage_supervise.R")})
   
-  
   l <- parLapply(cl, 1:k, function(x){
     
     pred_kNN <- knn(train=data[x!=iid,], test=data[x==iid,], cl=metadata[x!=iid])
     Svm <- svm(metadata~., train[x!=iid,])
     pred_Svm <-  predict(Svm, train[x==iid,])
-    
+
     table1 <- table(metadata[x==iid], pred_kNN)
     table2 <- table(metadata[x==iid], pred_Svm)
     colnames(table1) <- 1:length(name_group)
@@ -174,7 +173,7 @@ find_real <- function(data_real, data_simu_train, data_simu, algo="randomForest"
   }
   
   if(algo=="neural"){
-    nn <- nnet(metadata~., train, size=1, MaxNWts=1000000, maxit=500)
+    nn <- nnet(metadata~., train, size=5, MaxNWts=1000000, maxit=500)
     pred <- predict(nn, test, type="class")
   }
   
