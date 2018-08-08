@@ -69,6 +69,39 @@ source("Rscript/tree_phyloseq.R")
 source("Rscript/apprentissage_supervise.R")
 @
 
+<<clustering ravel, cache=TRUE>>=
+k_ravel <- comparaison_k_means(ravel, metadata_ravel$CST, 5, 1)
+hclust_ravel <- comparaison_hclust(ravel, metadata_ravel$CST, 5, 1)
+Mclust_ravel <- comparaison_Mclust(ravel, metadata_ravel$CST, 5, 1)
+@
+
+
+<<clustering mach, cache=TRUE>>=
+k_mach_500 <- comparaison_k_means(mach_500, metadata_mach$Weaned, 2, 1)
+hclust_mach_500 <- comparaison_hclust(mach_500, metadata_mach$Weaned, 2, 1)
+Mclust_mach_500 <- comparaison_Mclust(mach_500, metadata_mach$Weaned, 2, 1)
+@
+
+<<clustering chaillou, cache=TRUE>>=
+k_chaillou <- comparaison_k_means(chaillou, metadata_chaillou$EnvType, 8, 1)
+hclust_chaillou <- comparaison_hclust(chaillou, metadata_chaillou$EnvType, 8, 1)
+Mclust_chaillou <- comparaison_Mclust(chaillou, metadata_chaillou$EnvType, 8, 1)
+@
+
+
+<<clustering vacher, cache=TRUE>>=
+k_vacher <- comparaison_k_means(vacher, (metadata_vacher$pmInfection>0)*1, 2, 1)
+hclust_vacher <- comparaison_hclust(vacher, (metadata_vacher$pmInfection>0)*1, 2, 1)
+Mclust_vacher <- comparaison_Mclust(vacher, (metadata_vacher$pmInfection>0)*1, 2, 1)
+@
+
+<<clustering liver, cache=TRUE>>=
+k_liver <- comparaison_k_means(liver_500, metadata_liver$status, 2, 1)
+hclust_liver <- comparaison_hclust(liver_500, metadata_liver$status, 2, 1)
+Mclust_liver <- comparaison_Mclust(liver_500, metadata_liver$status, 2, 1)
+@
+
+
 <<validation croise (leave one out), cache=TRUE>>=
 v_chaillou <- validation_croise(chaillou, metadata_chaillou$EnvType)
 v_ravel <- validation_croise(ravel, metadata_ravel$CST)
@@ -92,6 +125,42 @@ t_vacher <- test_bootstrap_all(vacher, nb_cluster = 4, nb_axe = 11, nb_train = 1
 t_liver_500 <- test_bootstrap_all(liver_500, nb_cluster = 7, nb_axe = 8, nb_train = 10)
 t_ravel <- test_bootstrap_all(ravel, nb_cluster = 12, nb_axe = 12, nb_train = 10)
 @
+
+<<bootstrap supervise, cache=TRUE>>=
+c_super <- test_bootstrap_supervise(chaillou, metadata_chaillou$EnvType, type="comptage", nb_train = 5)
+
+r_super <- test_bootstrap_supervise(ravel, metadata_ravel$CST, type="comptage", nb_train = 5)
+
+l_super <- test_bootstrap_supervise(liver_500, metadata_liver$status, type="comptage", nb_train = 5)
+
+m_super <- test_bootstrap_supervise(mach_500, metadata_mach$Weaned, type="comptage", nb_train = 5)
+@
+
+
+<<bootstrap supervise ilr, cache=TRUE>>=
+c_super_ilr <- test_bootstrap_supervise(chaillou, metadata_chaillou$EnvType, type="ilr", nb_train = 5)
+r_super_ilr <- test_bootstrap_supervise(ravel, metadata_ravel$CST, type="ilr", nb_train = 5)
+l_super_ilr <- test_bootstrap_supervise(liver_500, metadata_liver$status, type="ilr", nb_train = 5)
+m_super_ilr <- test_bootstrap_supervise(mach_500, metadata_mach$Weaned, type="ilr", nb_train = 5)
+@
+
+
+<<classificateur supervise apres classificateur real_simu, cache=TRUE>>=
+c_chaillou <- classificateur_group_real_simu(chaillou, metadata_chaillou$EnvType, nb_train = 5)
+c_ravel <- classificateur_group_real_simu(ravel, metadata_ravel$CST, nb_train = 5)
+c_liver <- classificateur_group_real_simu(liver_500, metadata_liver$status, nb_train = 5)
+c_mach <- classificateur_group_real_simu(mach_500, metadata_mach$Weaned, nb_train = 5)
+@
+
+
+
+<<classificateur supervise apres classificateur real_simu ilr, cache=TRUE>>=
+c_chaillou_ilr <- classificateur_group_real_simu(chaillou, metadata_chaillou$EnvType, type="ilr", nb_train = 5)
+c_ravel_ilr <- classificateur_group_real_simu(ravel, metadata_ravel$CST, type="ilr", nb_train = 5)
+c_liver_ilr <- classificateur_group_real_simu(liver_500, metadata_liver$status, type="ilr", nb_train = 5)
+c_mach_ilr <- classificateur_group_real_simu(mach_500, metadata_mach$Weaned, type="ilr", nb_train = 5)
+@
+
 
 \maketitle
 
@@ -203,7 +272,7 @@ Prenons comme système générateur, les vecteurs
 W_i=C\left(1,1,...,e,...\right),\quad i=1,...D-1
 \]
 
-en prenant l'image de ces vecteurs. Puis en utilisant Gram-Schmidt  pour l'orthogonaliser, on obtient la matrice \(\Psi\).\\
+en prenant l'image \(clr\) de ces vecteurs. Puis en utilisant Gram-Schmidt  pour l'orthogonaliser, on obtient la matrice \(\Psi\).\\
 Exemple de matrice \(\Psi\) en dimension 5:
 
 \[
@@ -242,43 +311,6 @@ Ces trois transformations ont bien entendue leur transformations inverse qui son
 
 \section{Analyse Multivariée}
 
-\subsection{Schéma simulateur}
-\begin{center}
-\begin{tikzpicture}[node distance=2cm, auto]
-     \node[cloud] (X) {X};
-     \node[cloud, below of=X] (S)      {\(S^p\)};
-     \node[cloud, below of=S] (Y)      {Y};
-     \node[block, below of=Y](apprentissage) {apprentissage};
-     \node[cloud, below of=apprentissage] (Y_tilde) {\(\tilde{Y}\)};
-     \node[cloud, below of=Y_tilde] (S1) {\(S^p\)};
-     \node[block, below of=S1](ZIB) {Zero inflated};
-     \node[cloud, below of=ZIB] (X_tilde) {\(\tilde{X}\)};
-     
-     
-  %\draw[tuborg, decoration={brace}] let %\p1=(Y.north), \p2=(Y_tilde.south) in
-%    ($(2, \y1)$) -- ($(2, \y2)$) node[tubnode] {Pro};
-    
-  \path[line] (X) --  node[midway, right] {MAP} (S);
-  \path[line] (S) --  node[midway, right] {\(ilr\)} (Y);
-  \path[line] (Y) --  node[midway, right] {} (apprentissage);
-  \path[line] (apprentissage) --  node[midway, right] {} (Y_tilde);
-  \path[line] (Y_tilde) --  node[midway, right] {\(ilr^{-1}\)} (S1);
-  \path[line] (S1) --  node[midway, right] {multinomiale} (ZIB);
-  \path[line] (ZIB) --  node[midway, right] {} (X_tilde);
- 
-  \end{tikzpicture}
-\end{center}
-
-
-La partie apprentissage sera divisé en cinq parties:
-\begin{itemize}
-\item apprentissage des zero (pour le zero inflated)
-\item réduction de dimension
-\item apprentissage de la densité (par mélange gaussien)
-\item simulation de nouvelles données
-\item ajout du bruit (le bruit de la PPCA)
-\end{itemize}
-
 \subsection{Réduction de dimension}
 Dans notre cas, nous cherchons à appliquer un modèle probabiliste à nos données. L'ACP dans sa définition la plus commune ne permet pas de prendre en compte un tel modèle. Pour ce faire, nous allons donc utiliser une variante de l'ACP qui n'est autre que l'ACP probabiliste qui est définie comme:
 \[
@@ -296,14 +328,6 @@ De même, l'estimateur du maximun de vraisemblance de \(\sigma^2\)
 \sigma^2_{ML}=\frac{1}{d-q}\sum_{j=q+1}^d \lambda_j
 \]
 Cet estimateur peut être perçu comme la variance perdue lors de la projection.\\
-Pour la sélection de la dimension, nous avons tout simplement utilisé la méthode du coude.\\
-\subsection{Mélange Gaussien}
-\[
-g\left(x; \pi,\theta\right)=\sum_{k=1}^K \pi_kf(x,\theta_k)
-\]
-où \(\theta=\left(\theta_1,...,\theta_k\right)\) sont les paramètres des lois gaussiennes et \( \pi=\left(\pi_1,...,\pi_K\right)\) sont les proportions du mélange Gaussien dont la somme est égale à 1.
-
-
 
 \subsection{Maximum a posteriori}
 Nos jeux de données étant des jeux de données de comptage, de nombreux zéros sont présents comme expliqué précédemment ; les transformations logarithmiques (ilr, clr) ne peuvent ainsi pas être directement appliquées.\\
@@ -322,25 +346,7 @@ ce qui mène à l'estimateur suivant:
 MAP(p)=\underset{p}{argmax}\left(p|x\right)=\frac{x_i+1}{\sum_{i=1}^D\left(x_i+1\right)}
 \]
  Cela revient simplement à ajouter un comptage pour chaque OTU.
-\subsection{Zero inflated}
-Les jeux de données contiennent un nombre excessif de zéros, la modélisation faite par un mélange gaussien ne parvient pas à bien prendre en compte tous ces zéros. Pour résoudre ce problème, nous allons modéliser cette particularité indépendamment. \\
-Commençons par estimer la proportion de zéros pour chaque OTU de chaque gaussienne que nous notons \(\pi_{ik}\). Cette estimation est faite via le MAP comme pour la proportion d'un OTU dans un échantillon mais cette fois ci en prenant un pseudo comptage plus faible.\\
-Par la suite, nous modélisons les zéros par une loi de Bernoulli,
 
-\[P\left(Z=x\right)=\left\{
-    \begin{array}{ll}
-         \pi_{ik} & \text{ si } x=0 \\
-         1 - \pi_{ik} & \text{ si } x=1 \\
-    \end{array}
-\right.
-\]
-Ce qui permet d'exprimer \(\tilde{X_{i}}\) comme 
-
-\[
-\tilde{X}_{i}=\left(Z_{1k},...,Z_{Dk}\right)*X_i
-\]
-où \(Z_{ik}\sim Bern\left(\pi_{ik}\right)\), \(X_{i}\sim  \mathcal{N}\left(\mu_k, \Sigma_k\right)\)
- 
 \section{Transformation ilr et classification}
 
 \subsection{Jeux de données}
@@ -363,15 +369,19 @@ De plus, durant cette étude, les échantillons ont été classés dans cinq clu
 
 \subsubsection*{Vacher}
 
+\subsection{Graphique ACP}
+\subsection{Classification non supervise}
+Dans chacun des jeux de données utilisés, les groupes semblent relativement bien séparé comme vu précédement (tout du moins sur les premiers axes d'une acp après transformation ilr).\\
+Une des questions que nous pouvons alors nous poser est le passage aux données compositionnelles (puis transformation ilr) permet il de mieux distinguer les groupes?\\
+Une classification non supervisé répond bien à cette question, ainsi nous allons utiliser plusieurs algorithmes (k-means, Mclust, classification hiérarchique) et regarder s'ils ont tendance à regrouper les échantillons des mêmes groupes.
 
 
 \subsection{Classification supervise}
 Regardons maintenant les performances de classification supervisée (en faisant du leave one out) par le biais de deux algorithmes qui sont, le k nearest neighbors et le support machine vector. \\
 Pour montrer l'intérêt de passer par les données compositionnelles pour la classification, nous allons comparer les résultats d'une classification effectuée sur les données initiales (de comptage) et les données compositionnelles (après transformation \(ilr\)).\\
 
-
 \begin{center}
-\subsubsection*{Mach}
+Mach
 
 \begin{tabular}{cc}
 \multicolumn{2}{c}{kNN} \\
@@ -401,8 +411,80 @@ kable(v_mach_500_ilr$Svm)
 Nous remarquons que la classification supervise après transformation \(ilr\) permet d'améliorer sensiblement les résultats.\\
 Dans le cas de certains classificateur tels que le svm, la classification supervise sur les données de comptage ne donne pas du tout des résultats concluant (voir Annexe \ref{annexe classification supervise}).
 
+\section{Simulateur}
+
+\subsection{Schéma simulateur}
+\begin{center}
+\begin{tikzpicture}[node distance=2cm, auto]
+     \node[cloud] (X) {X};
+     \node[cloud, below of=X] (S)      {S};
+     \node[cloud, below of=S] (Y)      {Y};
+     \node[block, below of=Y](apprentissage) {apprentissage};
+     \node[cloud, below of=apprentissage] (Y_tilde) {\(\tilde{Y}\)};
+     \node[cloud, below of=Y_tilde] (S1) {S};
+     \node[block, below of=S1](ZIB) {Zero inflated};
+     \node[cloud, below of=ZIB] (X_tilde) {\(\tilde{X}\)};
+     
+     
+     
+     \node[left of=apprentissage] (temp1_simulation) {};
+     \node[left of=X_tilde] (temp2_simulation) {};
+  %\draw[tuborg, decoration={brace}] let %\p1=(Y.north), \p2=(Y_tilde.south) in
+%    ($(2, \y1)$) -- ($(2, \y2)$) node[tubnode] {Pro};
+    
+  \path[line] (X) --  node[midway, right] {MAP} (S);
+  \path[line] (S) --  node[midway, right] {\(ilr\)} (Y);
+  \path[line] (Y) --  node[midway, right] {} (apprentissage);
+  \path[line] (apprentissage) --  node[midway, right] {} (Y_tilde);
+  \path[line] (Y_tilde) --  node[midway, right] {\(ilr^{-1}\)} (S1);
+  \path[line] (S1) --  node[midway, right] {multinomiale} (ZIB);
+  \path[line] (ZIB) --  node[midway, right] {} (X_tilde);
+  
+\draw[decorate,decoration={brace,mirror}] (temp1_simulation.north west) -- node[midway, left] {Simulation} (temp2_simulation.south west);
+  \end{tikzpicture}
+\end{center}
+
+
+La partie apprentissage sera divisé en cinq parties:
+\begin{itemize}
+\item apprentissage des zero (pour le zero inflated)
+\item réduction de dimension
+\item apprentissage de la densité (par mélange gaussien)
+\item simulation de nouvelles données
+\item ajout du bruit (le bruit de la PPCA)
+\end{itemize}
+
+\subsection{Mélange Gaussien}
+L'apprentissage de la densité est confié à un mélange gaussien.\\
+Un mélange gaussien est défini comme:
+\[
+g\left(x; \pi,\theta\right)=\sum_{k=1}^K \pi_kf(x,\theta_k)
+\]
+où \(\theta=\left(\theta_1,...,\theta_k\right)\) sont les paramètres des lois gaussiennes et \( \pi=\left(\pi_1,...,\pi_K\right)\) sont les proportions du mélange Gaussien dont la somme est égale à 1.
+
+
+\subsection{Zero inflated}
+Les jeux de données contiennent un nombre excessif de zéros, la modélisation faite par un mélange gaussien ne parvient pas à bien prendre en compte tous ces zéros. Pour résoudre ce problème, nous allons modéliser cette particularité indépendamment. \\
+Commençons par estimer la proportion de zéros pour chaque OTU de chaque gaussienne que nous notons \(\pi_{ik}\). Cette estimation est faite via le MAP comme pour la proportion d'un OTU dans un échantillon mais cette fois ci en prenant un pseudo comptage plus faible.\\
+Par la suite, nous modélisons les zéros par une loi de Bernoulli,
+
+\[P\left(Z=x\right)=\left\{
+    \begin{array}{ll}
+         \pi_{ik} & \text{ si } x=0 \\
+         1 - \pi_{ik} & \text{ si } x=1 \\
+    \end{array}
+\right.
+\]
+Ce qui permet d'exprimer \(\tilde{X_{i}}\) comme 
+
+\[
+\tilde{X}_{i}=\left(Z_{1k},...,Z_{Dk}\right)*X_i
+\]
+où \(Z_{ik}\sim Bern\left(\pi_{ik}\right)\), \(X_{i}\sim  \mathcal{N}\left(\mu_k, \Sigma_k\right)\)
+ 
+
 \section{Performance simulateur}
-Maintenant que nous avons vue qu'il y a un certain intérêt à passer par une transformation \(ilr\) pour faire de la classification, nous allons tester la performance de notre simulateur.
+Nous avons vue qu'il y a un certain intérêt à passer par une transformation \(ilr\) pour faire de la classification, nous allons tester la performance de notre simulateur.
 
 \subsection{Méthode}
 Nous allons simuler deux nouveaux jeux de données, l'un d'entre eux servira de jeux d'entrainement (avec les données réels) à un classificateur, l'autre jeu de données servira quant à lui de test. Une petite partie des données réels ne sont pas incluse dans le jeu d'entrainement, elles serviront elles aussi de test.\\
@@ -411,8 +493,9 @@ L'objectif d'une telle démarche est de regarder si un classificateur parvient �
 \subsection{Résultats}
 Dans notre cas, nous allons utilisé deux classificateurs, le random Forest ainsi que le k nearest neighbors (le classificateur svm a été ignoré pour sa faible efficacité pour les données de comptage).\\
 
+
 \begin{center}
-\subsubsection*{Mach}
+Mach
 
 \begin{tabular}{cc}
 Random forest & kNN \\
@@ -430,7 +513,7 @@ kable(t_mach_500$all$kNN)
 Passons à une autre méthode d'évaluation de l'efficacité du simulateur.\\
 La simulation ne se fera plus sur l'ensemble du jeux de données mais séparément sur chaque groupe du jeu de donnée.\\
 Les groupes des données simulées seront alors connu et nous pourrons vérifier si le classificateur retrouve bien ses groupes.\\
-Voici un schéma illustratif de la méthode avec un jeu de données de deux groupes  (dans le cas de mach Sevre, non Sevre).
+Voici un schéma illustratif de la méthode avec un jeu de données de deux groupes  (dans le cas de mach: sevre, non sevre).
 \begin{center}
 \begin{tikzpicture}[node distance=2cm, auto]
      \node[cloud] (X1) {X1};
@@ -456,13 +539,93 @@ Voici un schéma illustratif de la méthode avec un jeu de données de deux grou
  	
   \end{tikzpicture}
 \end{center}
-Une simulation bien devrait résulter en la présence des mêmes échantillons dans \(\tilde{X1}\) et \(\tilde{X3}\), de même que dans \(\tilde{X2}\) et \(\tilde{X4}\).
+Une bonne simulation devrait résulter en la présence des mêmes échantillons dans \(\tilde{X1}\) et \(\tilde{X3}\), de même que dans \(\tilde{X2}\) et \(\tilde{X4}\).\\
+
+
+\begin{center}
+Mach
+
+\begin{tabular}{cc}
+Random forest & kNN \\
+<<>>=
+kable(m_super$all$random_forest)
+@
+&
+<<>>=
+kable(m_super$all$kNN)
+@
+\end{tabular}
+\end{center}
+
+Comme nous avons pu le voir ci dessus, une grande partie des échantillons simulés est malheureusement "mal simulé" (notamment dans le cas du jeu de données liver). Pour vérifier que les données considéré comme bien "simulées" sont facilement classable dans un groupe (et ainsi relativement proche des données réels de leur groupe respectif), nous allons conserver uniquement ces données puis faire comme précédement en faisant une classification supervisée puis en vérifiant leur bonne classification.
+
+Voici un schéma récapitulatif de la méthode.
+\begin{center}
+\begin{tikzpicture}[node distance=2cm, auto]
+     \node[cloud] (X1) {X1};
+     \node[right of=X1, node distance=1cm] (temp) {};
+     \node[cloud, right of=temp, node distance=1cm] (X2)      {X2};
+     \node[cloud, below of=X2] (X2_tilde)   {\(\tilde{X2}\)};
+     \node[cloud, below of=X1] (X1_tilde)   {\(\tilde{X1}\)};
+     \node[below of=temp] (temp2) {};
+     \node[cloud, below of=temp2](X_2_tilde) {\(\tilde{X}_2\)};
+     \node[below of=X_tilde, node distance=1cm] (temp3) {};
+     \node[cloud, below of=X_2_tilde](X_real_tilde) {\(\tilde{X}_{real}\)};
+     \node[below of=X_real_tilde] (temp4) {};
+     \node[cloud, left of=temp4, node distance=1cm] (X3_tilde) {\(\tilde{X3}\)};
+     \node[cloud, right of=temp4, node distance=1cm] (X4_tilde) {\(\tilde{X4}\)};
+     
+     
+     
+     \node[block, right of=X_tilde, node distance=6cm, text width=3cm] (Apprentissage classificateur) {Apprentissage classificateur real/simu};
+     \node[cloud, above of=Apprentissage classificateur] (X_1_tilde) {\(\tilde{X}_1\)}; 
+     \node[cloud, above of=X_1_tilde] (X) {X};
+     
+     
+     
+     
+   	\path[line] (X1) --  node[midway, left] {Apprentissage, simulation}(X1_tilde);
+  	\path[line] (X2) --  (X2_tilde);
+ 	\path[line] (X1_tilde) --  (X_tilde);
+ 	\path[line] (X2_tilde) --  (X_tilde);
+ 	\path[line] (X_tilde) -- node[midway, left] {Classification real/simu} (X_real_tilde);
+ 	\path[line] (X_real_tilde) --  node[midway, left] {Classification} (X3_tilde);
+ 	\path[line] (X_real_tilde) --  (X4_tilde);
+ 	\path[line] (Apprentissage classificateur) |- (temp3);
+ 	\path[line] (X) -- (X_1_tilde);
+ 	\path[line] (X_1_tilde) -- (Apprentissage classificateur);
+ 	
+  \end{tikzpicture}
+\end{center}
+
+
+
+\begin{center}
+Mach
+
+\begin{tabular}{cc}
+Random forest & kNN \\
+<<>>=
+kable(c_mach$all$random_forest)
+@
+&
+<<>>=
+kable(c_mach$all$kNN)
+@
+\end{tabular}
+\end{center}
+
+
 \section{Conclusion}
 
 \section{Annexe}
 \appendix
+\subsection{classification non supervise}\label{annexe classification non supervise}
 \subsection{classification supervise}\label{annexe classification supervise}
-\subsubsection*{Chaillou}
+\begin{center}
+Chaillou
+\end{center}
+
 
 \begin{center}
 \resizebox{\textwidth}{!}{%
@@ -500,7 +663,10 @@ kable(v_chaillou_ilr$Svm)
 
 
 \subsection{Performance simulateur}
-\subsubsection*{Chaillou}
+\subsubsection*{Sur le jeu de données entier}\label{annexe donnees entier}
+\begin{center}
+Chaillou
+\end{center}
 
 \begin{center}
 \begin{tabular}{cc}
@@ -515,5 +681,40 @@ kable(t_chaillou$all$kNN)
 \end{tabular}
 \end{center}
 
+\subsubsection*{Sur les groupes}\label{annexe sur les groupes}
+\begin{center}
+Chaillou
 
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{cc}
+Random forest & kNN \\
+<<>>=
+kable(c_super$all$random_forest)
+@
+&
+<<>>=
+kable(c_super$all$kNN)
+@
+\end{tabular}
+}
+\end{center}
+
+
+\subsubsection*{Sur les données simulées considéré comme réels}\label{reels/simu}
+\begin{center}
+Chaillou
+
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{cc}
+Random forest & kNN \\
+<<>>=
+kable(c_chaillou$all$random_forest)
+@
+&
+<<>>=
+kable(c_chaillou$all$kNN)
+@
+\end{tabular}
+}
+\end{center}
 \end{document}
