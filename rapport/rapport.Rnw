@@ -69,96 +69,9 @@ source("Rscript/tree_phyloseq.R")
 source("Rscript/apprentissage_supervise.R")
 @
 
-<<clustering ravel, cache=TRUE>>=
-k_ravel <- comparaison_k_means(ravel, metadata_ravel$CST, 5, 1)
-hclust_ravel <- comparaison_hclust(ravel, metadata_ravel$CST, 5, 1)
-Mclust_ravel <- comparaison_Mclust(ravel, metadata_ravel$CST, 5, 1)
-@
 
-
-<<clustering mach, cache=TRUE>>=
-k_mach_500 <- comparaison_k_means(mach_500, metadata_mach$Weaned, 2, 1)
-hclust_mach_500 <- comparaison_hclust(mach_500, metadata_mach$Weaned, 2, 1)
-Mclust_mach_500 <- comparaison_Mclust(mach_500, metadata_mach$Weaned, 2, 1)
-@
-
-<<clustering chaillou, cache=TRUE>>=
-k_chaillou <- comparaison_k_means(chaillou, metadata_chaillou$EnvType, 8, 1)
-hclust_chaillou <- comparaison_hclust(chaillou, metadata_chaillou$EnvType, 8, 1)
-Mclust_chaillou <- comparaison_Mclust(chaillou, metadata_chaillou$EnvType, 8, 1)
-@
-
-
-<<clustering vacher, cache=TRUE>>=
-k_vacher <- comparaison_k_means(vacher, (metadata_vacher$pmInfection>0)*1, 2, 1)
-hclust_vacher <- comparaison_hclust(vacher, (metadata_vacher$pmInfection>0)*1, 2, 1)
-Mclust_vacher <- comparaison_Mclust(vacher, (metadata_vacher$pmInfection>0)*1, 2, 1)
-@
-
-<<clustering liver, cache=TRUE>>=
-k_liver <- comparaison_k_means(liver_500, metadata_liver$status, 2, 1)
-hclust_liver <- comparaison_hclust(liver_500, metadata_liver$status, 2, 1)
-Mclust_liver <- comparaison_Mclust(liver_500, metadata_liver$status, 2, 1)
-@
-
-
-<<validation croise (leave one out), cache=TRUE>>=
-v_chaillou <- validation_croise(chaillou, metadata_chaillou$EnvType)
-v_ravel <- validation_croise(ravel, metadata_ravel$CST)
-v_liver_500 <- validation_croise(liver_500, metadata_liver$status)
-v_mach_500 <- validation_croise(mach_500, metadata_mach$Weaned)
-@
-
-
-<<validation croise donne ilr (leave one out), cache=TRUE>>=
-v_chaillou_ilr <- validation_croise(chaillou %>% MAP() %>% ilr(), metadata_chaillou$EnvType)
-v_ravel_ilr <- validation_croise(ravel %>% MAP() %>% ilr(), metadata_ravel$CST)
-v_liver_500_ilr <- validation_croise(liver_500 %>% MAP() %>% ilr(), metadata_liver$status)
-v_mach_500_ilr <- validation_croise(mach_500 %>% MAP() %>% ilr(), metadata_mach$Weaned)
-@
-
-<<bootstrap all donnee comptage, cache=TRUE>>=
-t_chaillou <- test_bootstrap_all(chaillou, nb_cluster = 15, nb_axe = 16, nb_train = 10)
-t_mach_500 <- test_bootstrap_all(mach_500, nb_cluster = 4, nb_axe = 10, nb_train = 10)
-t_vacher <- test_bootstrap_all(vacher, nb_cluster = 4, nb_axe = 11, nb_train = 10)
-
-t_liver_500 <- test_bootstrap_all(liver_500, nb_cluster = 7, nb_axe = 8, nb_train = 10)
-t_ravel <- test_bootstrap_all(ravel, nb_cluster = 12, nb_axe = 12, nb_train = 10)
-@
-
-<<bootstrap supervise, cache=TRUE>>=
-c_super <- test_bootstrap_supervise(chaillou, metadata_chaillou$EnvType, type="comptage", nb_train = 5)
-
-r_super <- test_bootstrap_supervise(ravel, metadata_ravel$CST, type="comptage", nb_train = 5)
-
-l_super <- test_bootstrap_supervise(liver_500, metadata_liver$status, type="comptage", nb_train = 5)
-
-m_super <- test_bootstrap_supervise(mach_500, metadata_mach$Weaned, type="comptage", nb_train = 5)
-@
-
-
-<<bootstrap supervise ilr, cache=TRUE>>=
-c_super_ilr <- test_bootstrap_supervise(chaillou, metadata_chaillou$EnvType, type="ilr", nb_train = 5)
-r_super_ilr <- test_bootstrap_supervise(ravel, metadata_ravel$CST, type="ilr", nb_train = 5)
-l_super_ilr <- test_bootstrap_supervise(liver_500, metadata_liver$status, type="ilr", nb_train = 5)
-m_super_ilr <- test_bootstrap_supervise(mach_500, metadata_mach$Weaned, type="ilr", nb_train = 5)
-@
-
-
-<<classificateur supervise apres classificateur real_simu, cache=TRUE>>=
-c_chaillou <- classificateur_group_real_simu(chaillou, metadata_chaillou$EnvType, nb_train = 5)
-c_ravel <- classificateur_group_real_simu(ravel, metadata_ravel$CST, nb_train = 5)
-c_liver <- classificateur_group_real_simu(liver_500, metadata_liver$status, nb_train = 5)
-c_mach <- classificateur_group_real_simu(mach_500, metadata_mach$Weaned, nb_train = 5)
-@
-
-
-
-<<classificateur supervise apres classificateur real_simu ilr, cache=TRUE>>=
-c_chaillou_ilr <- classificateur_group_real_simu(chaillou, metadata_chaillou$EnvType, type="ilr", nb_train = 5)
-c_ravel_ilr <- classificateur_group_real_simu(ravel, metadata_ravel$CST, type="ilr", nb_train = 5)
-c_liver_ilr <- classificateur_group_real_simu(liver_500, metadata_liver$status, type="ilr", nb_train = 5)
-c_mach_ilr <- classificateur_group_real_simu(mach_500, metadata_mach$Weaned, type="ilr", nb_train = 5)
+<<chargement RData, echo=FALSE, include=FALSE>>=
+load("rapport/resultats.RData")
 @
 
 
@@ -310,24 +223,10 @@ Ces trois transformations ont bien entendue leur transformations inverse qui son
 \end{align*}
 
 \section{Analyse Multivariée}
-
 \subsection{Réduction de dimension}
-Dans notre cas, nous cherchons à appliquer un modèle probabiliste à nos données. L'ACP dans sa définition la plus commune ne permet pas de prendre en compte un tel modèle. Pour ce faire, nous allons donc utiliser une variante de l'ACP qui n'est autre que l'ACP probabiliste qui est définie comme:
-\[
-X_i=Wy_i + \mu + \epsilon_i
-\]
-où \(y_i\sim \mathcal{N}\left(0,I_d\right) \), \(\epsilon_i \sim \mathcal{N}\left(0,\ \sigma^2I_p\right)\) est un bruit gaussien et \(W\) une \(p \times d\) matrice.
-\\
-Si nous notons \(A\) la matrice des vecteurs propres de la matrice \(X^TX\), \(\Lambda\) la matrice diagonale contenant les valeurs propres associées et \(R\) une matrice orthogonale arbitraire, nous avons que le maximum de vraisemblance de \(W\) s'exprime comme:
-
-\[
-W_{ML}=A\left(\Lambda-\sigma^2I_d\right)^{1/2}R
-\]
-De même, l'estimateur du maximun de vraisemblance de \(\sigma^2\)
-\[
-\sigma^2_{ML}=\frac{1}{d-q}\sum_{j=q+1}^d \lambda_j
-\]
-Cet estimateur peut être perçu comme la variance perdue lors de la projection.\\
+L'ACP est une méthode de réduction de dimension couramment utilisé pour synthétiser l'information.\\
+Dans "Lecture Notes on Compositionnal Data Analysis", ils redéfinissent l'acp dans les données compositionnelle.\\
+En effet, au lieu de réaliser la transformation puis de centrer, réduire les données, ils centrent puis réduisent (avec les formules définit dans la géométrie de Aitchison) les données avant de réaliser la transformation. Ce qui est équivalent.
 
 \subsection{Maximum a posteriori}
 Nos jeux de données étant des jeux de données de comptage, de nombreux zéros sont présents comme expliqué précédemment ; les transformations logarithmiques (ilr, clr) ne peuvent ainsi pas être directement appliquées.\\
@@ -370,12 +269,113 @@ De plus, durant cette étude, les échantillons ont été classés dans cinq clu
 \subsubsection*{Vacher}
 
 \subsection{Graphique ACP}
+Pour avoir un premier aperçus des jeux de données, faisons une acp sur les données compositionnelles et regardons la projections des échantillons sur les deux premiers axes.
+
+<<graph biplot mach_500>>=
+graph_biplot_normale(mach_500, metadata_mach$Weaned, 1, "Mach", "Weaned", ellipse=FALSE) [[1]]
+@
+
+<<graph biplot liver>>=
+graph_biplot_normale(liver_500, metadata_liver$status, 1, "liver", "status", ellipse=FALSE)[[1]]
+@
+
+Pour mach la séparation des échantillouns issus d'animaux sevré et non sevré est très franche. Le seul échantillon mal situé n'est autre qu'un échantillon issu d'un animal mal sevré.\\
+Dans le cas des données de liver, la séparation est cette fois ci moins franche, mais reste quant même convenable.
+
 \subsection{Classification non supervise}
 Dans chacun des jeux de données utilisés, les groupes semblent relativement bien séparé comme vu précédement (tout du moins sur les premiers axes d'une acp après transformation ilr).\\
 Une des questions que nous pouvons alors nous poser est le passage aux données compositionnelles (puis transformation ilr) permet il de mieux distinguer les groupes?\\
-Une classification non supervisé répond bien à cette question, ainsi nous allons utiliser plusieurs algorithmes (k-means, Mclust, classification hiérarchique) et regarder s'ils ont tendance à regrouper les échantillons des mêmes groupes.
+Une classification non supervisé répond bien à cette question, ainsi nous allons utiliser plusieurs algorithmes (k-means, Mélange gaussien, classification hiérarchique) et regarder s'ils ont tendance à regrouper les échantillons des mêmes groupes.
 
 
+\begin{center}
+Mach
+
+\begin{tabular}{cc}
+\multicolumn{2}{c}{kmeans} \\
+comptage & ilr \\
+<<>>=
+kable(k_mach_500$comptage_table)
+@
+&
+<<>>=
+kable(k_mach_500$ilr_table)
+@
+\end{tabular}
+
+\begin{tabular}{cc}
+\multicolumn{2}{c}{hiérarchique} \\
+comptage & ilr \\
+<<>>=
+kable(hclust_mach_500$comptage_table)
+@
+&
+<<>>=
+kable(hclust_mach_500$ilr_table)
+@
+\end{tabular}
+
+
+\begin{tabular}{cc}
+\multicolumn{2}{c}{Mélange gaussien} \\
+comptage & ilr \\
+<<>>=
+kable(Mclust_mach_500$comptage_table)
+@
+&
+<<>>=
+kable(Mclust_mach_500$ilr_table)
+@
+\end{tabular}
+\end{center}
+
+
+
+\begin{center}
+Liver
+
+\begin{tabular}{cc}
+\multicolumn{2}{c}{kmeans} \\
+comptage & ilr \\
+<<>>=
+kable(k_liver$comptage_table)
+@
+&
+<<>>=
+kable(k_liver$ilr_table)
+@
+\end{tabular}
+
+\begin{tabular}{cc}
+\multicolumn{2}{c}{hiérarchique} \\
+comptage & ilr \\
+<<>>=
+kable(hclust_liver$comptage_table)
+@
+&
+<<>>=
+kable(hclust_liver$ilr_table)
+@
+\end{tabular}
+
+
+\begin{tabular}{cc}
+\multicolumn{2}{c}{Mélange gaussien} \\
+comptage & ilr \\
+<<>>=
+kable(Mclust_liver$comptage_table)
+@
+&
+<<>>=
+kable(Mclust_liver$ilr_table)
+@
+\end{tabular}
+\end{center}
+
+La transformation \(ilr\) semble améliorer sensiblement la classification non supervisée.\\
+Dans le cas de Liver, le classificateur a tendance sur les données de comptage à toute les mettre dans le même groupe.\\
+
+ 
 \subsection{Classification supervise}
 Regardons maintenant les performances de classification supervisée (en faisant du leave one out) par le biais de deux algorithmes qui sont, le k nearest neighbors et le support machine vector. \\
 Pour montrer l'intérêt de passer par les données compositionnelles pour la classification, nous allons comparer les résultats d'une classification effectuée sur les données initiales (de comptage) et les données compositionnelles (après transformation \(ilr\)).\\
@@ -408,8 +408,38 @@ kable(v_mach_500_ilr$Svm)
 @
 \end{tabular}
 \end{center}
-Nous remarquons que la classification supervise après transformation \(ilr\) permet d'améliorer sensiblement les résultats.\\
-Dans le cas de certains classificateur tels que le svm, la classification supervise sur les données de comptage ne donne pas du tout des résultats concluant (voir Annexe \ref{annexe classification supervise}).
+
+
+\begin{center}
+Liver
+
+\begin{tabular}{cc}
+\multicolumn{2}{c}{kNN} \\
+comptage & ilr \\
+<<>>=
+kable(v_liver_500$kNN)
+@
+&
+<<>>=
+kable(v_liver_500_ilr$kNN)
+@
+\end{tabular}
+
+
+\begin{tabular}{cc}
+\multicolumn{2}{c}{svm} \\
+comptage & ilr \\
+<<>>=
+kable(v_liver_500$Svm)
+@
+&
+<<>>=
+kable(v_liver_500_ilr$Svm)
+@
+\end{tabular}
+\end{center}
+Le même phénomène que dans la classification no supervisée est observable, la classification sur les données de comptage a parfois tendance à mettre tous les échantillons dans le même groupe.\\
+Dans le cas de certains classificateur tels que le svm, la classification supervise sur certains jeux de données de comptage ne donne pas du tout des résultats concluant (voir chaillou en Annexe \ref{annexe classification supervise}).
 
 \section{Simulateur}
 
@@ -417,14 +447,19 @@ Dans le cas de certains classificateur tels que le svm, la classification superv
 \begin{center}
 \begin{tikzpicture}[node distance=2cm, auto]
      \node[cloud] (X) {X};
-     \node[cloud, below of=X] (S)      {S};
+     \node[block, below of=X, text width=3cm] (apprent_ZIB) {apprentissage zero inflated};
+     \node[cloud, below of=apprent_ZIB] (S)      {S};
      \node[cloud, below of=S] (Y)      {Y};
-     \node[block, below of=Y](apprentissage) {apprentissage};
-     \node[cloud, below of=apprentissage] (Y_tilde) {\(\tilde{Y}\)};
-     \node[cloud, below of=Y_tilde] (S1) {S};
-     \node[block, below of=S1](ZIB) {Zero inflated};
+     \node[cloud, below of=Y] (Z) {Z};
+     \node[block, below of=Z, text width=3cm](apprentissage) {apprentissage de la densité};
+     \node[cloud, below of=apprentissage] (Z_tilde) {\(\tilde{Z}\)};
+     \node[cloud, below of=Z_tilde] (Y_tilde) {\(\tilde{Y}\)};
+     \node[cloud, below of=Y_tilde] (S_tilde) {\(\tilde{S}\)};
+     \node[block, below of=S_tilde](ZIB) {Zero inflated};
      \node[cloud, below of=ZIB] (X_tilde) {\(\tilde{X}\)};
      
+     \node[right of=Z_tilde, node distance=1.7cm] (N) {\(\sim \mathbb{N}\left(\mu_k, \Sigma_k \right)\)};
+     \node[right of=Y_tilde, node distance=3cm] (N1) {\(\sim \mathbb{N}\left(W\mu_k, W\Sigma_k W^T+\sigma^2I \right)\)};
      
      
      \node[left of=apprentissage] (temp1_simulation) {};
@@ -432,27 +467,39 @@ Dans le cas de certains classificateur tels que le svm, la classification superv
   %\draw[tuborg, decoration={brace}] let %\p1=(Y.north), \p2=(Y_tilde.south) in
 %    ($(2, \y1)$) -- ($(2, \y2)$) node[tubnode] {Pro};
     
-  \path[line] (X) --  node[midway, right] {MAP} (S);
+  \path[line] (X) -- (apprent_ZIB);
+  \path[line] (apprent_ZIB) --  node[midway, right] {MAP} (S);
   \path[line] (S) --  node[midway, right] {\(ilr\)} (Y);
-  \path[line] (Y) --  node[midway, right] {} (apprentissage);
-  \path[line] (apprentissage) --  node[midway, right] {} (Y_tilde);
-  \path[line] (Y_tilde) --  node[midway, right] {\(ilr^{-1}\)} (S1);
-  \path[line] (S1) --  node[midway, right] {multinomiale} (ZIB);
+  \path[line] (Z) --  node[midway, right] {} (apprentissage);
+  \path[line] (apprentissage) -- node[midway, right] {simulation gaussienne} (Z_tilde);
+  \path[line] (Z_tilde) --  node[midway, right] {} (Y_tilde);
+  \path[line] (Y_tilde) --  node[midway, right] {\(ilr^{-1}\)} (S_tilde);
+  \path[line] (S_tilde) --  node[midway, right] {multinomiale} (ZIB);
   \path[line] (ZIB) --  node[midway, right] {} (X_tilde);
+  \path[line] (Y) -- node[midway, right] {réduction de dimension} (Z);
   
 \draw[decorate,decoration={brace,mirror}] (temp1_simulation.north west) -- node[midway, left] {Simulation} (temp2_simulation.south west);
   \end{tikzpicture}
 \end{center}
 
 
-La partie apprentissage sera divisé en cinq parties:
-\begin{itemize}
-\item apprentissage des zero (pour le zero inflated)
-\item réduction de dimension
-\item apprentissage de la densité (par mélange gaussien)
-\item simulation de nouvelles données
-\item ajout du bruit (le bruit de la PPCA)
-\end{itemize}
+\subsection{Réduction de dimension}
+Dans notre cas, nous cherchons à appliquer un modèle probabiliste à nos données. L'ACP dans sa définition la plus commune ne permet pas de prendre en compte un tel modèle. Pour ce faire, nous allons donc utiliser une variante de l'ACP qui n'est autre que l'ACP probabiliste qui est définie comme:
+\[
+X_i=Wy_i + \mu + \epsilon_i
+\]
+où \(y_i\sim \mathcal{N}\left(0,I_d\right) \), \(\epsilon_i \sim \mathcal{N}\left(0,\ \sigma^2I_p\right)\) est un bruit gaussien et \(W\) une \(p \times d\) matrice.
+\\
+Si nous notons \(A\) la matrice des vecteurs propres de la matrice \(X^TX\), \(\Lambda\) la matrice diagonale contenant les valeurs propres associées et \(R\) une matrice orthogonale arbitraire, nous avons que le maximum de vraisemblance de \(W\) s'exprime comme:
+
+\[
+W_{ML}=A\left(\Lambda-\sigma^2I_d\right)^{1/2}R
+\]
+De même, l'estimateur du maximun de vraisemblance de \(\sigma^2\)
+\[
+\sigma^2_{ML}=\frac{1}{d-q}\sum_{j=q+1}^d \lambda_j
+\]
+Cet estimateur peut être perçu comme la variance perdue lors de la projection.\\
 
 \subsection{Mélange Gaussien}
 L'apprentissage de la densité est confié à un mélange gaussien.\\
@@ -487,8 +534,30 @@ où \(Z_{ik}\sim Bern\left(\pi_{ik}\right)\), \(X_{i}\sim  \mathcal{N}\left(\mu_
 Nous avons vue qu'il y a un certain intérêt à passer par une transformation \(ilr\) pour faire de la classification, nous allons tester la performance de notre simulateur.
 
 \subsection{Méthode}
-Nous allons simuler deux nouveaux jeux de données, l'un d'entre eux servira de jeux d'entrainement (avec les données réels) à un classificateur, l'autre jeu de données servira quant à lui de test. Une petite partie des données réels ne sont pas incluse dans le jeu d'entrainement, elles serviront elles aussi de test.\\
-L'objectif d'une telle démarche est de regarder si un classificateur parvient à faire la différence entre les données réels et les données simulées.
+La méthode la plus facile à mettre en œuvre est de regarder visuellement si les données simulées ressemble aux données réels, pour ce faire j'ai regarder les projections des données (réels, simulées) sur les premiers axes d'une acp.
+
+<<>>=
+data <- rbind(mach_500, mach_boot$data)
+metadata <- c(as.character(rep("real", nrow(mach_500))), rep("simu", nrow(mach_boot$data))) %>% as.factor()
+graph_biplot_normale(data, metadata, 1, "Mach", "data", ellipse=FALSE)[[1]]
+@
+
+
+<<>>=
+data <- rbind(liver_500, liver_boot$data)
+metadata <- c(as.character(rep("real", nrow(liver))), rep("simu", nrow(liver_boot$data))) %>% as.factor()
+graph_biplot_normale(data, metadata, 1, "Liver", "data", ellipse=FALSE)[[1]]
+@
+
+Globalement, les données simulées se mélange bien avec les données réels.
+La première impression sur les performances du simulateur sont positives.\\
+\\
+Cependant cette méthode n'est pas forcément la plus efficace. En effet, certain OTU peuvent être très mal simulée sans que pour autant nous puissions faire la différence visuellement. Par exemple, un OTU absent de tous les échantillons réels mais présent en de très faible proportions dans les échantillons simulées. Cette OTU n'aura aucune incidence sur une acp, il n'est pas pour autant bien simulé.\\
+\\
+Pour avoir des résultats plus fiable, l'étude de l'efficacité du simulateur est confiée à des classificateurs.\\
+L'objectif est de regarder si un classificateur parvient à faire la différence entre les données réels et les données simulées.\\
+Dans cette objectif, deux nouveaux jeux de données sont simulés, l'un d'entre eux servira de jeux d'entrainement (avec les données réels) à un classificateur, l'autre jeu de données servira quant à lui de test. Une petite partie des données réels ne sont pas incluse dans le jeu d'entrainement, elles serviront elles aussi de test.\\
+
 
 \subsection{Résultats}
 Dans notre cas, nous allons utilisé deux classificateurs, le random Forest ainsi que le k nearest neighbors (le classificateur svm a été ignoré pour sa faible efficacité pour les données de comptage).\\
@@ -509,37 +578,68 @@ kable(t_mach_500$all$kNN)
 \end{tabular}
 \end{center}
 
+\begin{center}
+ Liver
+ \begin{tabular}{cc}
+ Random forest & kNN \\
+ <<>>=
+kable(t_liver_500$all$random_forest) 
+ @
+ &
+ <<>>=
+ kable(t_liver_500$all$kNN)
+ @
+ \end{tabular}
+\end{center}
+Les performances du simulateur sont grandement variable selon le jeu de données. En effet, sur certains jeu de donnée (voir annexe \ref{annexe donnees entier}) les classificateurs peinent à faire la différence entre les données simulées et réels.\\
+A l'inverse sur Liver, le random Forest fait aisément la différence, cependant le kNN lui le fait moins facilement. Ainsi certaines caractéristiques des données Liver doivent être mal simulées (ce qui permet au random Forest de faire la différence), mais les données simulées doivent quant même relativement bien se mélanger
 \subsection{Classification}
-Passons à une autre méthode d'évaluation de l'efficacité du simulateur.\\
-La simulation ne se fera plus sur l'ensemble du jeux de données mais séparément sur chaque groupe du jeu de donnée.\\
-Les groupes des données simulées seront alors connu et nous pourrons vérifier si le classificateur retrouve bien ses groupes.\\
-Voici un schéma illustratif de la méthode avec un jeu de données de deux groupes  (dans le cas de mach: sevre, non sevre).
+Un autre aspect de la performance du simulateur est sa capacité à simuler les caractéristiques de chaque groupe d'un jeu de données, une donnée simulée ne doit pas avoir les caractéristiques de plusieurs groupes.\\
+Pour étudier cette aspect, la simulation ne se fera plus sur l'ensemble du jeux de données mais séparément sur chaque groupe du jeu de donnée.\\
+Les groupes des données simulées seront alors connu et nous pourrons vérifier si un classificateur retrouve bien ses groupes.\\
+Voici un schéma illustratif de la méthode \\
+Soit \(1,2,...,k\) les groupes du jeu de donnée
 \begin{center}
 \begin{tikzpicture}[node distance=2cm, auto]
-     \node[cloud] (X1) {X1};
-     \node[right of=X1, node distance=1cm] (temp) {};
-     \node[cloud, right of=temp, node distance=1cm] (X2)      {X2};
-     \node[cloud, below of=X2] (X2_tilde)   {\(\tilde{X2}\)};
-     \node[cloud, below of=X1] (X1_tilde)   {\(\tilde{X1}\)};
+     \node[cloud] (X1) {\(X_1\)};
+     \node[cloud, right of=X1] (X2)      {\(X_2\)};
+     \node[right of=X2, node distance=1cm] (temp) {};
+     \node[cloud, right of=temp, node distance=1cm] (point1) {...};
+     \node[cloud, right of=point1] (Xk) {\(X_k\)};
+     \node[cloud, below of=X2] (X2_tilde)   {\(\tilde{X}_2\)};
+     \node[cloud, below of=X1] (X1_tilde)   {\(\tilde{X}_1\)};
      \node[below of=temp] (temp2) {};
-     \node[cloud, below of=temp2](X_tilde) {\(\tilde{X}\)};
-     \node[below of=X_tilde] (temp3) {};
-     \node[cloud, left of=temp3, node distance=1cm] (X3_tilde) {\(\tilde{X3}\)};
-     \node[cloud, right of=temp3, node distance=1cm] (X4_tilde) {\(\tilde{X4}\)};
+     \node[cloud, below of=point1] (point2)   {...};
+     \node[cloud, below of=Xk] (Xk_tilde)   {\(\tilde{X}_k\)};
+     
+     \node[cloud, below of=temp2](XU_tilde) {\(\tilde{X}_U\)};
+     
+     \node[below of=XU_tilde] (temp3) {};
+     \node[cloud, left of=temp3, node distance=1cm] (Y2_tilde) {\(\tilde{Y}_2\)};
+     \node[cloud, left of=Y2_tilde] (Y1_tilde) {\(\tilde{Y}_1\)};
+     \node[cloud, right of=temp3, node distance=1cm] (point3) {...};
+	 \node[cloud, right of=point3] (Yk_tilde) {\(\tilde{Y}_k\)};     
+     
      
     % \draw[tuborg, decoration={brace}] let \p1=(X2.south), %\p2=(X2_tilde.north) in
   %  ($(2, \y1)$) -- ($(2, \y2)$) node[tubnode] {Pro};
      
-   	\path[line] (X1) --  (X1_tilde);
-  	\path[line] (X2) --  node[midway, right] {Apprentissage, simulation}(X2_tilde);
- 	\path[line] (X1_tilde) --  (X_tilde);
- 	\path[line] (X2_tilde) --  (X_tilde);
- 	\path[line] (X_tilde) --  (X3_tilde);
- 	\path[line] (X_tilde) --  node[midway, right] {Classification}(X4_tilde);
+   	\path[line] (X1) --  node[midway, left] {Apprentissage, simulation} (X1_tilde);
+   	\path[line] (X2) --  (X2_tilde);
+   	\path[line] (point1) -- (point2);
+  	\path[line] (Xk) --  (Xk_tilde);
+ 	\path[line] (X1_tilde) --  node[midway, left] {Union} (XU_tilde);
+ 	\path[line] (X2_tilde) --  (XU_tilde);
+ 	\path[line] (point2) --  (XU_tilde);
+ 	\path[line] (Xk_tilde) -- (XU_tilde);
+ 	\path[line] (XU_tilde) -- node[midway, left] {Classification} (Y1_tilde);
+ 	\path[line] (XU_tilde) --  (Y2_tilde);
+ 	\path[line] (XU_tilde) --  (point3);
+ 	\path[line] (XU_tilde) --  (Yk_tilde);
  	
   \end{tikzpicture}
 \end{center}
-Une bonne simulation devrait résulter en la présence des mêmes échantillons dans \(\tilde{X1}\) et \(\tilde{X3}\), de même que dans \(\tilde{X2}\) et \(\tilde{X4}\).\\
+Une bonne simulation devrait résulter en la présence des mêmes échantillons dans \(\tilde{X}_i\) et dans \(\tilde{Y}_i\) pour \(i\in \left\lbrace 1,2,...,k\right\rbrace\).
 
 
 \begin{center}
@@ -557,43 +657,78 @@ kable(m_super$all$kNN)
 \end{tabular}
 \end{center}
 
-Comme nous avons pu le voir ci dessus, une grande partie des échantillons simulés est malheureusement "mal simulé" (notamment dans le cas du jeu de données liver). Pour vérifier que les données considéré comme bien "simulées" sont facilement classable dans un groupe (et ainsi relativement proche des données réels de leur groupe respectif), nous allons conserver uniquement ces données puis faire comme précédement en faisant une classification supervisée puis en vérifiant leur bonne classification.
+\begin{center}
+Liver
+
+\begin{tabular}{cc}
+<<>>=
+kable(l_super$all$random_forest)
+@
+&
+<<>>=
+kable(l_super$all$kNN)
+@
+\end{tabular}
+\end{center}
+
+Comme nous avons pu le voir ci dessus, une grande partie des échantillons simulés est malheureusement "mal simulé" (notamment dans le cas du jeu de données liver). Pour vérifier que les données considéré comme bien "simulées" sont facilement classable dans un groupe (et ainsi relativement proche des données réels de leur groupe respectif), nous allons conserver uniquement ces données puis faire comme précédement en faisant une classification supervisée et en vérifiant leur bonne classification.
 
 Voici un schéma récapitulatif de la méthode.
 \begin{center}
 \begin{tikzpicture}[node distance=2cm, auto]
-     \node[cloud] (X1) {X1};
-     \node[right of=X1, node distance=1cm] (temp) {};
-     \node[cloud, right of=temp, node distance=1cm] (X2)      {X2};
-     \node[cloud, below of=X2] (X2_tilde)   {\(\tilde{X2}\)};
-     \node[cloud, below of=X1] (X1_tilde)   {\(\tilde{X1}\)};
+
+\node[cloud] (X1) {\(X_1\)};
+     \node[cloud, right of=X1] (X2)      {\(X_2\)};
+     \node[right of=X2, node distance=1cm] (temp) {};
+     \node[cloud, right of=temp, node distance=1cm] (point1) {...};
+     \node[cloud, right of=point1] (Xk) {\(X_k\)};
+     \node[cloud, below of=X2] (X2_tilde)   {\(\tilde{X}_2\)};
+     \node[cloud, below of=X1] (X1_tilde)   {\(\tilde{X}_1\)};
      \node[below of=temp] (temp2) {};
-     \node[cloud, below of=temp2](X_2_tilde) {\(\tilde{X}_2\)};
-     \node[below of=X_tilde, node distance=1cm] (temp3) {};
-     \node[cloud, below of=X_2_tilde](X_real_tilde) {\(\tilde{X}_{real}\)};
-     \node[below of=X_real_tilde] (temp4) {};
-     \node[cloud, left of=temp4, node distance=1cm] (X3_tilde) {\(\tilde{X3}\)};
-     \node[cloud, right of=temp4, node distance=1cm] (X4_tilde) {\(\tilde{X4}\)};
+     \node[cloud, below of=point1] (point2)   {...};
+     \node[cloud, below of=Xk] (Xk_tilde)   {\(\tilde{X}_k\)};
+     
+     \node[cloud, below of=temp2](XU_tilde) {\(\tilde{X}_U\)};
+     \node[below of=XU_tilde, node distance=1cm] (temp_real) {};
+     \node[cloud, below of=temp_real, node distance=1cm] (X_real_tilde) {\(\tilde{X}_{real}\)};
+     \node[below of=X_real_tilde] (temp3) {};
+     \node[cloud, left of=temp3, node distance=1cm] (Y2_tilde) {\(\tilde{Y}_2\)};
+     \node[cloud, left of=Y2_tilde] (Y1_tilde) {\(\tilde{Y}_1\)};
+     \node[cloud, right of=temp3, node distance=1cm] (point3) {...};
+	 \node[cloud, right of=point3] (Yk_tilde) {\(\tilde{Y}_k\)};     
+     
+     
+    % \draw[tuborg, decoration={brace}] let \p1=(X2.south), %\p2=(X2_tilde.north) in
+  %  ($(2, \y1)$) -- ($(2, \y2)$) node[tubnode] {Pro};
+     
+   	\path[line] (X1) --  node[midway, left] {Apprentissage, simulation} (X1_tilde);
+   	\path[line] (X2) --  (X2_tilde);
+   	\path[line] (point1) -- (point2);
+  	\path[line] (Xk) --  (Xk_tilde);
+ 	\path[line] (X1_tilde) --  node[midway, left] {Union} (XU_tilde);
+ 	\path[line] (X2_tilde) --  (XU_tilde);
+ 	\path[line] (point2) --  (XU_tilde);
+ 	\path[line] (Xk_tilde) -- (XU_tilde);
+ 	\path[line] (XU_tilde) -- node[midway, left] {Classification real/simu} (X_real_tilde);
+ 	\path[line] (X_real_tilde) -- node[midway, left] {Classification} (Y1_tilde);
+ 	\path[line] (X_real_tilde) --  (Y2_tilde);
+ 	\path[line] (X_real_tilde) --  (point3);
+ 	\path[line] (X_real_tilde) --  (Yk_tilde);
+ 	
      
      
      
-     \node[block, right of=X_tilde, node distance=6cm, text width=3cm] (Apprentissage classificateur) {Apprentissage classificateur real/simu};
-     \node[cloud, above of=Apprentissage classificateur] (X_1_tilde) {\(\tilde{X}_1\)}; 
-     \node[cloud, above of=X_1_tilde] (X) {X};
+     \node[block, right of=XU_tilde, node distance=6cm, text width=3cm] (Apprentissage classificateur) {Apprentissage classificateur real/simu};
+     \node[cloud, above of=Apprentissage classificateur] (X_tilde) {\(\tilde{X}\)}; 
+     \node[cloud, above of=X_tilde] (X) {X};
      
      
      
      
-   	\path[line] (X1) --  node[midway, left] {Apprentissage, simulation}(X1_tilde);
-  	\path[line] (X2) --  (X2_tilde);
- 	\path[line] (X1_tilde) --  (X_tilde);
- 	\path[line] (X2_tilde) --  (X_tilde);
- 	\path[line] (X_tilde) -- node[midway, left] {Classification real/simu} (X_real_tilde);
- 	\path[line] (X_real_tilde) --  node[midway, left] {Classification} (X3_tilde);
- 	\path[line] (X_real_tilde) --  (X4_tilde);
- 	\path[line] (Apprentissage classificateur) |- (temp3);
- 	\path[line] (X) -- (X_1_tilde);
- 	\path[line] (X_1_tilde) -- (Apprentissage classificateur);
+
+ 	\path[line] (Apprentissage classificateur) |- (temp_real);
+ 	\path[line] (X) -- (X_tilde);
+ 	\path[line] (X_tilde) -- (Apprentissage classificateur);
  	
   \end{tikzpicture}
 \end{center}
@@ -615,19 +750,185 @@ kable(c_mach$all$kNN)
 \end{tabular}
 \end{center}
 
+\begin{center}
+Liver
+
+\begin{tabular}{cc}
+Random forest & kNN \\
+<<>>=
+kable(c_liver$all$random_forest)
+@
+&
+<<>>=
+kable(c_liver$all$kNN)
+@
+\end{tabular}
+\end{center}
 
 \section{Conclusion}
 
 \section{Annexe}
 \appendix
-\subsection{classification non supervise}\label{annexe classification non supervise}
-\subsection{classification supervise}\label{annexe classification supervise}
+
+
+\subsection{Graphique ACP}
+
+<<graph biplot chaillou>>=
+graph_biplot_normale(chaillou, metadata_chaillou$EnvType, 1, "Chaillou", "EnvType", ellipse=FALSE)[[1]]
+@
+
+<<graph biplot ravel>>=
+graph_biplot_normale(ravel, metadata_ravel$CST, 1, "Ravel", "CST", ellipse=FALSE) [[1]]
+@
+
+<<graph biplot vacher>>=
+graph_biplot_normale(vacher, metadata_vacher$tree, 1, "vacher", "tree", ellipse=FALSE) [[1]]
+@
+
+
+\subsection{Classification non supervise}\label{annexe classification non supervise}
 \begin{center}
 Chaillou
+
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{cc}
+\multicolumn{2}{c}{kmeans} \\
+comptage & ilr \\
+<<>>=
+kable(k_chaillou$comptage_table)
+@
+&
+<<>>=
+kable(k_chaillou$ilr_table)
+@
+\end{tabular}
+}
+
+
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{cc}
+\multicolumn{2}{c}{hiérarchique} \\
+comptage & ilr \\
+<<>>=
+kable(hclust_chaillou$comptage_table)
+@
+&
+<<>>=
+kable(hclust_chaillou$ilr_table)
+@
+\end{tabular}
+}
+
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{cc}
+\multicolumn{2}{c}{Mélange gaussien} \\
+comptage & ilr \\
+<<>>=
+kable(Mclust_chaillou$comptage_table)
+@
+&
+<<>>=
+kable(Mclust_chaillou$ilr_table)
+@
+\end{tabular}
+}
+
 \end{center}
 
 
 \begin{center}
+Ravel
+
+\begin{tabular}{cc}
+\multicolumn{2}{c}{kmeans} \\
+comptage & ilr \\
+<<>>=
+kable(k_ravel$comptage_table)
+@
+&
+<<>>=
+kable(k_ravel$ilr_table)
+@
+\end{tabular}
+
+\begin{tabular}{cc}
+\multicolumn{2}{c}{hiérarchique} \\
+comptage & ilr \\
+<<>>=
+kable(hclust_ravel$comptage_table)
+@
+&
+<<>>=
+kable(hclust_ravel$ilr_table)
+@
+\end{tabular}
+
+
+\begin{tabular}{cc}
+\multicolumn{2}{c}{Mélange gaussien} \\
+comptage & ilr \\
+<<>>=
+kable(Mclust_ravel$comptage_table)
+@
+&
+<<>>=
+kable(Mclust_ravel$ilr_table)
+@
+\end{tabular}
+\end{center}
+
+
+
+\begin{center}
+Vacher
+
+\begin{tabular}{cc}
+\multicolumn{2}{c}{kmeans} \\
+comptage & ilr \\
+<<>>=
+kable(k_vacher$comptage_table)
+@
+&
+<<>>=
+kable(k_vacher$ilr_table)
+@
+\end{tabular}
+
+\begin{tabular}{cc}
+\multicolumn{2}{c}{hiérarchique} \\
+comptage & ilr \\
+<<>>=
+kable(hclust_vacher$comptage_table)
+@
+&
+<<>>=
+kable(hclust_vacher$ilr_table)
+@
+\end{tabular}
+
+
+\begin{tabular}{cc}
+\multicolumn{2}{c}{Mélange gaussien} \\
+comptage & ilr \\
+<<>>=
+kable(Mclust_vacher$comptage_table)
+@
+&
+<<>>=
+kable(Mclust_vacher$ilr_table)
+@
+\end{tabular}
+\end{center}
+
+
+
+
+
+
+\subsection{Classification supervise}\label{annexe classification supervise}
+\begin{center}
+Chaillou
+
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{cc}
 \multicolumn{2}{c}{kNN} \\
@@ -662,13 +963,85 @@ kable(v_chaillou_ilr$Svm)
 
 
 
-\subsection{Performance simulateur}
-\subsubsection*{Sur le jeu de données entier}\label{annexe donnees entier}
-\begin{center}
-Chaillou
-\end{center}
 
 \begin{center}
+Ravel
+
+
+\begin{tabular}{cc}
+\multicolumn{2}{c}{kNN} \\
+comptage & ilr \\
+<<>>=
+kable(v_ravel$kNN)
+@
+&
+<<>>=
+kable(v_ravel_ilr$kNN)
+@
+\end{tabular}
+\end{center}
+
+
+\begin{center}
+\begin{tabular}{cc}
+\multicolumn{2}{c}{svm} \\
+comptage & ilr \\
+<<>>=
+kable(v_ravel$Svm)
+@
+&
+<<>>=
+kable(v_ravel_ilr$Svm)
+@
+\end{tabular}
+\end{center}
+
+
+
+
+
+
+\begin{center}
+Vacher
+
+
+\begin{tabular}{cc}
+\multicolumn{2}{c}{kNN} \\
+comptage & ilr \\
+<<>>=
+kable(v_vacher$kNN)
+@
+&
+<<>>=
+kable(v_vacher_ilr$kNN)
+@
+\end{tabular}
+\end{center}
+
+
+\begin{center}
+\begin{tabular}{cc}
+\multicolumn{2}{c}{svm} \\
+comptage & ilr \\
+<<>>=
+kable(v_vacher$Svm)
+@
+&
+<<>>=
+kable(v_vacher_ilr$Svm)
+@
+\end{tabular}
+\end{center}
+
+
+
+
+\subsection{Performance simulateur}
+\subsubsection*{Sur le jeu de données entier}\label{annexe donnees entier}
+
+\begin{center}
+Chaillou
+
 \begin{tabular}{cc}
 Random forest & kNN \\
 <<>>=
@@ -680,6 +1053,41 @@ kable(t_chaillou$all$kNN)
 @
 \end{tabular}
 \end{center}
+
+
+
+
+\begin{center}
+Ravel
+
+\begin{tabular}{cc}
+Random forest & kNN \\
+<<>>=
+kable(t_ravel$all$random_forest)
+@
+&
+<<>>=
+kable(t_ravel$all$kNN)
+@
+\end{tabular}
+\end{center}
+
+\begin{center}
+Vacher
+
+\begin{tabular}{cc}
+Random forest & kNN \\
+<<>>=
+kable(t_vacher$all$random_forest)
+@
+&
+<<>>=
+kable(t_vacher$all$kNN)
+@
+\end{tabular}
+\end{center}
+
+
 
 \subsubsection*{Sur les groupes}\label{annexe sur les groupes}
 \begin{center}
@@ -694,6 +1102,44 @@ kable(c_super$all$random_forest)
 &
 <<>>=
 kable(c_super$all$kNN)
+@
+\end{tabular}
+}
+\end{center}
+
+
+\begin{center}
+Ravel
+
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{cc}
+Random forest & kNN \\
+<<>>=
+kable(r_super$all$random_forest)
+@
+&
+<<>>=
+kable(r_super$all$kNN)
+@
+\end{tabular}
+}
+\end{center}
+
+
+
+
+\begin{center}
+Vacher
+
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{cc}
+Random forest & kNN \\
+<<>>=
+kable(v_super$all$random_forest)
+@
+&
+<<>>=
+kable(v_super$all$kNN)
 @
 \end{tabular}
 }
@@ -717,4 +1163,45 @@ kable(c_chaillou$all$kNN)
 \end{tabular}
 }
 \end{center}
+
+
+\begin{center}
+Ravel
+
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{cc}
+Random forest & kNN \\
+<<>>=
+kable(c_ravel$all$random_forest)
+@
+&
+<<>>=
+kable(c_ravel$all$kNN)
+@
+\end{tabular}
+}
+\end{center}
+
+
+
+
+
+\begin{center}
+Vacher
+
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{cc}
+Random forest & kNN \\
+<<>>=
+kable(c_vacher$all$random_forest)
+@
+&
+<<>>=
+kable(c_vacher$all$kNN)
+@
+\end{tabular}
+}
+\end{center}
+
+
 \end{document}
