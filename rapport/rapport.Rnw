@@ -128,7 +128,8 @@ La puissance d'une composition \(x\in S^D\) par une constante \(\alpha\in \mathb
 x\in S^D,\ \alpha\in \mathbb{R},\ \alpha\odot =C\left[x_1^{\alpha},x_2^{\alpha},...,x_D^{\alpha}\right]
 \]
 Les deux opérations ci dessus permettent au simplexe de devenir un espace vectoriel (la perturbation en tant que loi de composition internet, la puissance en tant que loi de composition externe).\\
-A cela, nous pouvons ajouter un produit scalaire ainsi qu'une distance et une norme associée.\\
+A cela, il est d'ajouter un produit scalaire ainsi qu'une distance et une norme associée.\\
+
 Inner Product de deux composition \(x,y\in S^D\),
 \[
 x,y\in S^D,\ \left\langle x,y\right\rangle_a=\frac{1}{2D}\sum_{i=1}^D\sum_{j=1}^Dln
@@ -145,8 +146,27 @@ Norme d'une \(x\in S^D\),
 \left\|x\right\|_a=\sqrt{\frac{1}{2D}\sum_{i=1}^D\sum_{j=1}^D\left(ln\frac{x_i}{x_j}\right)^2}
 \]
 
+Les mesures statistique tels que la moyenne et la variance doivent être elles aussi redéfinit.\\
+
+Pour un échantillon de taille \(n\) de données compositionnelles à \(D\) composantes, la moyenne est définie comme:
+\[
+g=C\left[g_1,g_2,...,g_D\right]
+\]
+avec \(g_i=\left(\prod_{j=1}^n x_{ij}\right)^{1/n},\ i=1,2,..,D\)
+\\
+La matrice de covariance quant à elle est définit par
+\[
+T=\begin{pmatrix}
+t_{11} & t_{12} & ... & t_{1D} \\
+...  & ... & ... & ...\\
+t_{D1} & t_{D2} & ... & t_{DD}
+\end{pmatrix}
+,\quad t_{ij}=var\left(ln\frac{x_i}{x_j}\right),
+\]
+ce qui permet de définir la variance total \( totvar\left[X\right]=\frac{1}{2D}\sum_{i=1}^D\sum_{j=1}^Dt_{ij} \) \\
+Pour centrer des données, il est alors nécessaire d'appliquer la perturbation avec \(g^{-1}\). Appliquer la puissance avec \(totvar\left[X\right]^{-1/2}\) permet de les réduire. 
 \subsection{Transformation}
-Comme on a pu le voir, l'espace du simplexe nécessite une redéfinition des opérations de base. Dans cette partie, nous allons voir des transformations permettant de repasser dans un espace euclidien.\\
+Comme nous avons pu le voir, l'espace du simplexe nécessite une redéfinition des opérations de base. Dans cette partie, nous allons voir des transformations permettant de repasser dans un espace euclidien.\\
 Tout d'abord, remarquons que la valeur de \(\kappa\)(somme des composantes) d'une composition n'a pas fondamentalement une grande importance (def?). Les rapports relatifs sont bien plus intéressants. Il n'est donc pas étonnant que les transformations reposent sur des log ratios de composantes.\\
 
 Commençons par l'additive log-ratio transformation(alr).
@@ -249,22 +269,27 @@ MAP(p)=\underset{p}{argmax}\left(p|x\right)=\frac{x_i+1}{\sum_{i=1}^D\left(x_i+1
 \section{Transformation ilr et classification}
 
 \subsection{Jeux de données}
-Pour cela, cinq jeux de données sont mis à ma disposition qui sont Chaillou, Mach, Liver, Ravel ainsi que Vacher.\\
+Cinq jeux de données sont mis à ma disposition qui sont Chaillou, Mach, Liver, Ravel ainsi que Vacher. Tous ces jeux de données sont des tables de comptage d'OTU.\\
 
 \subsubsection*{Chaillou}
 Il s'agit d'un jeu de données d'origine alimentaire, il provient d'une étude sur les communautés bactériennes dans la nourriture périmée.\\
-Pour cela, quatre types de viande : boeuf hache, veau hache, lardons, saucisses de volaille et quatre types de fruit de mer:saumon fumé, crevettes, filet de saumon et filet de cabillaud ont été échantillonnés.
+Pour cela, quatre types de viande : boeuf hache, veau hache, lardons, saucisses de volaille et quatre types de fruit de mer: saumon fumé, crevettes, filet de saumon et filet de cabillaud ont été échantillonnés.\\
+Pour chaque type de nourriture huit échantillons (de lot différents) sont présent dans ce jeu de donnée. 508 OTUs ont été conservé lors de l'étude.\\
+Durant mon stage, le type de nourriture a été la variable qualitative étudiée.
+
 
 \subsubsection*{Mach}
 L'évolution du microbiote intestinal de porcelet au cours des premiers mois (avant, après le sevrage) ainsi que son impact sur le métabolisme était le sujet de l'étude contenant ce jeu de données.\\
-Les excréments de 31 porcelets ont été séquencés à cinq périodes de leur vie (14, 36, 48, 60 et 70 jours) ; à chaque séquençage le sevrage ou non de l'animal a été relevé.
+Les excréments de 31 porcelets ont été séquencés à cinq périodes de leur vie (14, 36, 48, 60 et 70 jours) ; à chaque séquençage le sevrage ou non de l'animal a été relevé. Le jeu de donnée contient ainsi 155 échantillons, le nombre d'OTU quant à lui est 4031.\\
+
 
 \subsubsection*{Liver}
 
 \subsubsection*{Ravel}
 Le microbiote vaginal permet-il de prévenir les maladies urogenital? C'était la question que se posaient les chercheurs dans l'étude contenant les données.\\
-Pour répondre à cette question, ils ont séquencé le microbiote vaginal de 396 femmes provenant de quatre catégories ethniques différentes (Asiatiques, blanches, noires et hispanique). Sur chaque échantillon, le nugent score a été réalisé, il s'agit d'une méthode de diagnostic de la vaginose bactérienne.\\
-De plus, durant cette étude, les échantillons ont été classés dans cinq clusters. 
+Pour répondre à cette question, ils ont séquencé le microbiote vaginal de 394 femmes provenant de quatre catégories ethniques différentes (Asiatiques, blanches, noires et hispanique), 247 OTU ont été gardé pour réaliser cette étude. Sur chaque échantillon (un pour chaque femme), le nugent score a été réalisé, il s'agit d'une méthode de diagnostic de la vaginose bactérienne.\\
+Selon le résultat de ce test, les échantillons ont été classé en 3 catégories (low, intermediate, high).
+De plus, durant cette étude, les échantillons ont été classés dans cinq clusters, ces clusters ont été les groupes étudiés durant mon stage.
 
 \subsubsection*{Vacher}
 
@@ -438,7 +463,7 @@ kable(v_liver_500_ilr$Svm)
 @
 \end{tabular}
 \end{center}
-Le même phénomène que dans la classification no supervisée est observable, la classification sur les données de comptage a parfois tendance à mettre tous les échantillons dans le même groupe.\\
+Le même phénomène que dans la classification non supervisée est observable, le classificateur sur les données de comptage a parfois tendance à mettre tous les échantillons dans le même groupe.\\
 Dans le cas de certains classificateur tels que le svm, la classification supervise sur certains jeux de données de comptage ne donne pas du tout des résultats concluant (voir chaillou en Annexe \ref{annexe classification supervise}).
 
 \section{Simulateur}
@@ -484,6 +509,7 @@ Dans le cas de certains classificateur tels que le svm, la classification superv
 
 
 \subsection{Réduction de dimension}
+Les jeux de données utilisé dans le cadre du simulateur ont un très grand nombre de variable (grande dimension), une réduction de dimension s'impose.\\
 Dans notre cas, nous cherchons à appliquer un modèle probabiliste à nos données. L'ACP dans sa définition la plus commune ne permet pas de prendre en compte un tel modèle. Pour ce faire, nous allons donc utiliser une variante de l'ACP qui n'est autre que l'ACP probabiliste qui est définie comme:
 \[
 X_i=Wy_i + \mu + \epsilon_i
@@ -592,7 +618,7 @@ kable(t_liver_500$all$random_forest)
  \end{tabular}
 \end{center}
 Les performances du simulateur sont grandement variable selon le jeu de données. En effet, sur certains jeu de donnée (voir annexe \ref{annexe donnees entier}) les classificateurs peinent à faire la différence entre les données simulées et réels.\\
-A l'inverse sur Liver, le random Forest fait aisément la différence, cependant le kNN lui le fait moins facilement. Ainsi certaines caractéristiques des données Liver doivent être mal simulées (ce qui permet au random Forest de faire la différence), mais les données simulées doivent quant même relativement bien se mélanger
+A l'inverse sur Liver, le random Forest fait aisément la différence, cependant le kNN lui le fait moins facilement. Ainsi certaines caractéristiques des données Liver doivent être mal simulées (ce qui permet au random Forest de faire la différence), mais les données simulées doivent quant même relativement bien se mélanger aux données réels (comme le montre le kNN).
 \subsection{Classification}
 Un autre aspect de la performance du simulateur est sa capacité à simuler les caractéristiques de chaque groupe d'un jeu de données, une donnée simulée ne doit pas avoir les caractéristiques de plusieurs groupes.\\
 Pour étudier cette aspect, la simulation ne se fera plus sur l'ensemble du jeux de données mais séparément sur chaque groupe du jeu de donnée.\\
@@ -671,7 +697,7 @@ kable(l_super$all$kNN)
 \end{tabular}
 \end{center}
 
-Comme nous avons pu le voir ci dessus, une grande partie des échantillons simulés est malheureusement "mal simulé" (notamment dans le cas du jeu de données liver). Pour vérifier que les données considéré comme bien "simulées" sont facilement classable dans un groupe (et ainsi relativement proche des données réels de leur groupe respectif), nous allons conserver uniquement ces données puis faire comme précédement en faisant une classification supervisée et en vérifiant leur bonne classification.
+Comme nous avons pu le voir ci dessus, une partie des échantillons simulés est malheureusement "mal simulé" (notamment dans le cas du jeu de données liver). Pour vérifier que les données considéré comme bien "simulées" sont facilement classable dans un groupe (et ainsi relativement proche des données réels de leur groupe respectif), nous allons conserver uniquement ces données puis faire comme précédement en faisant une classification supervisée et en vérifiant leur bonne classification.
 
 Voici un schéma récapitulatif de la méthode.
 \begin{center}
@@ -764,7 +790,6 @@ kable(c_liver$all$kNN)
 @
 \end{tabular}
 \end{center}
-
 \section{Conclusion}
 
 \section{Annexe}
