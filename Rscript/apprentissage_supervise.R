@@ -92,7 +92,7 @@ find_group <- function(train, test, metadata_test){
   pred_forest <- predict(forest, test)
   
   ### kNN
-  kNN <- knn(train[, -ncol(train)], test, cl=train[, ncol(train)], k=1)
+  kNN <- knn(train[, -ncol(train)], test, cl=train[, ncol(train)])
   
   ### Svm
   Svm <- svm(metadata~., train)
@@ -108,13 +108,13 @@ find_group <- function(train, test, metadata_test){
 
 
 
-validation_croise <- function(data, metadata, k=nrow(data)){
+validation_croise <- function(data, metadata, n=nrow(data)){
   
   name_group <- unique(metadata)
   train <- data.frame(data, as.factor(metadata), row.names = NULL)
   colnames(train) <- c(paste("X",1:ncol(data), sep=""), "metadata")
   
-  iid <- sample(rep(1:k,length=nrow(data)))
+  iid <- sample(rep(1:n,length=nrow(data)))
   
   no_cores <- detectCores()-1
   if(no_cores==0) no_cores <- 1
@@ -122,7 +122,7 @@ validation_croise <- function(data, metadata, k=nrow(data)){
   cl <- makeCluster(no_cores)
   clusterEvalQ(cl, {source("Rscript/apprentissage_supervise.R")})
   
-  l <- parLapply(cl, 1:k, function(x){
+  l <- parLapply(cl, 1:n, function(x){
     
     pred_kNN <- knn(train=data[x!=iid,], test=data[x==iid,], cl=metadata[x!=iid])
     Svm <- svm(metadata~., train[x!=iid,])
@@ -140,6 +140,8 @@ validation_croise <- function(data, metadata, k=nrow(data)){
   
   all <- list_table_sum(l)
   names(all) <- c("kNN", "Svm")
+  all$confusion_random_Forest <- randomForest(metadata~., create_data_frame_train(data, metadata))$confusion[,-(length(unique(metadata))+1)]
+  colnames(all$confusion_random_Forest) <- 1:(length(unique(metadata)))
   all
 }
 
