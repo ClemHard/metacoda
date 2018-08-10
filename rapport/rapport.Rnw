@@ -1,4 +1,8 @@
 \documentclass[11pt,a4paper]{article}
+\usepackage{geometry}
+\geometry{hmargin=4cm,vmargin=2cm}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
 \usepackage{tikz}
 \usepackage{amsfonts,amsmath,amssymb}
 \usepackage{enumerate}
@@ -9,7 +13,6 @@
 \usepackage[caption = false]{subfig}
 \usepackage{bbm}
 \usepackage[singlespacing]{setspace}
-\usepackage[utf8]{inputenc}
 \usepackage{float}
 \usepackage{textcomp}
 \usepackage{apptools}
@@ -77,7 +80,30 @@ load("rapport/resultats.RData")
 
 \maketitle
 
+\newpage
 \tableofcontents
+
+\section{Présentation}
+\subsection{Unité de recherche}
+L'unité de recherche MaIAGE regroupe des mathématiciens, des informaticiens, des bioinformaticiens et des biologistes autour de questions de biologie et agro-écologie, allant de l'échelle moléculaire à l'échelle du paysage en passant par l'étude de l'individu, de populations ou d'écosystèmes.
+
+L'unité développe des méthodes mathématiques et informatiques originales de portée générique ou motivées par des problèmes biologiques précis. Elle s'implique aussi dans la mise à disposition de bases de données et de logiciels permettant aux biologistes d'utiliser les outils dans de bonnes conditions ou d'exploiter automatiquement la littérature scientifique.
+
+L'inférence statistique et la modélisation dynamique sont des compétences fortes de l'unité, auxquelles s'ajoutent la bioinformatique, l'automatique et l'algorithmique. Les activités de recherche et d'ingénierie s'appuient également sur une forte implication dans les disciplines destinatrices : écologie, environnement, biologie moléculaire et biologie des systèmes.
+
+L'unité MaIAGE est structurée en 4 équipes de recherche :
+
+
+
+
+\subsection{Equipe}
+Cette équipe vise à développer et mettre en oeuvre des méthodes statistiques et bioinformatiques dédiées à l’analyse de données “omiques”. D’un point de vue biologique, les questions abordées concernent principalement l’annotation structurale et fonctionnelle des génomes, les régulations géniques, la dynamique évolutive des génomes, et la caractérisation d’écosystèmes microbiens en terme de diversité et de fonctions présentes ; une cible commune étant la relation entre génotype et phénotype. Une part de plus en plus importante de notre activité est relative à l’intégration de données “omiques” hétérogènes pour en extraire de l’information pertinente et aussi prédire des processus biologiques. D’un point de vue méthodologique, nos travaux sont essentiellement d’ordre statistique : estimation de distributions, inférence de modèles à variables latentes, prédiction de relations entre jeux de variables, segmentation, visualisation et classification, avec une attention particulière au cadre de la grande dimension qui caractérise la majorité des jeux de données “omiques” étudiés. Ces recherches s’appuient souvent sur une ingénierie bioinformatique très forte.
+
+
+\newpage
+
+
+
 
 
 \section{Contexte biologique et enjeux}
@@ -269,7 +295,7 @@ MAP(p)=\underset{p}{argmax}\left(p|x\right)=\frac{x_i+1}{\sum_{i=1}^D\left(x_i+1
 \section{Transformation ilr et classification}
 
 \subsection{Jeux de données}
-Cinq jeux de données sont mis à ma disposition qui sont Chaillou, Mach, Liver, Ravel ainsi que Vacher. Tous ces jeux de données sont des tables de comptage d'OTU.\\
+Cinq jeux de données sont mis à ma disposition qui sont Chaillou, Mach, Liver, Ravel ainsi que Vacher. Tous ces jeux de données se présentent sous la forme de table de comptage d'OTU.\\
 
 \subsubsection*{Chaillou}
 Il s'agit d'un jeu de données d'origine alimentaire, il provient d'une étude sur les communautés bactériennes dans la nourriture périmée.\\
@@ -291,7 +317,19 @@ Pour répondre à cette question, ils ont séquencé le microbiote vaginal de 39
 Selon le résultat de ce test, les échantillons ont été classé en 3 catégories (low, intermediate, high).
 De plus, durant cette étude, les échantillons ont été classés dans cinq clusters, ces clusters ont été les groupes étudiés durant mon stage.
 
+
 \subsubsection*{Vacher}
+L'objectif de l'étude d'où provienne les données était de trouver les interactions les plus probables entre un champignon responsable de l'oidium du chêne (Erysiphe alphitoides) et les autres espèce de microorganisme présent sur les feuilles de chêne (Erysiphe alphitoides).\\
+Dans cette objectif, les feuilles de trois chêne ont été prélevé et séquencé (40 sur chaque arbre). Pour chaque arbre, les  feuilles proviennent de quatre branches différentes (10 pour chaque branche) ; pour chaque feuille plusieurs caractéristiques ont été relevé: sa distance à la base de l'arbre, au tronc de l'arbre et du sol ainsi que son orientation (South west, North East) et enfin son niveau d'infection.\\
+Cependant dans le jeu de donnée, seul 116 échantillons de feuilles sont présentes (il en manque quatre), sur chaque échantillon le nombre de 114 OTU est donnée.
+
+L'objectif durant mon stage était de retrouver pour chaque échantillon l'arbre à lequel il appartenait.
+
+
+
+Pour Liver, Mach, le nombre d'OTU étant très grand, j'ai choisis d'en enlever une partie (ceux présent dans moins de \(5\%\) des échantillons).\\
+Les nouvelles dimensions des jeux de données sont ainsi: 155 échantillons sur 1084 OTU pour mach, 237 échantillons et 533 OTU pour liver. 
+
 
 \subsection{Graphique ACP}
 Pour avoir un premier aperçus des jeux de données, faisons une acp sur les données compositionnelles et regardons la projections des échantillons sur les deux premiers axes.
@@ -402,21 +440,21 @@ Dans le cas de Liver, le classificateur a tendance sur les données de comptage 
 
  
 \subsection{Classification supervise}
-Regardons maintenant les performances de classification supervisée (en faisant du leave one out) par le biais de deux algorithmes qui sont, le k nearest neighbors et le support machine vector. \\
+Regardons maintenant les performances de classification supervisée par le biais de deux algorithmes qui sont, le randomForest (avec la matrice de confusion) et le support machine vector (leave one out). \\
 Pour montrer l'intérêt de passer par les données compositionnelles pour la classification, nous allons comparer les résultats d'une classification effectuée sur les données initiales (de comptage) et les données compositionnelles (après transformation \(ilr\)).\\
 
 \begin{center}
 Mach
 
 \begin{tabular}{cc}
-\multicolumn{2}{c}{kNN} \\
+\multicolumn{2}{c}{random Forest} \\
 comptage & ilr \\
 <<>>=
-kable(v_mach_500$kNN)
+kable(v_mach_500$confusion_random_Forest)
 @
 &
 <<>>=
-kable(v_mach_500_ilr$kNN)
+kable(v_mach_500_ilr$confusion_random_Forest)
 @
 \end{tabular}
 
@@ -439,14 +477,14 @@ kable(v_mach_500_ilr$Svm)
 Liver
 
 \begin{tabular}{cc}
-\multicolumn{2}{c}{kNN} \\
+\multicolumn{2}{c}{random Forest} \\
 comptage & ilr \\
 <<>>=
-kable(v_liver_500$kNN)
+kable(v_liver_500$confusion_random_Forest)
 @
 &
 <<>>=
-kable(v_liver_500_ilr$kNN)
+kable(v_liver_500_ilr$confusion_random_Forest)
 @
 \end{tabular}
 
@@ -527,18 +565,21 @@ De même, l'estimateur du maximun de vraisemblance de \(\sigma^2\)
 \]
 Cet estimateur peut être perçu comme la variance perdue lors de la projection.\\
 
+La dimension de l'espace latent a été choisis à l'aide de l'heuristique de pente (grâce au package capushe).\\
 \subsection{Mélange Gaussien}
 L'apprentissage de la densité est confié à un mélange gaussien.\\
 Un mélange gaussien est défini comme:
 \[
 g\left(x; \pi,\theta\right)=\sum_{k=1}^K \pi_kf(x,\theta_k)
 \]
-où \(\theta=\left(\theta_1,...,\theta_k\right)\) sont les paramètres des lois gaussiennes et \( \pi=\left(\pi_1,...,\pi_K\right)\) sont les proportions du mélange Gaussien dont la somme est égale à 1.
+où \(\theta=\left(\theta_1,...,\theta_k\right)\) sont les paramètres des lois gaussiennes et \( \pi=\left(\pi_1,...,\pi_K\right)\) sont les proportions du mélange Gaussien dont la somme est égale à 1.\\
 
+
+Le nombre de gaussienne nécessaire à l'estimation de la densité est choisis en minimisant le critère BIC.\\
 
 \subsection{Zero inflated}
 Les jeux de données contiennent un nombre excessif de zéros, la modélisation faite par un mélange gaussien ne parvient pas à bien prendre en compte tous ces zéros. Pour résoudre ce problème, nous allons modéliser cette particularité indépendamment. \\
-Commençons par estimer la proportion de zéros pour chaque OTU de chaque gaussienne que nous notons \(\pi_{ik}\). Cette estimation est faite via le MAP comme pour la proportion d'un OTU dans un échantillon mais cette fois ci en prenant un pseudo comptage plus faible.\\
+Commençons par estimer la proportion de zéros pour chaque OTU de chaque gaussienne que nous notons \(\pi_{jk}\) (j désignant l'OTU et k la gaussienne d'appartenance de l'échantillon). Cette estimation est faite via le MAP comme pour la proportion d'un OTU dans un échantillon mais cette fois ci en prenant un pseudo comptage plus faible.\\
 Par la suite, nous modélisons les zéros par une loi de Bernoulli,
 
 \[P\left(Z=x\right)=\left\{
@@ -551,9 +592,10 @@ Par la suite, nous modélisons les zéros par une loi de Bernoulli,
 Ce qui permet d'exprimer \(\tilde{X_{i}}\) comme 
 
 \[
-\tilde{X}_{i}=\left(Z_{1k},...,Z_{Dk}\right)*X_i
+\tilde{X}_{i}=\left(Z_{1k},Z_{jk},...,Z_{Dk}\right)*T_i
 \]
-où \(Z_{ik}\sim Bern\left(\pi_{ik}\right)\), \(X_{i}\sim  \mathcal{N}\left(\mu_k, \Sigma_k\right)\)
+où \(Z_{ik}\sim Bern\left(\pi_{jk}\right)\) et \(T_i\sim \mathbb{M}\left(N; \tilde{S}_i\right)\) avec \\
+ \(\tilde{S}_i\) qui est le résultat de \(ilr^{-1}\left(\mathbb{N}\left(W\mu_k, W\Sigma_k W^T+\sigma^2I \right)\right)\)
  
 
 \section{Performance simulateur}
@@ -564,15 +606,15 @@ La méthode la plus facile à mettre en œuvre est de regarder visuellement si l
 
 <<>>=
 data <- rbind(mach_500, mach_boot$data)
-metadata <- c(as.character(rep("real", nrow(mach_500))), rep("simu", nrow(mach_boot$data))) %>% as.factor()
-graph_biplot_normale(data, metadata, 1, "Mach", "data", ellipse=FALSE)[[1]]
+metadata <- c(as.character(rep('real', nrow(mach_500))), rep('simu', nrow(mach_boot$data))) %>% as.factor()
+graph_biplot_normale(data, metadata, 1, 'Mach', 'data', ellipse=FALSE)[[1]]
 @
 
 
 <<>>=
 data <- rbind(liver_500, liver_boot$data)
-metadata <- c(as.character(rep("real", nrow(liver))), rep("simu", nrow(liver_boot$data))) %>% as.factor()
-graph_biplot_normale(data, metadata, 1, "Liver", "data", ellipse=FALSE)[[1]]
+metadata <- c(as.character(rep('real', nrow(liver))), rep('simu', nrow(liver_boot$data))) %>% as.factor()
+graph_biplot_normale(data, metadata, 1, 'Liver', 'data', ellipse=FALSE)[[1]]
 @
 
 Globalement, les données simulées se mélange bien avec les données réels.
@@ -956,14 +998,14 @@ Chaillou
 
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{cc}
-\multicolumn{2}{c}{kNN} \\
+\multicolumn{2}{c}{random Forest} \\
 comptage & ilr \\
 <<>>=
-kable(v_chaillou$kNN)
+kable(v_chaillou$confusion_random_Forest)
 @
 &
 <<>>=
-kable(v_chaillou_ilr$kNN)
+kable(v_chaillou_ilr$confusion_random_Forest)
 @
 \end{tabular}
 }
@@ -994,14 +1036,14 @@ Ravel
 
 
 \begin{tabular}{cc}
-\multicolumn{2}{c}{kNN} \\
+\multicolumn{2}{c}{random Forest} \\
 comptage & ilr \\
 <<>>=
-kable(v_ravel$kNN)
+kable(v_ravel$confusion_random_Forest)
 @
 &
 <<>>=
-kable(v_ravel_ilr$kNN)
+kable(v_ravel_ilr$confusion_random_Forest)
 @
 \end{tabular}
 \end{center}
@@ -1031,14 +1073,14 @@ Vacher
 
 
 \begin{tabular}{cc}
-\multicolumn{2}{c}{kNN} \\
+\multicolumn{2}{c}{random Forest} \\
 comptage & ilr \\
 <<>>=
-kable(v_vacher$kNN)
+kable(v_vacher$confusion_random_Forest)
 @
 &
 <<>>=
-kable(v_vacher_ilr$kNN)
+kable(v_vacher_ilr$confusion_random_Forest)
 @
 \end{tabular}
 \end{center}
