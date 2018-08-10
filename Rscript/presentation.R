@@ -111,6 +111,39 @@ g[[1]] + geom_density2d(aes(X1, X2))
 
 
 
+
+#####graph droites -> points
+
+droites <- function(x_ini, y_ini, x_end, y_end){
+  coeff <- (y_end-y_ini)/(x_end-x_ini)
+  x <- seq(x_ini, x_end, length=1000)
+  y <- y_ini + (x-x_ini)*coeff
+  data.frame(x=x,y=y)
+}
+
+
+
+
+
+### melange gaussian 3D
+density_melange <- function(x, y, moy, sigma){
+  xy <- c(x,y)-moy
+  1/(2*pi*det(sigma)^(1/2))*exp(-0.5*xy%*%solve(sigma)%*%xy)
+}
+
+
+
+x <- seq(0,10,length=100)
+y <- seq(0,10, length=100)
+d <- expand.grid(x=x,y=y)
+
+mu <- c(5,5)
+sig <- matrix(c(2,0.1,0.1,2),nrow=2)
+
+z <- apply(d,1,function(x){density_melange(x[1],x[2],mu,sig)}) %>% matrix(nrow = length(x))
+plot_ly(x=x,y=y,z=z) %>% add_surface()
+
+
 t <- biplot(ravel %>% MAP())
 y <- mvrnorm(n=394, rep(0, 3), matrix(c(1,0,0,0,1,0,0,0,1),nrow=3)) %*% t(t$vector[1:10,1:3])
 y <- y + mvrnorm(394, rep(0, 10), diag(10))
