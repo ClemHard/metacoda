@@ -1,5 +1,6 @@
 library(MASS)
 library(randomForest)
+library(plotly)
 
 source("Rscript/read_metagenomic_data.R")
 source("Rscript/coda.R")
@@ -126,25 +127,40 @@ droites <- function(x_ini, y_ini, x_end, y_end){
 
 
 ### melange gaussian 3D
-density_melange <- function(x, y, moy, sigma){
+density_gaussienne <- function(x, y, moy, sigma){
   xy <- c(x,y)-moy
   1/(2*pi*det(sigma)^(1/2))*exp(-0.5*xy%*%solve(sigma)%*%xy)
 }
 
 
+density_melange <- function(x, y, pro, moy, sigma){
+  if(length(moy)!=length(sigma)){
+    stop("length different")
+  }
+  
+  d <- expand.grid(x=x,y=y)
+  z <- 0
+  
+  for(i in 1:length(moy)){
+    z <- z + pro[i]*apply(d,1,function(x){density_gaussienne(x[1],x[2],moy[[i]],sigma[[i]])}) %>% matrix(nrow = length(x))
+  }
+  z
+}
 
-x <- seq(0,10,length=100)
-y <- seq(0,10, length=100)
+
+x <- seq(0,10,length=50)
+y <- seq(0,10, length=50)
 d <- expand.grid(x=x,y=y)
 
-mu <- c(5,5)
-sig <- matrix(c(2,0.1,0.1,2),nrow=2)
+mu <- list(c(3,2.5), c(7,2), c(5, 6))
+sig <- list(matrix(c(1.4,0,0,0.5),nrow=2), matrix(c(2,0,0,0.7),nrow=2), matrix(c(1,0,0,3),nrow=2))
+prob=c(0.3, 0.2, 0.5)
 
-z <- apply(d,1,function(x){density_melange(x[1],x[2],mu,sig)}) %>% matrix(nrow = length(x))
+z <- density_melange(x, y, prob, mu, sig)
 plot_ly(x=x,y=y,z=z) %>% add_surface()
 
 
-t <- biplot(ravel %>% MAP())
-y <- mvrnorm(n=394, rep(0, 3), matrix(c(1,0,0,0,1,0,0,0,1),nrow=3)) %*% t(t$vector[1:10,1:3])
-y <- y + mvrnorm(394, rep(0, 10), diag(10))
+# t <- biplot(ravel %>% MAP())
+# y <- mvrnorm(n=394, rep(0, 3), matrix(c(1,0,0,0,1,0,0,0,1),nrow=3)) %*% t(t$vector[1:10,1:3])
+# y <- y + mvrnorm(394, rep(0, 10), diag(10))
 
