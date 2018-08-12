@@ -1,4 +1,4 @@
-\documentclass[11pt,a4paper]{article}
+\documentclass[11pt,a4paper]{report}
 \usepackage{geometry}
 \geometry{hmargin=4cm,vmargin=2cm}
 \usepackage[utf8]{inputenc}
@@ -7,6 +7,7 @@
 \usepackage{amsfonts,amsmath,amssymb}
 \usepackage{enumerate}
 \usepackage{enumitem}
+\usepackage[francais]{babel}
 \usepackage{mathrsfs}
 \usepackage{graphicx}
 \usepackage{appendix}
@@ -82,7 +83,7 @@ load("rapport/resultats.RData")
 
 \newpage
 \tableofcontents
-
+\newpage
 \section{Présentation}
 \subsection{Unité de recherche}
 L'unité de recherche MaIAGE regroupe des mathématiciens, des informaticiens, des bioinformaticiens et des biologistes autour de questions de biologie et agro-écologie, allant de l'échelle moléculaire à l'échelle du paysage en passant par l'étude de l'individu, de populations ou d'écosystèmes.
@@ -107,15 +108,25 @@ Cette équipe vise à développer et mettre en oeuvre des méthodes statistiques
 
 
 \section{Contexte biologique et enjeux}
-\subsection{Séquençage}
-\subsection{Données de comptage}
-\subsection{Problème compositionnel}
+\subsection{Métagénomique}
+La métagénomique est une méthode de séquencage et d'analyse du contenu génétique d'un échantillon issu d'un milieu complexe (telle que le microbiote intestinal). La métagénomique à l'inverse de la génomique séquence le génome de l'ensemble des espèces présent dans un échantillon. Cette évolution a pus être réalisé grâce aux nouvelles méthodes de séquencage dit de séquencage haut débit ainsi qu'a la bioinformatique.\\
+En bactériologie, le génome n'est pas complètement séquencé mais seulement un gêne l'est, l'ARN 16S.\\
+Les séquences (reads) obtenus suite au séquencage sont assignées à une espèce bactérienne. Une fois cette étape effectué, la table de comptage des OTUS est contruite (un OTU est un ensemble de bactérie qui se ressemble).\\
+La table de comptage des OTUS n'est autre qu'un tableau contenant le nombre de séquence par OTU observé dans chaque échantillon.\\
 
+\subsection{Problématique des données de comptage}
+L'une des problématiques pour l'étude statistiques des données issu de la métagénomique est due à la différence du nombre d'OTU par échantillon. En effet, les séquenceurs haut débit offre la possibilité de séquencer un grand nombre d'échantillon en même temps, mais ne garantit pas le nombre de séquence (reads) obtenus par échantillon. Le nombre d'OTU obtenu suite au séquencage dans un échantillon peut être par exemple de 1000 tandis que dans un autre il ne peut être que de 500.\\
+La comparaison direct des échantillons est donc impossible.\\
+Le passage aux données compositionnelles est une méthode de résolution possible de cette problématique.\\
+
+\subsection{Objectif du stage}
+Le but de ce stage est de transformer ces données de comptage en données compositionnles et d'utiliser les méthodes d'analyse associée à ces données pour pouvoir leurs appliquer un modèle probabiliste. \\
+Ce modèle probabiliste a ensuite servit à développer un simulateur de nouvelles données.
 
 \section{Géométrie de Aitchison}
-
+Commençons par expliquer ce que sont les données compositionnelles.
 \subsection{Simplexe}
-Un vecteur \(x=\left[x_1,x_2,...x_D\right]\) est défini comme une D composition lorsque toutes ses composantes sont strictement positives et ne contiennent que de l'information relative.
+Un vecteur \(x=\left[x_1,x_2,...x_D\right]\) est défini comme une D composition lorsque toutes ses composantes sont strictement positives et ne contiennent que de l'information relative, par exemple un pourcentage, une proportion.\\
 \vspace*{0.3cm}. 
 \\
 Le simplexe est l'espace de probabilité des données compositionnelles  et est défini par: 
@@ -123,16 +134,13 @@ Le simplexe est l'espace de probabilité des données compositionnelles  et est 
     S^D=\lbrace x=\left[x_1, x_2,...,x_D\right]|x_i>0,i=1,2,...,D;\sum_{i=1}^Dx_i=\kappa\rbrace
 \]
  
- L'opération permettant de modifier la somme des composantes d'une composition (le \(\kappa\)) se nomme la closure:
+ L'opération permettant de modifier la somme des composantes (ex:passer d'une proportion à un pourcentage) d'une composition (le \(\kappa\)) se nomme la closure:
   
  \[
 C(x)=\left[\frac{\kappa*x_1}{\sum_{i=1}^Dx_i},\frac{\kappa*x_2}{\sum_{i=1}^Dx_i},...,\frac{\kappa*x_D}{\sum_{i=1}^Dx_i}     \right]
 \]
-Cette opération permet notamment de définir une sous-composition.
 \vspace*{0.3cm}
-Soit \(x\) une composition, une sous composition \(x_s\) de taille \(s\) est obtenue en appliquant la closure a un sous vecteur \(\left[x_{i1},x_{i2},...,x_{is}\right]\) de \(x\). 
-\vspace*{0.2cm} \\
-Deux vecteurs \(x,y\in\mathbb{R}^D_{+}\) tels que \(x_i,\ y_i>0,\ \forall i=1,...,D\) sont dits compositionnellement équivalents s'il existe un \(\lambda\in \mathbb{R}^{+}\) tel que \(x=\lambda y\) ce qui est équivalent à \(C(x)=C(y)\).
+Deux vecteurs \(x,y\in\mathbb{R}^D_{+}\) tels que \(x_i,\ y_i>0,\ \forall i=1,...,D\) sont dits compositionnellement équivalents s'il existe un \(\lambda\in \mathbb{R}^{+}\) tel que \(x=\lambda y\) ce qui est équivalent à \(C(x)=C(y)\).\\
 
 
 \subsection{Opération dans le simplexe}
@@ -142,8 +150,11 @@ x_1=\left[0.1,0.4,0.5\right],\ x_2=\left[0.2,0.3,0.5\right],\ x_3=\left[0.4,0.4,
 \)
 \\
 La distance euclidienne entre la composition \(x_1\) et \(x_2\) est la même que celle entre \(x_3\) et \(x_4\), pourtant la proportion de la première composante a doublé dans le premier cas mais est loin d'avoir doublé dans le second.\\
-Voici une des raisons pour laquelle nous avons besoin de définir une nouvelle géométrie.
+C'est une des raisons pour laquelle nous avons besoin de définir une nouvelle géométrie.
 \\
+\\
+Commençons par définir les opération de bases:\\
+
 Perturbation d'une composition \(x\in S^D\) par une composition \(y\in S^D\),
 \[
 x\oplus y=C\left[x_1y_1,x_2y_2,...,x_Dy_D\right]
@@ -153,8 +164,8 @@ La puissance d'une composition \(x\in S^D\) par une constante \(\alpha\in \mathb
 \[
 x\in S^D,\ \alpha\in \mathbb{R},\ \alpha\odot =C\left[x_1^{\alpha},x_2^{\alpha},...,x_D^{\alpha}\right]
 \]
-Les deux opérations ci dessus permettent au simplexe de devenir un espace vectoriel (la perturbation en tant que loi de composition internet, la puissance en tant que loi de composition externe).\\
-A cela, il est d'ajouter un produit scalaire ainsi qu'une distance et une norme associée.\\
+Les deux opérations ci dessus permettent au simplexe de devenir un espace vectoriel (la perturbation en tant que loi de composition interne, la puissance en tant que loi de composition externe).\\
+A cela, on ajoute un produit scalaire ainsi qu'une distance et une norme associée.\\
 
 Inner Product de deux composition \(x,y\in S^D\),
 \[
@@ -189,11 +200,13 @@ t_{D1} & t_{D2} & ... & t_{DD}
 \end{pmatrix}
 ,\quad t_{ij}=var\left(ln\frac{x_i}{x_j}\right),
 \]
-ce qui permet de définir la variance total \( totvar\left[X\right]=\frac{1}{2D}\sum_{i=1}^D\sum_{j=1}^Dt_{ij} \) \\
-Pour centrer des données, il est alors nécessaire d'appliquer la perturbation avec \(g^{-1}\). Appliquer la puissance avec \(totvar\left[X\right]^{-1/2}\) permet de les réduire. 
+ce qui permet de définir la variance total \[ totvar\left[X\right]=\frac{1}{2D}\sum_{i=1}^D\sum_{j=1}^Dt_{ij} \] \\
+Pour centrer des données, il est alors nécessaire d'appliquer la perturbation avec \(g^{-1}\). \\
+De même, appliquer la puissance avec \(totvar\left[X\right]^{-1/2}\) permet de les réduire. 
 \subsection{Transformation}
 Comme nous avons pu le voir, l'espace du simplexe nécessite une redéfinition des opérations de base. Dans cette partie, nous allons voir des transformations permettant de repasser dans un espace euclidien.\\
-Tout d'abord, remarquons que la valeur de \(\kappa\)(somme des composantes) d'une composition n'a pas fondamentalement une grande importance (def?). Les rapports relatifs sont bien plus intéressants. Il n'est donc pas étonnant que les transformations reposent sur des log ratios de composantes.\\
+Tout d'abord, remarquons que la valeur de \(\kappa\)(somme des composantes) d'une composition n'a pas fondamentalement une grande importance. En effet, l'étude de données qu'elles soient exprimer en pourcentage ou en proportion ne change rien. \\
+Les rapports relatifs sont bien plus intéressants. Il n'est donc pas étonnant que les transformations reposent sur des log ratios de composantes.\\
 
 Commençons par l'additive log-ratio transformation(alr).
 \[
@@ -215,10 +228,10 @@ avec \(g\) le centre de la composition définie par:
 \[
  g(x)=\left(\prod^D_{i=1}x_i\right)^{1/D}
 \]
-Cependant, comme vu précédemment la dernière composante peut s'exprimer en fonction des autres, cette transformation conservant le nombre de coordonnées, les coordonnées ne seront pas indépendantes. En conséquence, la matrice de covariance est singulière. Notons que la somme des coordonnées est égale à 0.
+Cependant, comme vu précédemment, la dernière composante peut s'exprimer en fonction des autres. Cette transformation conservant le nombre de coordonnées, les coordonnées ne seront pas indépendantes (la somme des coordonnées est égale à 0). En conséquence, la matrice de covariance est singulière. 
 
 
-Voyons enfin l'isometric log-ration transformation (ilr),
+Voyons enfin l'isometric log-ratio transformation (ilr),
 \[
 ilr\left(x\right)=clr\left(x\right)\Psi^{'}
 \]
@@ -231,7 +244,7 @@ Prenons comme système générateur, les vecteurs
 W_i=C\left(1,1,...,e,...\right),\quad i=1,...D-1
 \]
 
-en prenant l'image \(clr\) de ces vecteurs. Puis en utilisant Gram-Schmidt  pour l'orthogonaliser, on obtient la matrice \(\Psi\).\\
+En prenant l'image \(clr\) de ces vecteurs, puis en utilisant Gram-Schmidt  pour l'orthogonaliser, on obtient la matrice \(\Psi\).\\
 Exemple de matrice \(\Psi\) en dimension 5:
 
 \[
@@ -260,6 +273,7 @@ x1 & x2 & x3 & x4  & x5 \\
 \]
 La première coordonnée ilr représente ainsi le ratio des quatre premières composantes de la composition sur la cinquième.\\
 La deuxième : les trois premières composantes sur la quatrième et ainsi de suite.\\
+D'où le nom de balance. Une coordonnée ilr négative (balance négative) signifie que le groupe des composantes du dénominateur à plus de poids que le groupe des composantes du numérateur dans la donnée compositionnelle.
 \\
 Ces trois transformations ont bien entendue leur transformations inverse qui sont définie par:\\
 \begin{align*}
@@ -272,7 +286,7 @@ Ces trois transformations ont bien entendue leur transformations inverse qui son
 \subsection{Réduction de dimension}
 L'ACP est une méthode de réduction de dimension couramment utilisé pour synthétiser l'information.\\
 Dans "Lecture Notes on Compositionnal Data Analysis", ils redéfinissent l'acp dans les données compositionnelle.\\
-En effet, au lieu de réaliser la transformation puis de centrer, réduire les données, ils centrent puis réduisent (avec les formules définit dans la géométrie de Aitchison) les données avant de réaliser la transformation. Ce qui est équivalent.
+En effet, au lieu de réaliser la transformation puis de centrer et réduire les données, ils les centrent et les réduisent (avec les formules définit dans la géométrie de Aitchison) avant de réaliser la transformation ; ce qui est équivalent.
 
 \subsection{Maximum a posteriori}
 Nos jeux de données étant des jeux de données de comptage, de nombreux zéros sont présents comme expliqué précédemment ; les transformations logarithmiques (ilr, clr) ne peuvent ainsi pas être directement appliquées.\\
@@ -320,10 +334,10 @@ De plus, durant cette étude, les échantillons ont été classés dans cinq clu
 
 \subsubsection*{Vacher}
 L'objectif de l'étude d'où provienne les données était de trouver les interactions les plus probables entre un champignon responsable de l'oidium du chêne (Erysiphe alphitoides) et les autres espèce de microorganisme présent sur les feuilles de chêne (Erysiphe alphitoides).\\
-Dans cette objectif, les feuilles de trois chêne ont été prélevé et séquencé (40 sur chaque arbre). Pour chaque arbre, les  feuilles proviennent de quatre branches différentes (10 pour chaque branche) ; pour chaque feuille plusieurs caractéristiques ont été relevé: sa distance à la base de l'arbre, au tronc de l'arbre et du sol ainsi que son orientation (South west, North East) et enfin son niveau d'infection.\\
-Cependant dans le jeu de donnée, seul 116 échantillons de feuilles sont présentes (il en manque quatre), sur chaque échantillon le nombre de 114 OTU est donnée.
+Dans cette objectif, les feuilles de trois chêne ont été prélevé et séquencé (40 sur chaque arbre). Pour chaque arbre, les  feuilles proviennent de quatre branches différentes (10 pour chaque branche) ; pour chaque feuille plusieurs caractéristiques ont été relevé: sa distance à la base de l'arbre, sa distance au tronc de l'arbre et sa distance par rapport au sol ainsi que son orientation (South west, North East) et enfin son niveau d'infection.\\
+Cependant dans le jeu de donnée, seul 116 échantillons de feuilles sont présents (il en manque quatre), sur chaque échantillon le nombre de 114 OTU est donnée.
 
-L'objectif durant mon stage était de retrouver pour chaque échantillon l'arbre à lequel il appartenait.
+L'objectif durant mon stage était de retrouver pour chaque échantillon l'arbre auquel il appartenait.
 
 
 
@@ -347,8 +361,9 @@ Dans le cas des données de liver, la séparation est cette fois ci moins franch
 
 \subsection{Classification non supervise}
 Dans chacun des jeux de données utilisés, les groupes semblent relativement bien séparé comme vu précédement (tout du moins sur les premiers axes d'une acp après transformation ilr).\\
-Une des questions que nous pouvons alors nous poser est le passage aux données compositionnelles (puis transformation ilr) permet il de mieux distinguer les groupes?\\
-Une classification non supervisé répond bien à cette question, ainsi nous allons utiliser plusieurs algorithmes (k-means, Mélange gaussien, classification hiérarchique) et regarder s'ils ont tendance à regrouper les échantillons des mêmes groupes.
+Une des questions que nous pouvons alors nous poser est : le passage aux données compositionnelles ( et transformation ilr) permet il de mieux distinguer les groupes?\\
+Une classification non supervisé répond bien à cette question, ainsi nous allons utiliser plusieurs algorithmes (k-means, Mélange gaussien, classification hiérarchique) et regarder s'ils ont tendance à regrouper les échantillons des mêmes groupes.\\
+Pour montrer l'intérêt de passer par les données compositionnelles pour la classification, nous allons comparer les résultats d'une classification effectuée sur les données initiales (de comptage) et les données compositionnelles (après transformation \(ilr\)).\\
 
 
 \begin{center}
@@ -441,7 +456,7 @@ Dans le cas de Liver, le classificateur a tendance sur les données de comptage 
  
 \subsection{Classification supervise}
 Regardons maintenant les performances de classification supervisée par le biais de deux algorithmes qui sont, le randomForest (avec la matrice de confusion) et le support machine vector (leave one out). \\
-Pour montrer l'intérêt de passer par les données compositionnelles pour la classification, nous allons comparer les résultats d'une classification effectuée sur les données initiales (de comptage) et les données compositionnelles (après transformation \(ilr\)).\\
+
 
 \begin{center}
 Mach
@@ -501,8 +516,8 @@ kable(v_liver_500_ilr$Svm)
 @
 \end{tabular}
 \end{center}
-Le même phénomène que dans la classification non supervisée est observable, le classificateur sur les données de comptage a parfois tendance à mettre tous les échantillons dans le même groupe.\\
-Dans le cas de certains classificateur tels que le svm, la classification supervise sur certains jeux de données de comptage ne donne pas du tout des résultats concluant (voir chaillou en Annexe \ref{annexe classification supervise}).
+Le même phénomène que dans la classification non supervisée est observable. Le classificateur sur les données de comptage a parfois tendance à mettre tous les échantillons dans le même groupe.\\
+Dans le cas de certains classificateur tels que le svm, la classification supervisée sur certains jeux de données de comptage ne donne pas du tout des résultats concluant (voir chaillou en Annexe \ref{annexe classification supervise}).
 
 \section{Simulateur}
 
@@ -547,7 +562,7 @@ Dans le cas de certains classificateur tels que le svm, la classification superv
 
 
 \subsection{Réduction de dimension}
-Les jeux de données utilisé dans le cadre du simulateur ont un très grand nombre de variable (grande dimension), une réduction de dimension s'impose.\\
+Les jeux de données utilisé dans le cadre du simulateur ont un très grand nombre de variable (grande dimension); une réduction de dimension s'impose.\\
 Dans notre cas, nous cherchons à appliquer un modèle probabiliste à nos données. L'ACP dans sa définition la plus commune ne permet pas de prendre en compte un tel modèle. Pour ce faire, nous allons donc utiliser une variante de l'ACP qui n'est autre que l'ACP probabiliste qui est définie comme:
 \[
 X_i=Wy_i + \mu + \epsilon_i
@@ -573,9 +588,16 @@ Un mélange gaussien est défini comme:
 g\left(x; \pi,\theta\right)=\sum_{k=1}^K \pi_kf(x,\theta_k)
 \]
 où \(\theta=\left(\theta_1,...,\theta_k\right)\) sont les paramètres des lois gaussiennes et \( \pi=\left(\pi_1,...,\pi_K\right)\) sont les proportions du mélange Gaussien dont la somme est égale à 1.\\
+\\
+Voici un exemple de mélange gaussien (avec trois gaussienne):
 
+\begin{center}
+\begin{figure}[H]
+\includegraphics[scale=0.5]{melangegaussien.png}
+\end{figure}
+\end{center}
 
-Le nombre de gaussienne nécessaire à l'estimation de la densité est choisis en minimisant le critère BIC.\\
+Pour le simulateur, le nombre de gaussienne nécessaire à l'estimation de la densité est choisis en minimisant le critère BIC.\\
 
 \subsection{Zero inflated}
 Les jeux de données contiennent un nombre excessif de zéros, la modélisation faite par un mélange gaussien ne parvient pas à bien prendre en compte tous ces zéros. Pour résoudre ce problème, nous allons modéliser cette particularité indépendamment. \\
@@ -599,7 +621,7 @@ où \(Z_{ik}\sim Bern\left(\pi_{jk}\right)\) et \(T_i\sim \mathbb{M}\left(N; \ti
  
 
 \section{Performance simulateur}
-Nous avons vue qu'il y a un certain intérêt à passer par une transformation \(ilr\) pour faire de la classification, nous allons tester la performance de notre simulateur.
+Nous avons vue qu'il y a un certain intérêt à passer par une transformation \(ilr\) pour faire de la classification ; nous allons tester la performance de notre simulateur.
 
 \subsection{Méthode}
 La méthode la plus facile à mettre en œuvre est de regarder visuellement si les données simulées ressemble aux données réels, pour ce faire j'ai regarder les projections des données (réels, simulées) sur les premiers axes d'une acp.
@@ -620,7 +642,7 @@ graph_biplot_normale(data, metadata, 1, 'Liver', 'data', ellipse=FALSE)[[1]]
 Globalement, les données simulées se mélange bien avec les données réels.
 La première impression sur les performances du simulateur sont positives.\\
 \\
-Cependant cette méthode n'est pas forcément la plus efficace. En effet, certain OTU peuvent être très mal simulée sans que pour autant nous puissions faire la différence visuellement. Par exemple, un OTU absent de tous les échantillons réels mais présent en de très faible proportions dans les échantillons simulées. Cette OTU n'aura aucune incidence sur une acp, il n'est pas pour autant bien simulé.\\
+Cependant cette méthode n'est pas forcément la plus efficace. En effet, certain OTU peuvent être très mal simulée sans que pour autant nous puissions faire la différence visuellement. Par exemple, un OTU absent de tous les échantillons réels mais présent en de très faible proportions dans les échantillons simulées n'aura aucune incidence sur une acp, il n'est pas pour autant bien simulé.\\
 \\
 Pour avoir des résultats plus fiable, l'étude de l'efficacité du simulateur est confiée à des classificateurs.\\
 L'objectif est de regarder si un classificateur parvient à faire la différence entre les données réels et les données simulées.\\
@@ -645,7 +667,6 @@ kable(t_mach_500$all$kNN)
 @
 \end{tabular}
 \end{center}
-
 \begin{center}
  Liver
  \begin{tabular}{cc}
@@ -659,10 +680,10 @@ kable(t_liver_500$all$random_forest)
  @
  \end{tabular}
 \end{center}
-Les performances du simulateur sont grandement variable selon le jeu de données. En effet, sur certains jeu de donnée (voir annexe \ref{annexe donnees entier}) les classificateurs peinent à faire la différence entre les données simulées et réels.\\
+Les performances du simulateur sont grandement variable selon le jeu de données. En effet, sur certains jeu de donnée les classificateurs peinent à faire la différence entre les données simulées et réels.\\
 A l'inverse sur Liver, le random Forest fait aisément la différence, cependant le kNN lui le fait moins facilement. Ainsi certaines caractéristiques des données Liver doivent être mal simulées (ce qui permet au random Forest de faire la différence), mais les données simulées doivent quant même relativement bien se mélanger aux données réels (comme le montre le kNN).
 \subsection{Classification}
-Un autre aspect de la performance du simulateur est sa capacité à simuler les caractéristiques de chaque groupe d'un jeu de données, une donnée simulée ne doit pas avoir les caractéristiques de plusieurs groupes.\\
+Un autre aspect de la performance du simulateur est sa capacité à simuler les caractéristiques de chaque groupe d'un jeu de donnée ; une donnée simulée ne doit pas avoir les caractéristiques de plusieurs groupes.\\
 Pour étudier cette aspect, la simulation ne se fera plus sur l'ensemble du jeux de données mais séparément sur chaque groupe du jeu de donnée.\\
 Les groupes des données simulées seront alors connu et nous pourrons vérifier si un classificateur retrouve bien ses groupes.\\
 Voici un schéma illustratif de la méthode \\
@@ -729,6 +750,7 @@ kable(m_super$all$kNN)
 Liver
 
 \begin{tabular}{cc}
+Random forest & kNN \\
 <<>>=
 kable(l_super$all$random_forest)
 @
@@ -738,6 +760,8 @@ kable(l_super$all$kNN)
 @
 \end{tabular}
 \end{center}
+La classification supervisée des données simulées sont globalement bonne. Les résultats sont même quasiment comparables aux résultats de la validation croisée sur les données réels.
+
 
 Comme nous avons pu le voir ci dessus, une partie des échantillons simulés est malheureusement "mal simulé" (notamment dans le cas du jeu de données liver). Pour vérifier que les données considéré comme bien "simulées" sont facilement classable dans un groupe (et ainsi relativement proche des données réels de leur groupe respectif), nous allons conserver uniquement ces données puis faire comme précédement en faisant une classification supervisée et en vérifiant leur bonne classification.
 
@@ -832,6 +856,7 @@ kable(c_liver$all$kNN)
 @
 \end{tabular}
 \end{center}
+Malheureusement les données considéré comme réels (bien simulés) ne semblent pas plus facile à classer. Les jeux de données où les résultats sur l'ensemble des données simulées étaient déjà très convaincant le sont toujours ; mais les jeux de données où la classification des données simulée était plus compliquée reste compliquée.
 \section{Conclusion}
 
 \section{Annexe}
@@ -1104,6 +1129,26 @@ kable(v_vacher_ilr$Svm)
 
 
 \subsection{Performance simulateur}
+\subsubsection*{Graphique}
+<<>>=
+data <- rbind(chaillou, chaillou_boot$data)
+metadata <- c(as.character(rep('real', nrow(chaillou))), rep('simu', nrow(chaillou_boot$data))) %>% as.factor()
+graph_biplot_normale(data, metadata, 1, 'Chaillou', 'data', ellipse=FALSE)[[1]]
+@
+
+
+<<>>=
+data <- rbind(ravel, ravel_boot$data)
+metadata <- c(as.character(rep('real', nrow(ravel))), rep('simu', nrow(ravel_boot$data))) %>% as.factor()
+graph_biplot_normale(data, metadata, 1, 'Ravel', 'data', ellipse=FALSE)[[1]]
+@
+
+
+<<>>=
+data <- rbind(vacher, vacher_boot$data)
+metadata <- c(as.character(rep('real', nrow(vacher))), rep('simu', nrow(vacher_boot$data))) %>% as.factor()
+graph_biplot_normale(data, metadata, 1, 'Vacher', 'data', ellipse=FALSE)[[1]]
+@
 \subsubsection*{Sur le jeu de données entier}\label{annexe donnees entier}
 
 \begin{center}
