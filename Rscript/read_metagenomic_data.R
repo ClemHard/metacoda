@@ -57,18 +57,14 @@ liver <- liver[order(rownames(liver)),]
 metadata_liver <- metadata_liver[order(rownames(metadata_liver)),]
 
 
-#### 500 otus les plus abondants
-mach_MAP <- MAP(mach)
+#### selection otus les plus abondants
+mach_sum <- apply(mach, 2, function(x){sum(x>0)})
 
-mean_otus_mach <- rbind(apply(mach_MAP, 2, mean), 1:ncol(mach))
-mean_otus_mach <- mean_otus_mach[, order(mean_otus_mach[1,], decreasing = TRUE) ]
-mach_500 <- mach[,mean_otus_mach[2,1:500]]
+mach_500 <- mach[,which(mach_sum>=nrow(mach)*0.05)]
 
-liver_MAP <- liver %>% MAP()
+liver_sum <- apply(liver, 2, function(x){sum(x>0)})
 
-mean_otus_liver <- rbind(apply(liver_MAP, 2, mean), 1:ncol(liver))
-mean_otus_liver <- mean_otus_liver[, order(mean_otus_liver[1,], decreasing = TRUE) ]
-liver_500 <- liver[,mean_otus_liver[2,1:500]]
+liver_500 <- liver[,which(liver_sum>=nrow(liver)*0.05)]
 
 
 
