@@ -9,23 +9,122 @@ source("Rscript/comparaison_clustering.R")
 source("Rscript/bootstrap.R")
 
 
-c <- matrix(c(1,2,7,5,2,3, 1,8,1, 10/3, 10/3, 10/3)/10, byrow=TRUE, nrow=4)
+ternary_diagram3 <- function(){
+  u0=0.2;
+  v0=0.2;
+  A=c(u0+0.5,v0+sqrt(3)/2)
+  B=c(u0,v0)
+  C=c(u0+1,v0)
+  
+  data <- ligne(c(0.5, 1.1,3),c(1.1, 1.2, 1))
+  
+  k <- 1
+  coord=(1./k)*(sapply(data[,1],mult,t=A)+sapply(data[,2],mult,t=B)+sapply(data[,3],mult,t=C))
+  plot(coord[1,],coord[2,],xlim=c(u0-0.2,u0+1.2),ylim=c(v0-0.2,v0+1.1), type='l', lwd=2, col='red', axes=FALSE, asp=1, xlab="",ylab="")
+  
+  data <- list(ligne(c(1.2, 1.1,3),c(1.1, 1.2, 1)), ligne(c(2.8, 1.1,3),c(1.1, 1.2, 1)), ligne(c(9, 1.1,3),c(1.1, 1.2, 1)))
+  
+  lapply(data, function(x){ 
+                      coord=(1./k)*(sapply(x[,1],mult,t=A)+sapply(x[,2],mult,t=B)+sapply(x[,3],mult,t=C))
+                      lines(coord[1,], coord[2,], lwd=2, col='red')
+    })
+  
+  
+  data <- list(ligne(c(1.1, 0.5,3),c(1.2, 1.1, 1)), ligne(c(1.1, 1.2,3),c(1.2, 1.1, 1)), ligne(c(1.1, 2.8,3),c(1.2, 1.1, 1)), ligne(c(1.1, 9,3),c(1.2, 1.1, 1)))
+  
+  lapply(data, function(x){ 
+    coord=(1./k)*(sapply(x[,1],mult,t=A)+sapply(x[,2],mult,t=B)+sapply(x[,3],mult,t=C))
+    lines(coord[1,], coord[2,], lwd=2, col='green')
+  })
+  
+  
+  segments(B[1],B[2],A[1],A[2])
+  segments(C[1],C[2],A[1],A[2])
+  segments(B[1],B[2],C[1],C[2])
+  text(A[1], A[2], "A", pos=3)
+  text(B[1], B[2], "B", pos=2)
+  text(C[1], C[2], "C", pos=4)
+  
+}
+
+
+ternary_diagram2 <- function(){
+  u0=0.2;
+  v0=0.2;
+  A=c(u0+0.5,v0+sqrt(3)/2)
+  B=c(u0,v0)
+  C=c(u0+1,v0)
+  
+  data <- matrix(c(0.3,0.5,0.2), byrow = TRUE, nrow=1)
+  k <- 1
+  coord=(1./k)*(sapply(data[,1],mult,t=A)+sapply(data[,2],mult,t=B)+sapply(data[,3],mult,t=C))
+  plot(coord[1,],coord[2,],xlim=c(u0-0.2,u0+1.2),ylim=c(v0-0.2,v0+1.1), col='red', axes=FALSE, asp=1, pch=16, xlab="",ylab="")
+
+  
+  segments(B[1],B[2],A[1],A[2])
+  segments(C[1],C[2],A[1],A[2])
+  segments(B[1],B[2],C[1],C[2])
+  
+  segments(coord[1,],coord[2,], coord[1,], v0)
+  segments(coord[1,],coord[2,], 0.4, 0.55)
+  segments(coord[1,],coord[2,], 0.93, 0.68)
+  points(coord[1,], coord[2,], col='red', cex=1.3, pch=16)
+  text(A[1], A[2], "A", pos=3)
+  text(B[1], B[2], "B", pos=2)
+  text(C[1], C[2], "C", pos=4)
+  
+  text(0.6, 0.33,"x1", cex=0.8)
+  text(0.46, 0.47,"x2", cex=0.8)
+  text(0.75, 0.53,"x3", cex=0.8)
+  text(coord[1,], coord[2,]+0.05, "x",cex=1.5)
+}
+
+
+
+ternary_diagram1 <- function(data ,colour, style, add_line, colour_line, 
+                             add_circle, colour_circle, xlab="",ylab="",
+                             ...){
+  
+  data <- norm_data(data)
+  u0=0.2;
+  v0=0.2;
+  A=c(u0+0.5,v0+sqrt(3)/2)
+  B=c(u0,v0)
+  C=c(u0+1,v0)
+  
+  k=sum(data[1,])
+  coord=(1./k)*(sapply(data[,1],mult,t=A)+sapply(data[,2],mult,t=B)+sapply(data[,3],mult,t=C))
+  plot(coord[1,],coord[2,],xlim=c(u0-0.2,u0+1.2),ylim=c(v0-0.2,v0+1.1), col=colour, xlab="", ylab="", pch=style, ...)
+  segments(B[1],B[2],A[1],A[2])
+  segments(C[1],C[2],A[1],A[2])
+  segments(B[1],B[2],C[1],C[2])
+  text(A[1], A[2], "A", pos=3)
+  text(B[1], B[2], "B", pos=2)
+  text(C[1], C[2], "C", pos=4)
+  
+  coord_circle <- (1./k)*(sapply(add_circle[,1],mult,t=A) + sapply(add_circle[,2],mult,t=B) + sapply(add_circle[,3],mult,t=C))
+  lines(coord_circle[1,], coord_circle[2,], col=colour_circle, lwd=2)
+  
+  coord_line <- (1./k)*(sapply(add_line[,1],mult,t=A) + sapply(add_line[,2],mult,t=B) + sapply(add_line[,3],mult,t=C))
+
+  lines(coord_line[1, ], coord_line[2, ], col=colour_line, lwd=2)
+}
+
+
+c <- matrix(c(c(1,2,7)/10, ilr_inverse(c(-1.2,0)), c(1,8,1, 10/3, 10/3, 10/3)/10), byrow=TRUE, nrow=4)
 l <- ligne(1.2,c(0.2,1,3))
 y <- seq(0, 2*pi, length=1000)
 circl <- cbind(1*cos(y)-1.2, 1*sin(y))
 
 #png(filename = "ternary_diagram.png", res = 150, width = 10, height = 10, units = "in")
-ternary_diagram(c, colour=c(11, 2, 4, 1), style=c(16, 16, 16, 3),add_line = l, colour_line = 15, 
+ternary_diagram1(c, colour=c(11, 2, 4, 1), style=c(16, 16, 16, 3),add_line = l, colour_line = 15, 
                 add_circle = (circl%>% ilr_inverse()), colour_circle = 14, 
                 asp = 1, axes = FALSE)
 #dev.off()
 
-print(c)
-
-
 c_ilr <- ilr(c)
 l_ilr <- ilr(l)
-plot(c_ilr, col=c(11, 2, 4, 1), pch=c(16, 16, 16, 3), cex=1.5, xlim = c(-2.2,2), ylim=c(-1,1.5), asp=1, xlab = "x1", ylab="x2")
+plot(c_ilr, col=c(11, 2, 4, 1), pch=c(16, 16, 16, 3), cex=1.5, xlim = c(-2.2,2), ylim=c(-1,1.5), asp=1, xlab = "", ylab="")
 lines(l_ilr, col=15, lwd=3)
 lines(circl, col=14, lwd=2)
 
@@ -85,13 +184,16 @@ grid.arrange(ggplot(data.frame(x = x, y = 0), aes(x, y)) + geom_point()
 
 
 x <- seq(-5, 6, length=10000)
-y1 <- dnorm(x, mean=-1.8)*0.4
-y2 <- dnorm(x, mean=1.6, sd=1.4)*0.6
+y1 <- dnorm(x, mean=-1.8)*0.3
+y2 <- dnorm(x, mean=1.6, sd=1.4)*0.5
+y3 <- dnorm(x, mean=-3, sd=0.4)*0.2
 
-plot(x, y1, type='l', col='red', main="mélange gaussien", ylim=c(0,0.2), xlim=c(-4,5), ylab="y")
+plot(x, y1, type='l', col='red', ylim=c(0,0.3), xlim=c(-4,5), ylab="y")
 lines(x, y2, col='blue')
-lines(x, y1+y2)
-legend("topright", lty=c(1,1,1), col=c("red", "blue", "black"), legend=c("G1","G2","G1+G2"))
+lines(x,y3, col="green")
+lines(x, y1+y2+y3)
+legend("topright", lty=c(1,1,1), col=c("red", "blue", "green", "black"), legend=c("G1","G2", "G3","G1+G2+G3"))
+
 
 
 n <- 100000
@@ -148,8 +250,8 @@ density_melange <- function(x, y, pro, moy, sigma){
 }
 
 
-x <- seq(0,10,length=50)
-y <- seq(0,10, length=50)
+x <- seq(0,10,length=100)
+y <- seq(0,10, length=100)
 d <- expand.grid(x=x,y=y)
 
 mu <- list(c(3,2.5), c(7,2), c(5, 6))
@@ -157,8 +259,10 @@ sig <- list(matrix(c(1.4,0,0,0.5),nrow=2), matrix(c(2,0,0,0.7),nrow=2), matrix(c
 prob=c(0.3, 0.2, 0.5)
 
 z <- density_melange(x, y, prob, mu, sig)
-plot_ly(x=x,y=y,z=z) %>% add_surface()
+plot_ly(x=x, y=y, z=z, type="surface")                                  
 
+# %>% layout(scene=list(camera = list(eye = list(x = 1,y =1.4, z=0),
+                                    # center = list(x = 0, y = 0, z = 1)
 
 # t <- biplot(ravel %>% MAP())
 # y <- mvrnorm(n=394, rep(0, 3), matrix(c(1,0,0,0,1,0,0,0,1),nrow=3)) %*% t(t$vector[1:10,1:3])
