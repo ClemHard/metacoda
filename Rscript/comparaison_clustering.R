@@ -13,9 +13,13 @@ comparaison_k_means <- function(data, metadata, nb_cluster=2, nb_graph=1, nb_sta
   table1 <- table(metadata, k_data$cluster)
   table2 <- table(metadata, k_data_ilr$cluster)
   
-  b_coord <- data %>% MAP() %>% biplot()
   
-  grob <- c(graph_biplot_normale(b_coord, k_data$cluster, title="comptage", nb_graph = nb_graph, coord_biplot = TRUE), graph_biplot_normale(b_coord, metadata, title = "correct", nb_graph = nb_graph, coord_biplot = TRUE),  graph_biplot_normale(b_coord, k_data_ilr$cluster, title = "ilr", nb_graph = nb_graph, coord_biplot = TRUE))
+  grob <- NULL
+  if(nb_graph>0){
+    b_coord <- data %>% MAP() %>% biplot()
+    grob <- c(graph_biplot_normale(b_coord, k_data$cluster, title="comptage", nb_graph = nb_graph, coord_biplot = TRUE), graph_biplot_normale(b_coord, metadata, title = "correct", nb_graph = nb_graph, coord_biplot = TRUE),  graph_biplot_normale(b_coord, k_data_ilr$cluster, title = "ilr", nb_graph = nb_graph, coord_biplot = TRUE))
+  }
+  
   list( comptage_table=table1, ilr_table=table2, graphics=grob)
 }
 
@@ -30,8 +34,11 @@ comparaison_hclust <- function(data, metadata, nb_cluster, nb_graph, base_binair
   table1 <- table(metadata, hclust_data)
   table2 <- table(metadata, hclust_data_ilr)
   
-  b_coord <- data %>% MAP() %>% biplot()
-  grob <- c(graph_biplot_normale(b_coord, hclust_data, title="comptage", nb_graph = nb_graph, coord_biplot = TRUE), graph_biplot_normale(b_coord, metadata, title = "correct", nb_graph = nb_graph, coord_biplot = TRUE),  graph_biplot_normale(b_coord, hclust_data_ilr, title = "ilr", nb_graph = nb_graph, coord_biplot = TRUE))
+  grob <- NULL
+  if(nb_graph>0){
+    b_coord <- data %>% MAP() %>% biplot()
+    grob <- c(graph_biplot_normale(b_coord, hclust_data, title="comptage", nb_graph = nb_graph, coord_biplot = TRUE), graph_biplot_normale(b_coord, metadata, title = "correct", nb_graph = nb_graph, coord_biplot = TRUE),  graph_biplot_normale(b_coord, hclust_data_ilr, title = "ilr", nb_graph = nb_graph, coord_biplot = TRUE))
+  }
   
   list( comptage_table=table1, ilr_table=table2, graphics=grob)
   
@@ -48,8 +55,11 @@ comparaison_Mclust <- function(data, metadata, nb_cluster, nb_graph, base_binair
   table1 <- table(metadata, Mclust_data$classification)
   table2 <- table(metadata, Mclust_data_ilr$classification)
   
-  b_coord <- data %>% MAP() %>% biplot()
-  grob <- c(graph_biplot_normale(b_coord, Mclust_data$classification, title="comptage", nb_graph = nb_graph, coord_biplot = TRUE), graph_biplot_normale(b_coord, metadata, title = "correct", nb_graph = nb_graph, coord_biplot = TRUE),  graph_biplot_normale(b_coord, Mclust_data_ilr$classification, title = "ilr", nb_graph = nb_graph, coord_biplot =TRUE))
+  grob <- NULL
+  if(nb_graph>0){
+    b_coord <- data %>% MAP() %>% biplot()
+    grob <- c(graph_biplot_normale(b_coord, Mclust_data$classification, title="comptage", nb_graph = nb_graph, coord_biplot = TRUE), graph_biplot_normale(b_coord, metadata, title = "correct", nb_graph = nb_graph, coord_biplot = TRUE),  graph_biplot_normale(b_coord, Mclust_data_ilr$classification, title = "ilr", nb_graph = nb_graph, coord_biplot =TRUE))
+  }
   
   list( comptage_table=table1, ilr_table=table2, graphics=grob)
   
