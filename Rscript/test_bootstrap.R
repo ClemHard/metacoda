@@ -149,15 +149,37 @@ create_data_frame_simu <- function(data1, apprent, test_real_data=NULL, type){
 }
 
 
+best_k_kNN <- function(train){
+  
+  metadata <- train[,ncol(train)]
+  train <- train[,-ncol(train)]
+  
+  k_max <- (nrow(train)/5) %>% ceiling()
+  n <- (nrow(train)/10) %>% ceiling()
+  
+  iid <- sample(rep(1:n,length=nrow(train)))
+  
+  l <- sapply(1:n, function(x){
+                          pred_kNN <- knn(train=train[x!=iid,], 
+                                          test=train[x==iid,], 
+                                          cl=metadata[x!=iid])
+                          print("eee")
+                         sum(pred_kNN!=metadata[x==iid]) 
+                })
+  which.min(l)
+}
+
+
 pred_real_simu <- function(train, test){
   
   rf <- randomForest(metadata~. , train)
   pred_forest <- predict(rf, test)
   
+  k <- best_k_kNN(train)
   pred_kNN <- knn(train[,-ncol(train)], 
                   test, 
                   cl=train[,ncol(train)], 
-                  k=sqrt(nrow(train)))
+                  k=k)
   
   logi <- glm(metadata~., family = binomial, data=train, control = list(maxit = 200))
   pred_logi <- (predict(logi, test)>0.5)
@@ -199,6 +221,7 @@ test_bootstrap_all <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_train=1, 
                     
                             
                             pred <- pred_real_simu(data_test$train ,data_test$test)
+
                             
                             lapply(pred, function(x){x %>% table(data_test$metadata)})
                             })

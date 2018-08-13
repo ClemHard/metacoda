@@ -92,7 +92,8 @@ find_group <- function(train, test, metadata_test){
   pred_forest <- predict(forest, test)
   
   ### kNN
-  kNN <- knn(train[, -ncol(train)], test, cl=train[, ncol(train)])
+  k <- best_k_kNN(train)
+  kNN <- knn(train[, -ncol(train)], test, cl=train[, ncol(train)], k=k)
   
   ### Svm
   Svm <- svm(metadata~., train)
@@ -163,10 +164,11 @@ find_real <- function(data_real, data_simu_train, data_simu, algo="randomForest"
   }
 
   if(algo=="kNN"){
+    k <- best_k_kNN(train)
     pred <- knn(train[,-ncol(train)], 
                     test, 
                     cl=train[,ncol(train)], 
-                    k=sqrt(nrow(train)))
+                    k=train)
   }
   
   if(algo=="logistic"){
