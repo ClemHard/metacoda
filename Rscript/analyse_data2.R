@@ -15,73 +15,73 @@ source("Rscript/apprentissage_supervise.R")
 
 
 ##ravel
-k_ravel <- comparaison_k_means(ravel, metadata_ravel$CST, 5, 1)
+k_ravel <- comparaison_k_means(ravel, metadata_ravel$CST, 5, nb_graph=0)
 grid.arrange(grobs=k_ravel$graphics, ncol=1)
 
 
-hclust_ravel <- comparaison_hclust(ravel, metadata_ravel$CST, 5, 1)
+hclust_ravel <- comparaison_hclust(ravel, metadata_ravel$CST, 5, nb_graph=0)
 grid.arrange(grobs=hclust_ravel$graphics, ncol=1)
 
-Mclust_ravel <- comparaison_Mclust(ravel, metadata_ravel$CST, 5, 1)
+Mclust_ravel <- comparaison_Mclust(ravel, metadata_ravel$CST, 5, 0)
 grid.arrange(grobs=Mclust_ravel$graphics, ncol=1)
 
 
 ##mach 500
-k_mach_500 <- comparaison_k_means(mach_500, metadata_mach$Weaned, 2, 1)
+k_mach_500 <- comparaison_k_means(mach_500, metadata_mach$Weaned, 2, 0)
 grid.arrange(grobs=k_mach_500$graphics, ncol=1)
 
-hclust_mach_500 <- comparaison_hclust(mach_500, metadata_mach$Weaned, 2, 1)
+hclust_mach_500 <- comparaison_hclust(mach_500, metadata_mach$Weaned, 2, 0)
 grid.arrange(grobs=hclust_mach_500$graphics, ncol=1)
 
-Mclust_mach_500 <- comparaison_Mclust(mach_500, metadata_mach$Weaned, 2, 1)
+Mclust_mach_500 <- comparaison_Mclust(mach_500, metadata_mach$Weaned, 2, 0)
 grid.arrange(grobs=Mclust_mach_500$graphics, ncol=1)
 
 
 
 ##chaillou
-k_chaillou <- comparaison_k_means(chaillou, metadata_chaillou$EnvType, 8, 1)
+k_chaillou <- comparaison_k_means(chaillou, metadata_chaillou$EnvType, 8, 0)
 grid.arrange(grobs=k_chaillou$graphics, ncol=1)
 
-hclust_chaillou <- comparaison_hclust(chaillou, metadata_chaillou$EnvType, 8, 1)
+hclust_chaillou <- comparaison_hclust(chaillou, metadata_chaillou$EnvType, 8, 0)
 grid.arrange(grobs=hclust_chaillou$graphics, ncol=1) 
 
-Mclust_chaillou <- comparaison_Mclust(chaillou, metadata_chaillou$EnvType, 8, 1)
+Mclust_chaillou <- comparaison_Mclust(chaillou, metadata_chaillou$EnvType, 8, 0)
 grid.arrange(grobs=Mclust_chaillou$graphics, ncol=1)
 
 
 
 ##mach
-k_mach <- comparaison_k_means(mach, metadata_mach$Weaned, 2, 1, 1)
+k_mach <- comparaison_k_means(mach, metadata_mach$Weaned, 2, 1, 0)
 grid.arrange(grobs=k_mach$graphics, ncol=1)
 
-hclust_mach <- comparaison_hclust(mach, metadata_mach$Weaned, 2, 1)
+hclust_mach <- comparaison_hclust(mach, metadata_mach$Weaned, 2, 0)
 grid.arrange(grobs=hclust_mach$graphics, ncol=1)
 
-Mclust_mach <- comparaison_Mclust(mach, metadata_mach$Weaned, 2, 1)
+Mclust_mach <- comparaison_Mclust(mach, metadata_mach$Weaned, 2, 0)
 grid.arrange(grobs=Mclust_mach$graphics, ncol=1)
 
 
 
 ##vacher
-k_vacher <- comparaison_k_means(vacher, (metadata_vacher$pmInfection>0)*1, 2, 1)
+k_vacher <- comparaison_k_means(vacher, metadata_vacher$tree, 3, 0)
 grid.arrange(grobs=k_vacher$graphics, ncol=1)
 
-hclust_vacher <- comparaison_hclust(vacher, (metadata_vacher$pmInfection>0)*1, 2, 1)
+hclust_vacher <- comparaison_hclust(vacher, metadata_vacher$tree, 3, 0)
 grid.arrange(grobs=hclust_vacher$graphics, ncol=1)
 
-Mclust_vacher <- comparaison_Mclust(vacher, (metadata_vacher$pmInfection>0)*1, 2, 1)
+Mclust_vacher <- comparaison_Mclust(vacher, metadata_vacher$tree, 3, 0)
 grid.arrange(grobs=Mclust_vacher$graphics, ncol=1)
 
 
 
 ##liver
-k_liver <- comparaison_k_means(liver_500, metadata_liver$status, 2, 1)
+k_liver <- comparaison_k_means(liver_500, metadata_liver$status, 2, 0)
 grid.arrange(grobs=k_liver$graphics, ncol=1)
 
-hclust_liver <- comparaison_hclust(liver_500, metadata_liver$status, 2, 1)
+hclust_liver <- comparaison_hclust(liver_500, metadata_liver$status, 2, 0)
 grid.arrange(grobs=hclust_liver$graphics, ncol=1)
 
-Mclust_liver <- comparaison_Mclust(liver_500, metadata_liver$status, 2, 1)
+Mclust_liver <- comparaison_Mclust(liver_500, metadata_liver$status, 2, 0)
 grid.arrange(grobs=Mclust_liver$graphics, ncol=1)
 
 
@@ -146,22 +146,22 @@ grid.arrange(grobs=graph_biplot_normale(data, metadata, 4, "liver", "data"), nco
 ##donne comptage
 
 #chaillou
-t_chaillou <- test_bootstrap_all(chaillou, nb_cluster = 15, nb_axe = 16, nb_train=50)
+t_chaillou <- test_bootstrap_all(chaillou, nb_cluster = 15, nb_axe = 16, nb_train=1)
 t_chaillou$all
 
 
 #mach_500
-t_mach_500 <- test_bootstrap_all(mach_500, nb_cluster = 4, nb_axe = 10, nb_train=50)
+t_mach_500 <- test_bootstrap_all(mach_500, nb_cluster = 6, nb_axe = 10, nb_train=50)
 t_mach_500$all
 
 
 #vacher
-t_vacher <- test_bootstrap_all(vacher, nb_cluster = 4, nb_axe = 11, nb_train=1)
+t_vacher <- test_bootstrap_all(vacher, nb_cluster = 4, nb_axe = 11, nb_train=50)
 t_vacher$all
 
 
 #liver 500
-t_liver_500 <- test_bootstrap_all(liver_500, nb_cluster = 13, nb_axe = 17, nb_train=5)
+t_liver_500 <- test_bootstrap_all(liver_500, nb_cluster = 13, nb_axe = 17, nb_train=50)
 t_liver_500$all
 
 
@@ -175,57 +175,57 @@ t_ravel$all
 
 ##donne ilr
 #chaillou
-t_chaillou_ilr <- test_bootstrap_all(chaillou, nb_cluster = 15, nb_axe = 16, nb_train=5, type="ilr")
+t_chaillou_ilr <- test_bootstrap_all(chaillou, nb_cluster = 15, nb_axe = 16, nb_train=59, type="ilr")
 t_chaillou_ilr$all
 
 
 #mach_500
-t_mach_500_ilr <- test_bootstrap_all(mach_500, nb_cluster = 4, nb_axe = 10, nb_train=5, type="ilr")
+t_mach_500_ilr <- test_bootstrap_all(mach_500, nb_cluster = 6, nb_axe = 10, nb_train=50, type="ilr")
 t_mach_500_ilr$all
 
 
 #vacher
-t_vacher_ilr <- test_bootstrap_all(vacher, nb_cluster = 4, nb_axe = 11,nb_train=5, type="ilr")
+t_vacher_ilr <- test_bootstrap_all(vacher, nb_cluster = 4, nb_axe = 11,nb_train=50, type="ilr")
 t_vacher_ilr$all
 
 
 #liver 500
-t_liver_500_ilr <- test_bootstrap_all(liver_500, nb_cluster = 13, nb_axe = 17, nb_train=5, type="ilr")
+t_liver_500_ilr <- test_bootstrap_all(liver_500, nb_cluster = 13, nb_axe = 17, nb_train=50, type="ilr")
 t_liver_500_ilr$all
 
 
 
 #ravel
-t_ravel_ilr <- test_bootstrap_all(ravel, nb_cluster = 12, nb_axe = 12, nb_train=5, type="ilr")
+t_ravel_ilr <- test_bootstrap_all(ravel, nb_cluster = 12, nb_axe = 12, nb_train=50, type="ilr")
 t_ravel_ilr$all
 
 
 ##### bootstrap supervise
 
 ## donne comptage
-c_super <- test_bootstrap_supervise(chaillou, metadata_chaillou$EnvType, type="comptage", nb_train = 5)
+c_super <- test_bootstrap_supervise(chaillou, metadata_chaillou$EnvType, type="comptage", nb_train = 50)
 c_super$all
-r_super <- test_bootstrap_supervise(ravel, metadata_ravel$CST, type="comptage", nb_train = 5)
+r_super <- test_bootstrap_supervise(ravel, metadata_ravel$CST, type="comptage", nb_train = 50)
 r_super$all
-l_super <- test_bootstrap_supervise(liver_500, metadata_liver$status, type="comptage", nb_train = 5)
+l_super <- test_bootstrap_supervise(liver_500, metadata_liver$status, type="comptage", nb_train = 1)
 l_super$all
-m_super <- test_bootstrap_supervise(mach_500, metadata_mach$Weaned, type="comptage", nb_train = 5)
+m_super <- test_bootstrap_supervise(mach_500, metadata_mach$Weaned, type="comptage", nb_train = 50)
 m_super$all
-v_super <- test_bootstrap_supervise(vacher, metadata_vacher$tree, type="comptage", nb_train = 1)
+v_super <- test_bootstrap_supervise(vacher, metadata_vacher$tree, type="comptage", nb_train = 50)
 v_super$all
 
 
 
 ## donne ilr
-c_super_ilr <- test_bootstrap_supervise(chaillou, metadata_chaillou$EnvType, type="ilr", nb_train = 5)
+c_super_ilr <- test_bootstrap_supervise(chaillou, metadata_chaillou$EnvType, type="ilr", nb_train = 50)
 c_super_ilr$all
-r_super_ilr <- test_bootstrap_supervise(ravel, metadata_ravel$CST, type="ilr", nb_train = 5)
+r_super_ilr <- test_bootstrap_supervise(ravel, metadata_ravel$CST, type="ilr", nb_train = 50)
 r_super_ilr$all
-l_super_ilr <- test_bootstrap_supervise(liver_500, metadata_liver$status, type="ilr", nb_train = 5)
+l_super_ilr <- test_bootstrap_supervise(liver_500, metadata_liver$status, type="ilr", nb_train = 50)
 l_super_ilr$all
-m_super_ilr <- test_bootstrap_supervise(mach_500, metadata_mach$Weaned, type="ilr", nb_train = 5)
+m_super_ilr <- test_bootstrap_supervise(mach_500, metadata_mach$Weaned, type="ilr", nb_train = 50)
 m_super_ilr$all
-v_super_ilr <- test_bootstrap_supervise(vacher, metadata_vacher$tree, type="ilr", nb_train = 1)
+v_super_ilr <- test_bootstrap_supervise(vacher, metadata_vacher$tree, type="ilr", nb_train = 50)
 v_super_ilr$all
 
 ### validation croise
@@ -265,38 +265,38 @@ v_vacher_ilr
 #### classificateur supervise apres classificateur real/simu
 
 # donne comptage
-c_chaillou <- classificateur_group_real_simu(chaillou, metadata_chaillou$EnvType, nb_train = 5)
+c_chaillou <- classificateur_group_real_simu(chaillou, metadata_chaillou$EnvType, nb_train = 50)
 c_chaillou$all
 
-c_ravel <- classificateur_group_real_simu(ravel, metadata_ravel$CST, nb_train = 5)
+c_ravel <- classificateur_group_real_simu(ravel, metadata_ravel$CST, nb_train = 50)
 c_ravel$all
 
-c_liver <- classificateur_group_real_simu(liver_500, metadata_liver$status, nb_train = 5)
+c_liver <- classificateur_group_real_simu(liver_500, metadata_liver$status, nb_train = 1)
 c_liver$all
 
-c_mach <- classificateur_group_real_simu(mach_500, metadata_mach$Weaned, nb_train = 5)
+c_mach <- classificateur_group_real_simu(mach_500, metadata_mach$Weaned, nb_train = 50)
 c_mach$all
 
-c_vacher <- classificateur_group_real_simu(vacher, metadata_vacher$tree, nb_train = 1)
+c_vacher <- classificateur_group_real_simu(vacher, metadata_vacher$tree, nb_train = 50)
 c_vacher$all
 
 
 
 
 # donne ilr
-c_chaillou_ilr <- classificateur_group_real_simu(chaillou, metadata_chaillou$EnvType, type="ilr", nb_train = 5)
+c_chaillou_ilr <- classificateur_group_real_simu(chaillou, metadata_chaillou$EnvType, type="ilr", nb_train = 50)
 c_chaillou_ilr$all
 
-c_ravel_ilr <- classificateur_group_real_simu(ravel, metadata_ravel$CST, type="ilr", nb_train = 5)
+c_ravel_ilr <- classificateur_group_real_simu(ravel, metadata_ravel$CST, type="ilr", nb_train = 50)
 c_ravel_ilr$all
 
-c_liver_ilr <- classificateur_group_real_simu(liver_500, metadata_liver$status, type="ilr", nb_train = 5)
+c_liver_ilr <- classificateur_group_real_simu(liver_500, metadata_liver$status, type="ilr", nb_train = 50)
 c_liver_ilr$all
 
-c_mach_ilr <- classificateur_group_real_simu(mach_500, metadata_mach$Weaned, type="ilr", nb_train = 5)
+c_mach_ilr <- classificateur_group_real_simu(mach_500, metadata_mach$Weaned, type="ilr", nb_train = 50)
 c_mach_ilr$all
 
-c_vacher_ilr <- classificateur_group_real_simu(vacher, metadata_vacher$tree, type="ilr", nb_train = 1)
+c_vacher_ilr <- classificateur_group_real_simu(vacher, metadata_vacher$tree, type="ilr", nb_train = 50)
 c_vacher_ilr$all
 
 
@@ -316,34 +316,34 @@ save(k_chaillou, k_mach_500, k_vacher, k_ravel, k_liver,
      c_chaillou_ilr, c_ravel_ilr, c_liver_ilr, c_mach_ilr, c_vacher_ilr,
      file="rapport/resultats.RData"
      )
-
-
-# base binaire aléatoire
-plot_aleatoire <- function(l){
-  misclass_simu_forest <- sapply(l, function(x){x$random_forest[1,2]})
-  misclass_real_forest <- sapply(l, function(x){x$random_forest[2,1]})
-  misclass_simu_kNN <- sapply(l, function(x){x$kNN[1,2]})
-  misclass_real_kNN <- sapply(l, function(x){x$kNN[2,1]})
-  
-  data <- data.frame(x=1:length(misclass_real_forest), misclass_real_forest=misclass_real_forest, misclass_simu_forest=misclass_simu_forest, misclass_real_kNN=misclass_real_kNN, misclass_simu_kNN=misclass_simu_kNN)
-  
-  ggplot(data) + geom_line(aes(x, misclass_real_forest), linetype=2) +
-    geom_line(aes(x, misclass_simu_forest)) +
-    geom_line(aes(x, misclass_real_kNN), colour=2, linetype=2) +
-    geom_line(aes(x, misclass_simu_kNN), colour=2) + labs(y="misclass", x= "index")
-}
-
-
-aleatoire_vacher <- lapply(1:20, function(x){
-                r <- random_binary_base(ncol(vacher))
-                t_vacher <- test_bootstrap_all(vacher, nb_cluster = 4, nb_axe = 11, nb_train=20, type="comptage", base_binaire = r)
-                t_vacher$all
-              })
-
-aleatoire_chaillou <- lapply(1:20, function(x){
-  r <- random_binary_base(ncol(chaillou))
-  t_chaillou <- test_bootstrap_all(chaillou, nb_cluster = 15, nb_axe = 16, nb_train=20, type="comptage", base_binaire = r)
-  t_chaillou$all
-})
-
-save(aleatoire_chaillou, aleatoire_vacher, file = "aleatoire.RData")
+# 
+# 
+# # base binaire aléatoire
+# plot_aleatoire <- function(l){
+#   misclass_simu_forest <- sapply(l, function(x){x$random_forest[1,2]})
+#   misclass_real_forest <- sapply(l, function(x){x$random_forest[2,1]})
+#   misclass_simu_kNN <- sapply(l, function(x){x$kNN[1,2]})
+#   misclass_real_kNN <- sapply(l, function(x){x$kNN[2,1]})
+#   
+#   data <- data.frame(x=1:length(misclass_real_forest), misclass_real_forest=misclass_real_forest, misclass_simu_forest=misclass_simu_forest, misclass_real_kNN=misclass_real_kNN, misclass_simu_kNN=misclass_simu_kNN)
+#   
+#   ggplot(data) + geom_line(aes(x, misclass_real_forest), linetype=2) +
+#     geom_line(aes(x, misclass_simu_forest)) +
+#     geom_line(aes(x, misclass_real_kNN), colour=2, linetype=2) +
+#     geom_line(aes(x, misclass_simu_kNN), colour=2) + labs(y="misclass", x= "index")
+# }
+# 
+# 
+# aleatoire_vacher <- lapply(1:20, function(x){
+#                 r <- random_binary_base(ncol(vacher))
+#                 t_vacher <- test_bootstrap_all(vacher, nb_cluster = 4, nb_axe = 11, nb_train=20, type="comptage", base_binaire = r)
+#                 t_vacher$all
+#               })
+# 
+# aleatoire_chaillou <- lapply(1:20, function(x){
+#   r <- random_binary_base(ncol(chaillou))
+#   t_chaillou <- test_bootstrap_all(chaillou, nb_cluster = 15, nb_axe = 16, nb_train=20, type="comptage", base_binaire = r)
+#   t_chaillou$all
+# })
+# 
+# save(aleatoire_chaillou, aleatoire_vacher, file = "aleatoire.RData")
