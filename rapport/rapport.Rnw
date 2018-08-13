@@ -1,6 +1,6 @@
 \documentclass[11pt,a4paper]{report}
 \usepackage{geometry}
-\geometry{hmargin=4cm,vmargin=2cm}
+\geometry{hmargin=2cm,vmargin=2cm}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{tikz}
@@ -11,7 +11,8 @@
 \usepackage{mathrsfs}
 \usepackage{graphicx}
 \usepackage{appendix}
-\usepackage[caption = false]{subfig}
+\usepackage{float}
+\usepackage{caption}
 \usepackage{bbm}
 \usepackage[singlespacing]{setspace}
 \usepackage{float}
@@ -142,6 +143,18 @@ C(x)=\left[\frac{\kappa*x_1}{\sum_{i=1}^Dx_i},\frac{\kappa*x_2}{\sum_{i=1}^Dx_i}
 \vspace*{0.3cm}
 Deux vecteurs \(x,y\in\mathbb{R}^D_{+}\) tels que \(x_i,\ y_i>0,\ \forall i=1,...,D\) sont dits compositionnellement équivalents s'il existe un \(\lambda\in \mathbb{R}^{+}\) tel que \(x=\lambda y\) ce qui est équivalent à \(C(x)=C(y)\).\\
 
+La représentation graphique d'une donnée compositionnelle à trois composantes se fait grâce à un ternary diagram.\\
+Un ternary diagram est un triangle équilateral ; pour une composition
+\(X=\left[x_1, x_2, x_3\right]\), les composantes sont la distance entre sa  représentation graphique et un des côtes du triangle, comme montrer dans le graphique suivant
+
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.5]{ternarydiagram.png}
+\end{center}
+\caption{Ternary diagram}
+\end{figure}
+
 
 \subsection{Opération dans le simplexe}
 Dans le simplexe, nous ne pouvons pas utiliser la géométrie euclidienne. Remarquons cela en prenant un exemple, soit 4 compositions:\\
@@ -182,6 +195,17 @@ Norme d'une \(x\in S^D\),
 \[
 \left\|x\right\|_a=\sqrt{\frac{1}{2D}\sum_{i=1}^D\sum_{j=1}^D\left(ln\frac{x_i}{x_j}\right)^2}
 \]
+
+Il devient ainsi possible de définir des objets géométriques tels que les lignes compositionnels (droite dans l'espace euclidien): \(y=x_0 \oplus \left(\alpha\odot x\right)\), avec \(x,x_0\in S^D\) et \(\alpha in \mathbb{R}\). Ce qui donne graphiquement pour D=3,
+
+
+\begin{figure}
+\begin{center}
+\includegraphics[scale=0.5]{ligne_compositionnel}
+\caption{Lignes compositionnels}
+\end{center}
+\end{figure}
+
 
 Les mesures statistique tels que la moyenne et la variance doivent être elles aussi redéfinit.\\
 
@@ -275,6 +299,28 @@ La première coordonnée ilr représente ainsi le ratio des quatre premières co
 La deuxième : les trois premières composantes sur la quatrième et ainsi de suite.\\
 D'où le nom de balance. Une coordonnée ilr négative (balance négative) signifie que le groupe des composantes du dénominateur à plus de poids que le groupe des composantes du numérateur dans la donnée compositionnelle.
 \\
+\\
+Ces transformations permettent de passer dans un espace euclidien et de retrouver les formes géométrique habituels.\\
+
+\begin{minipage}{\linewidth}
+      \centering
+      \begin{minipage}{0.35\linewidth}
+          \begin{figure}[H]
+          \captionsetup{justification=centering}
+              \includegraphics[width=\linewidth]{ilr_avant.png}
+              \caption{Avant transformation ilr}
+          \end{figure}
+      \end{minipage}
+      \hspace{0.05\linewidth}
+      \begin{minipage}{0.55\linewidth}
+          \begin{figure}[H]
+          \captionsetup{justification=centering}
+              \includegraphics[width=\linewidth]{ilr_apres.png}
+              \caption{Apres transformation ilr}
+          \end{figure}
+      \end{minipage}
+  \end{minipage}\\
+
 Ces trois transformations ont bien entendue leur transformations inverse qui sont définie par:\\
 \begin{align*}
 &alr^{-1}\left(\xi\right)=C\left( \frac{\exp\left(\xi_1\right)}{\sum_{i=1}^{d-1} \exp\left(\xi_i\right) + 1},\ ...,\  \frac{1}{\sum_{i=1}^{d-1} \exp\left(\xi_i\right) + 1} \right)\\
@@ -589,14 +635,26 @@ g\left(x; \pi,\theta\right)=\sum_{k=1}^K \pi_kf(x,\theta_k)
 \]
 où \(\theta=\left(\theta_1,...,\theta_k\right)\) sont les paramètres des lois gaussiennes et \( \pi=\left(\pi_1,...,\pi_K\right)\) sont les proportions du mélange Gaussien dont la somme est égale à 1.\\
 \\
-Voici un exemple de mélange gaussien (avec trois gaussienne):
+Voici des exemples de mélange gaussien:
 
-\begin{center}
-\begin{figure}[H]
-\includegraphics[scale=0.5]{melangegaussien.png}
-\end{figure}
-\end{center}
-
+  \begin{minipage}{\linewidth}
+      \centering
+      \begin{minipage}{0.45\linewidth}
+          \begin{figure}[H]
+          \captionsetup{justification=centering}
+              \includegraphics[width=\linewidth]{melangegaussien2D.png}
+              \caption{Mélange de trois gaussiennes \newline univariée}
+          \end{figure}
+      \end{minipage}
+      \hspace{0.05\linewidth}
+      \begin{minipage}{0.45\linewidth}
+          \begin{figure}[H]
+          \captionsetup{justification=centering}
+              \includegraphics[width=\linewidth]{melangegaussien.png}
+              \caption{Mélange de trois gaussiennes \newline multivariée}
+          \end{figure}
+      \end{minipage}
+  \end{minipage}\\
 Pour le simulateur, le nombre de gaussienne nécessaire à l'estimation de la densité est choisis en minimisant le critère BIC.\\
 
 \subsection{Zero inflated}
@@ -687,7 +745,7 @@ Un autre aspect de la performance du simulateur est sa capacité à simuler les 
 Pour étudier cette aspect, la simulation ne se fera plus sur l'ensemble du jeux de données mais séparément sur chaque groupe du jeu de donnée.\\
 Les groupes des données simulées seront alors connu et nous pourrons vérifier si un classificateur retrouve bien ses groupes.\\
 Voici un schéma illustratif de la méthode \\
-Soit \(1,2,...,k\) les groupes du jeu de donnée
+Soit \(1,2,...,k\) les groupes du jeu de donnée (ex: pour mach k=2, sevre, non sevre)
 \begin{center}
 \begin{tikzpicture}[node distance=2cm, auto]
      \node[cloud] (X1) {\(X_1\)};
