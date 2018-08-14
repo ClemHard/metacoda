@@ -112,8 +112,7 @@ find_group <- function(train, test, metadata_test){
 validation_croise <- function(data, metadata, n=nrow(data)){
   
   name_group <- unique(metadata)
-  train <- data.frame(data, as.factor(metadata), row.names = NULL)
-  colnames(train) <- c(paste("X",1:ncol(data), sep=""), "metadata")
+  train <- create_data_frame_train(data, metadata)
   
   iid <- sample(rep(1:n,length=nrow(data)))
   
@@ -125,10 +124,11 @@ validation_croise <- function(data, metadata, n=nrow(data)){
   
   l <- parLapply(cl, 1:n, function(x){
     
-    pred_kNN <- knn(train=data[x!=iid,], test=data[x==iid,], cl=metadata[x!=iid])
+    k <- best_k_kNN(train=train)
+    pred_kNN <- knn(train=data[x!=iid,], test=data[x==iid,], cl=metadata[x!=iid], k=k)
     Svm <- svm(metadata~., train[x!=iid,])
-    pred_Svm <-  predict(Svm, train[x==iid,])
-
+    pred_Svm <-  predict(Svm, train[x==iid,-ncol(train)])
+    
     table1 <- table(metadata[x==iid], pred_kNN)
     table2 <- table(metadata[x==iid], pred_Svm)
     colnames(table1) <- 1:length(name_group)
@@ -145,6 +145,7 @@ validation_croise <- function(data, metadata, n=nrow(data)){
   colnames(all$confusion_random_Forest) <- 1:(length(unique(metadata)))
   all
 }
+
 
 
 find_real <- function(data_real, data_simu_train, data_simu, algo="randomForest"){
