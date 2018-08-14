@@ -116,7 +116,7 @@ graph_biplot_normale <- function(data, metadata_group, nb_graph=1, title=NULL, l
       g <- ggplot(m)+geom_point(aes_string(x=names(m)[i], y=names(m)[i+1],col="group")) +
         labs(title=title, y=paste("comp",i+1), x=paste("comp",i)) +
         scale_color_discrete(name=legend_title) + 
-        theme(plot.title = element_text(hjust=0.5))
+        theme(plot.title = element_text(hjust=0.5)) + coord_equal()
       if(ellipse==TRUE && nrow(ellipse_confiance[[i]])!=0){
         data_ellipse <- ellipse_confiance[[i]]
         g <- g + geom_path(data = data_ellipse, aes(x=x, y=y, group=group, col=group))
