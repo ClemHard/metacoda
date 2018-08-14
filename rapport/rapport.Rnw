@@ -113,10 +113,85 @@ Cette équipe vise à développer et mettre en oeuvre des méthodes statistiques
 La métagénomique est une méthode de séquencage et d'analyse du contenu génétique d'un échantillon issu d'un milieu complexe (telle que le microbiote intestinal). La métagénomique à l'inverse de la génomique séquence le génome de l'ensemble des espèces présent dans un échantillon. Cette évolution a pus être réalisé grâce aux nouvelles méthodes de séquencage dit de séquencage haut débit ainsi qu'a la bioinformatique.\\
 En bactériologie, le génome n'est pas complètement séquencé mais seulement un gêne l'est, l'ARN 16S.\\
 Les séquences (reads) obtenus suite au séquencage sont assignées à une espèce bactérienne. Une fois cette étape effectué, la table de comptage des OTUS est contruite (un OTU est un ensemble de bactérie qui se ressemble).\\
-La table de comptage des OTUS n'est autre qu'un tableau contenant le nombre de séquence par OTU observé dans chaque échantillon.\\
+La table de comptage des OTUS n'est autre qu'un tableau contenant le nombre de séquence par OTU observé dans chaque échantillon.
+
+\begin{center}
+\begin{tikzpicture}[node distance=2cm, auto]
+\draw (-3,0) circle (1);
+\draw (0,0) circle (1);
+\draw (3,0) circle (1);
+
+
+
+
+
+\draw[green, fill=green] (0.4,-0.08) circle (0.1);
+\draw[red, fill=red] (-0.61,0.46) circle (0.1);
+\draw[green, fill=green] (-0.31,0.57) circle (0.1);
+\draw[yellow, fill=yellow] (-0.37,0.27) circle (0.1);
+\draw[yellow, fill=yellow] (-0.7,0.11) circle (0.1);
+
+\draw[red, fill=red] (-0.64,-0.17) circle (0.1);
+\draw[green, fill=green] (-0.56,-0.55) circle (0.1);
+\draw[red, fill=red] (0.49,0.45) circle (0.1);
+
+\draw[yellow, fill=yellow] (0.11,0.11) circle (0.1);
+\draw[yellow, fill=yellow] (0.17,-0.31) circle (0.1);
+\draw[yellow, fill=yellow] (-0.23,-0.22) circle (0.1);
+\draw[red, fill=red] (0.63,-0.31) circle (0.1);
+\draw[yellow, fill=yellow] (-0.07,-0.7) circle (0.1);
+\draw[green, fill=green] (0.2,0.69) circle (0.1);
+\draw[red, fill=red] (0.54,0.17) circle (0.1);
+\draw[yellow, fill=yellow] (0.43,-0.76) circle (0.1);
+
+
+
+
+\draw[green, fill=green] (-.37+3, 0.75) circle (0.1);
+\draw[green, fill=green] (0.35+3, 0.74) circle (0.1);
+\draw[green, fill=green] (-0.42+3, -0.18) circle (0.1);
+\draw[green, fill=green] (0.27+3, -0.19) circle (0.1);
+\draw[green, fill=green] (0.15+3, 0.28) circle (0.1);
+\draw[green, fill=green] (-0.09+3, -0.71) circle (0.1);
+\draw[green, fill=green] (-0.75+3, 0.26) circle (0.1);
+\draw[green, fill=green] (-0.53+3, -0.6) circle (0.1);
+\draw[green, fill=green] (0.76+3, 0.24) circle (0.1);
+
+
+\draw[yellow, fill=yellow] (0.5+3, -0.59) circle (0.1);
+\draw[yellow, fill=yellow] (-0.77+3, -0.13) circle (0.1);
+
+
+\draw[red, fill=red] (0.76+3, -0.13) circle (0.1);
+\draw[red, fill=red] (-0.34+3, 0.39) circle (0.1);
+\draw[red, fill=red] (0.5+3, 0.5) circle (0.1);
+\draw[red, fill=red] (-0.12+3, -0.28) circle (0.1);
+\draw[red, fill=red] (-0.15+3, 0.11) circle (0.1);
+\draw[red, fill=red] (-0.05+3, 0.73) circle (0.1);
+
+
+
+
+
+
+
+\draw[red, fill=red] (-0.5-3,0.67) circle (0.1);
+\draw[red, fill=red] (-0.32-3,-0.43) circle (0.1);
+\draw[red, fill=red] (-0.15-3,0.12) circle (0.1);
+\draw[red, fill=red] (0.05-3,-0.72) circle (0.1);
+
+
+\draw[green, fill=green] (0.28-3,0.52) circle (0.1);
+\draw[green, fill=green] (0.79-3,0.13) circle (0.1);
+\draw[green, fill=green] (0.13-3,-0.18) circle (0.1);
+\draw[green, fill=green] (0.51-3,-0.62) circle (0.1);
+\draw[green, fill=green] (-0.6-3,0.2) circle (0.1);
+
+\end{tikzpicture}
+\end{center}
 
 \subsection{Problématique des données de comptage}
-L'une des problématiques pour l'étude statistiques des données issu de la métagénomique est due à la différence du nombre d'OTU par échantillon. En effet, les séquenceurs haut débit offre la possibilité de séquencer un grand nombre d'échantillon en même temps, mais ne garantit pas le nombre de séquence (reads) obtenus par échantillon. Le nombre d'OTU obtenu suite au séquencage dans un échantillon peut être par exemple de 1000 tandis que dans un autre il ne peut être que de 500.\\
+L'une des problématiques pour l'étude statistiques des données issu de la métagénomique est due à la différence du nombre d'OTU par échantillon. En effet, les séquenceurs haut débit offre la possibilité de séquencer un grand nombre d'échantillon en même temps, mais ne garantit pas le nombre de séquence (profondeur de séquençage) obtenus par échantillon. Le nombre d'OTU obtenu suite au séquencage dans un échantillon peut être par exemple de 1000 tandis que dans un autre il ne peut être que de 500.\\
 La comparaison direct des échantillons est donc impossible.\\
 Le passage aux données compositionnelles est une méthode de résolution possible de cette problématique.\\
 
@@ -394,13 +469,16 @@ Les nouvelles dimensions des jeux de données sont ainsi: 155 échantillons sur 
 \subsection{Graphique ACP}
 Pour avoir un premier aperçus des jeux de données, faisons une acp sur les données compositionnelles et regardons la projections des échantillons sur les deux premiers axes.
 
-<<graph biplot mach_500>>=
-graph_biplot_normale(mach_500, metadata_mach$Weaned, 1, "Mach", "Weaned", ellipse=FALSE) [[1]]
+<<graph biplot vacher, fig.height = 4.5>>=
+graph_biplot_normale(vacher, metadata_vacher$tree, 1, "vacher", "tree", ellipse=FALSE) [[1]]
 @
 
-<<graph biplot liver>>=
+\begin{figure}[H]
+<<graph biplot liver, fig.height=4.5>>=
 graph_biplot_normale(liver_500, metadata_liver$status, 1, "liver", "status", ellipse=FALSE)[[1]]
 @
+\end{figure}
+
 
 Pour mach la séparation des échantillouns issus d'animaux sevré et non sevré est très franche. Le seul échantillon mal situé n'est autre qu'un échantillon issu d'un animal mal sevré.\\
 Dans le cas des données de liver, la séparation est cette fois ci moins franche, mais reste quant même convenable.
@@ -408,22 +486,22 @@ Dans le cas des données de liver, la séparation est cette fois ci moins franch
 \subsection{Classification non supervise}
 Dans chacun des jeux de données utilisés, les groupes semblent relativement bien séparé comme vu précédement (tout du moins sur les premiers axes d'une acp après transformation ilr).\\
 Une des questions que nous pouvons alors nous poser est : le passage aux données compositionnelles ( et transformation ilr) permet il de mieux distinguer les groupes?\\
-Une classification non supervisé répond bien à cette question, ainsi nous allons utiliser plusieurs algorithmes (k-means, Mélange gaussien, classification hiérarchique) et regarder s'ils ont tendance à regrouper les échantillons des mêmes groupes.\\
-Pour montrer l'intérêt de passer par les données compositionnelles pour la classification, nous allons comparer les résultats d'une classification effectuée sur les données initiales (de comptage) et les données compositionnelles (après transformation \(ilr\)).\\
+Une classification non supervisé répond bien à cette question, ainsi j'ai utilisé plusieurs algorithmes (k-means, Mélange gaussien, classification hiérarchique) et regarder s'ils ont tendance à regrouper les échantillons des mêmes groupes.\\
+Pour montrer l'intérêt de passer par les données compositionnelles pour la classification, j'ai comparer les résultats d'une classification effectuée sur les données initiales (de comptage) et les données compositionnelles (après transformation \(ilr\)).\\
 
 
 \begin{center}
-Mach
+Vacher
 
 \begin{tabular}{cc}
 \multicolumn{2}{c}{kmeans} \\
 comptage & ilr \\
 <<>>=
-kable(k_mach_500$comptage_table)
+kable(k_vacher$comptage_table)
 @
 &
 <<>>=
-kable(k_mach_500$ilr_table)
+kable(k_vacher$ilr_table)
 @
 \end{tabular}
 
@@ -431,11 +509,11 @@ kable(k_mach_500$ilr_table)
 \multicolumn{2}{c}{hiérarchique} \\
 comptage & ilr \\
 <<>>=
-kable(hclust_mach_500$comptage_table)
+kable(hclust_vacher$comptage_table)
 @
 &
 <<>>=
-kable(hclust_mach_500$ilr_table)
+kable(hclust_vacher$ilr_table)
 @
 \end{tabular}
 
@@ -444,14 +522,15 @@ kable(hclust_mach_500$ilr_table)
 \multicolumn{2}{c}{Mélange gaussien} \\
 comptage & ilr \\
 <<>>=
-kable(Mclust_mach_500$comptage_table)
+kable(Mclust_vacher$comptage_table)
 @
 &
 <<>>=
-kable(Mclust_mach_500$ilr_table)
+kable(Mclust_vacher$ilr_table)
 @
 \end{tabular}
 \end{center}
+
 
 
 
@@ -497,38 +576,56 @@ kable(Mclust_liver$ilr_table)
 \end{center}
 
 La transformation \(ilr\) semble améliorer sensiblement la classification non supervisée.\\
-Dans le cas de Liver, le classificateur a tendance sur les données de comptage à toute les mettre dans le même groupe.\\
+Les classificateur ont tendance sur les données de comptage à toute les mettre dans le même groupe.
 
  
 \subsection{Classification supervise}
-Regardons maintenant les performances de classification supervisée par le biais de deux algorithmes qui sont, le randomForest (avec la matrice de confusion) et le support machine vector (leave one out). \\
+Regardons maintenant les performances de classification supervisée par le biais de trois algorithmes qui sont, le randomForest (avec la matrice de confusion), le support machine vector et le k nearest neighbors (en faisant pour les deux derniers une 10-fold cross validation). \\
 
 
 \begin{center}
-Mach
+Vacher
+
 
 \begin{tabular}{cc}
 \multicolumn{2}{c}{random Forest} \\
 comptage & ilr \\
 <<>>=
-kable(v_mach_500$confusion_random_Forest)
+kable(v_vacher$confusion_random_Forest)
 @
 &
 <<>>=
-kable(v_mach_500_ilr$confusion_random_Forest)
+kable(v_vacher_ilr$confusion_random_Forest)
 @
 \end{tabular}
+\end{center}
 
 
+\begin{center}
 \begin{tabular}{cc}
 \multicolumn{2}{c}{svm} \\
 comptage & ilr \\
 <<>>=
-kable(v_mach_500$Svm)
+kable(v_vacher$Svm)
 @
 &
 <<>>=
-kable(v_mach_500_ilr$Svm)
+kable(v_vacher_ilr$Svm)
+@
+\end{tabular}
+\end{center}
+
+
+\begin{center}
+\begin{tabular}{cc}
+\multicolumn{2}{c}{kNN} \\
+comptage & ilr \\
+<<>>=
+kable(v_vacher$kNN)
+@
+&
+<<>>=
+kable(v_vacher_ilr$kNN)
 @
 \end{tabular}
 \end{center}
@@ -561,9 +658,22 @@ kable(v_liver_500$Svm)
 kable(v_liver_500_ilr$Svm)
 @
 \end{tabular}
+
+
+\begin{tabular}{cc}
+\multicolumn{2}{c}{kNN} \\
+comptage & ilr \\
+<<>>=
+kable(v_liver_500$kNN)
+@
+&
+<<>>=
+kable(v_liver_500_ilr$kNN)
+@
+\end{tabular}
 \end{center}
-Le même phénomène que dans la classification non supervisée est observable. Le classificateur sur les données de comptage a parfois tendance à mettre tous les échantillons dans le même groupe.\\
-Dans le cas de certains classificateur tels que le svm, la classification supervisée sur certains jeux de données de comptage ne donne pas du tout des résultats concluant (voir chaillou en Annexe \ref{annexe classification supervise}).
+Dans le cas de certains classificateur tels que le svm, la classification supervisée sur certains jeux de données de comptage ne donne pas du tout des résultats concluant (voir chaillou en Annexe \ref{annexe classification supervise}).\\
+Que se soit pour la classification supervisée ou non supervisée, les résultats sont meilleurs sur les données compositionnelles (après transformation ilr) que sur les données initial. Ils semblent donc avoir un intérêt à passer par les données compositionnelles pour la classification.
 
 \section{Simulateur}
 
@@ -679,23 +789,24 @@ où \(Z_{ik}\sim Bern\left(\pi_{jk}\right)\) et \(T_i\sim \mathbb{M}\left(N; \ti
  
 
 \section{Performance simulateur}
-Nous avons vue qu'il y a un certain intérêt à passer par une transformation \(ilr\) pour faire de la classification ; nous allons tester la performance de notre simulateur.
-
 \subsection{Méthode}
-La méthode la plus facile à mettre en œuvre est de regarder visuellement si les données simulées ressemble aux données réels, pour ce faire j'ai regarder les projections des données (réels, simulées) sur les premiers axes d'une acp.
+La méthode la plus facile à mettre en œuvre est de regarder visuellement si les données simulées ressemblent aux données réels, pour ce faire j'ai regarder les projections des données (réels, simulées) sur les premiers axes d'une acp.
 
-<<>>=
-data <- rbind(mach_500, mach_boot$data)
-metadata <- c(as.character(rep('real', nrow(mach_500))), rep('simu', nrow(mach_boot$data))) %>% as.factor()
-graph_biplot_normale(data, metadata, 1, 'Mach', 'data', ellipse=FALSE)[[1]]
+\begin{figure}[H]
+<<graphique bootstrap vacher, fig.height = 4.5>>=
+data <- rbind(vacher, vacher_boot$data)
+metadata <- c(as.character(rep('real', nrow(vacher))), rep('simu', nrow(vacher_boot$data))) %>% as.factor()
+graph_biplot_normale(data, metadata, 1, 'Vacher', 'data', ellipse=FALSE)[[1]]
 @
+\end{figure}
 
-
-<<>>=
+\begin{figure}[H]
+<<graphique bootstrap liver, fig.height = 4.5>>=
 data <- rbind(liver_500, liver_boot$data)
 metadata <- c(as.character(rep('real', nrow(liver))), rep('simu', nrow(liver_boot$data))) %>% as.factor()
 graph_biplot_normale(data, metadata, 1, 'Liver', 'data', ellipse=FALSE)[[1]]
 @
+\end{figure}
 
 Globalement, les données simulées se mélange bien avec les données réels.
 La première impression sur les performances du simulateur sont positives.\\
@@ -708,23 +819,25 @@ Dans cette objectif, deux nouveaux jeux de données sont simulés, l'un d'entre 
 
 
 \subsection{Résultats}
-Dans notre cas, nous allons utilisé deux classificateurs, le random Forest ainsi que le k nearest neighbors (le classificateur svm a été ignoré pour sa faible efficacité pour les données de comptage).\\
+J'ai utilisé deux classificateurs, le random Forest ainsi que le k nearest neighbors (le classificateur svm a été ignoré pour sa faible efficacité pour les données de comptage).\\
 
 
 \begin{center}
-Mach
+Vacher
 
 \begin{tabular}{cc}
 Random forest & kNN \\
 <<>>=
-kable(t_mach_500$all$random_forest)
+kable(t_vacher$all$random_forest)
 @
 &
 <<>>=
-kable(t_mach_500$all$kNN)
+kable(t_vacher$all$kNN)
 @
 \end{tabular}
 \end{center}
+
+
 \begin{center}
  Liver
  \begin{tabular}{cc}
@@ -740,6 +853,7 @@ kable(t_liver_500$all$random_forest)
 \end{center}
 Les performances du simulateur sont grandement variable selon le jeu de données. En effet, sur certains jeu de donnée les classificateurs peinent à faire la différence entre les données simulées et réels.\\
 A l'inverse sur Liver, le random Forest fait aisément la différence, cependant le kNN lui le fait moins facilement. Ainsi certaines caractéristiques des données Liver doivent être mal simulées (ce qui permet au random Forest de faire la différence), mais les données simulées doivent quant même relativement bien se mélanger aux données réels (comme le montre le kNN).
+
 \subsection{Classification}
 Un autre aspect de la performance du simulateur est sa capacité à simuler les caractéristiques de chaque groupe d'un jeu de donnée ; une donnée simulée ne doit pas avoir les caractéristiques de plusieurs groupes.\\
 Pour étudier cette aspect, la simulation ne se fera plus sur l'ensemble du jeux de données mais séparément sur chaque groupe du jeu de donnée.\\
@@ -788,21 +902,21 @@ Soit \(1,2,...,k\) les groupes du jeu de donnée (ex: pour mach k=2, sevre, non 
 \end{center}
 Une bonne simulation devrait résulter en la présence des mêmes échantillons dans \(\tilde{X}_i\) et dans \(\tilde{Y}_i\) pour \(i\in \left\lbrace 1,2,...,k\right\rbrace\).
 
-
 \begin{center}
-Mach
+Vacher
 
 \begin{tabular}{cc}
 Random forest & kNN \\
 <<>>=
-kable(m_super$all$random_forest)
+kable(v_super$all$random_forest)
 @
 &
 <<>>=
-kable(m_super$all$kNN)
+kable(v_super$all$kNN)
 @
 \end{tabular}
 \end{center}
+
 
 \begin{center}
 Liver
@@ -816,12 +930,13 @@ kable(l_super$all$random_forest)
 <<>>=
 kable(l_super$all$kNN)
 @
+
 \end{tabular}
 \end{center}
-La classification supervisée des données simulées sont globalement bonne. Les résultats sont même quasiment comparables aux résultats de la validation croisée sur les données réels.
+La classification supervisée des données simulées sont globalement bonne. Les résultats sont même quasiment comparables aux résultats de la validation croisée sur les données réels (pour le random Forest). Ainsi même si une partie des échantillons simulés est malheureusement "mal simulé" (notamment dans le cas du jeu de données liver); les caractéristiques des groupes restent quant à eux relativement bien simulés. \\
 
 
-Comme nous avons pu le voir ci dessus, une partie des échantillons simulés est malheureusement "mal simulé" (notamment dans le cas du jeu de données liver). Pour vérifier que les données considéré comme bien "simulées" sont facilement classable dans un groupe (et ainsi relativement proche des données réels de leur groupe respectif), nous allons conserver uniquement ces données puis faire comme précédement en faisant une classification supervisée et en vérifiant leur bonne classification.
+Pour vérifier que les données considéré comme bien "simulées" sont facilement classable dans un groupe (et ainsi relativement proche des données réels de leur groupe respectif), nous allons conserver uniquement ces données puis faire comme précédemment en faisant une classification supervisée et en vérifiant leur bonne classification.
 
 Voici un schéma récapitulatif de la méthode.
 \begin{center}
@@ -884,21 +999,21 @@ Voici un schéma récapitulatif de la méthode.
 \end{center}
 
 
-
 \begin{center}
-Mach
+Vacher
 
 \begin{tabular}{cc}
 Random forest & kNN \\
 <<>>=
-kable(c_mach$all$random_forest)
+kable(c_vacher$all$random_forest)
 @
 &
 <<>>=
-kable(c_mach$all$kNN)
+kable(c_vacher$all$kNN)
 @
 \end{tabular}
 \end{center}
+
 
 \begin{center}
 Liver
@@ -914,26 +1029,38 @@ kable(c_liver$all$kNN)
 @
 \end{tabular}
 \end{center}
-Malheureusement les données considéré comme réels (bien simulés) ne semblent pas plus facile à classer. Les jeux de données où les résultats sur l'ensemble des données simulées étaient déjà très convaincant le sont toujours ; mais les jeux de données où la classification des données simulée était plus compliquée reste compliquée.
-\section{Conclusion}
+Les résultats sont comparables à ceux obtenus avec la méthode précédente.
+Les données considéré comme réels (bien simulés) ne semblent pas plus facile, ni plus difficile à classer que dans le cas précédent. Les jeux de données où les résultats sur l'ensemble des données simulées étaient déjà très convaincant le sont toujours ; mais les jeux de données où la classification des données simulée était plus compliquée reste compliquée (le classificateur kNN pour liver).\\
+Cependant sur ces jeux de données, la validation croisée (Classification supervisée) sur les données réels ne permet pas non plus d'obtenir de bon résultats, la problématique ne semble donc pas venir des données simulées.\\
 
+
+\section{Conclusion}
+L'intérêt des données compositionnelles est de pouvoir s'affranchir de certaines contraintes technique comme la profondeur de séquencage.\\
+L'utilisation des transformations des données compositionnelles pour repasser dans un espace euclidien s'est révélé pertinent sur les jeux de données utilisé durant mon stage, les résultats des différentes classification étant au moins aussi bonne que sur les données initiales.\\
+De même les résultats obtenue sur les données simulées sont encourageants.\\
+Les caractéristiques des différents groupes des jeux de données semblent relativement bien simulées. Cependant, les résultats sont très variables selon les jeux de données. Des tests sont un plus grand nombre de jeux de données serait nécessaire pour étudier la robustesse du simulateur.
 \section{Annexe}
 \appendix
 
 
 \subsection{Graphique ACP}
-
-<<graph biplot chaillou>>=
+\begin{figure}[H]
+<<graph biplot chaillou, fig.height = 4.5>>=
 graph_biplot_normale(chaillou, metadata_chaillou$EnvType, 1, "Chaillou", "EnvType", ellipse=FALSE)[[1]]
 @
+\end{figure}
 
-<<graph biplot ravel>>=
+\begin{figure}[H]
+<<graph biplot ravel, fig.height = 4.5>>=
 graph_biplot_normale(ravel, metadata_ravel$CST, 1, "Ravel", "CST", ellipse=FALSE) [[1]]
 @
+\end{figure}
 
-<<graph biplot vacher>>=
-graph_biplot_normale(vacher, metadata_vacher$tree, 1, "vacher", "tree", ellipse=FALSE) [[1]]
+\begin{figure}[H]
+<<graph biplot mach_500, fig.height=4.5>>=
+graph_biplot_normale(mach_500, metadata_mach$Weaned, 1, "Mach", "Weaned", ellipse=FALSE) [[1]]
 @
+\end{figure}
 
 
 \subsection{Classification non supervise}\label{annexe classification non supervise}
@@ -1028,19 +1155,18 @@ kable(Mclust_ravel$ilr_table)
 \end{center}
 
 
-
 \begin{center}
-Vacher
+Mach
 
 \begin{tabular}{cc}
 \multicolumn{2}{c}{kmeans} \\
 comptage & ilr \\
 <<>>=
-kable(k_vacher$comptage_table)
+kable(k_mach_500$comptage_table)
 @
 &
 <<>>=
-kable(k_vacher$ilr_table)
+kable(k_mach_500$ilr_table)
 @
 \end{tabular}
 
@@ -1048,11 +1174,11 @@ kable(k_vacher$ilr_table)
 \multicolumn{2}{c}{hiérarchique} \\
 comptage & ilr \\
 <<>>=
-kable(hclust_vacher$comptage_table)
+kable(hclust_mach_500$comptage_table)
 @
 &
 <<>>=
-kable(hclust_vacher$ilr_table)
+kable(hclust_mach_500$ilr_table)
 @
 \end{tabular}
 
@@ -1061,11 +1187,11 @@ kable(hclust_vacher$ilr_table)
 \multicolumn{2}{c}{Mélange gaussien} \\
 comptage & ilr \\
 <<>>=
-kable(Mclust_vacher$comptage_table)
+kable(Mclust_mach_500$comptage_table)
 @
 &
 <<>>=
-kable(Mclust_vacher$ilr_table)
+kable(Mclust_mach_500$ilr_table)
 @
 \end{tabular}
 \end{center}
@@ -1112,6 +1238,21 @@ kable(v_chaillou_ilr$Svm)
 \end{center}
 
 
+\begin{center}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{cc}
+\multicolumn{2}{c}{kNN} \\
+comptage & ilr \\
+<<>>=
+kable(v_chaillou$kNN)
+@
+&
+<<>>=
+kable(v_chaillou_ilr$kNN)
+@
+\end{tabular}
+}
+\end{center}
 
 
 \begin{center}
@@ -1147,66 +1288,93 @@ kable(v_ravel_ilr$Svm)
 \end{center}
 
 
-
+\begin{center}
+\begin{tabular}{cc}
+\multicolumn{2}{c}{kNN} \\
+comptage & ilr \\
+<<>>=
+kable(v_ravel$kNN)
+@
+&
+<<>>=
+kable(v_ravel_ilr$kNN)
+@
+\end{tabular}
+\end{center}
 
 
 
 \begin{center}
-Vacher
-
+Mach
 
 \begin{tabular}{cc}
 \multicolumn{2}{c}{random Forest} \\
 comptage & ilr \\
 <<>>=
-kable(v_vacher$confusion_random_Forest)
+kable(v_mach_500$confusion_random_Forest)
 @
 &
 <<>>=
-kable(v_vacher_ilr$confusion_random_Forest)
+kable(v_mach_500_ilr$confusion_random_Forest)
 @
 \end{tabular}
-\end{center}
 
 
-\begin{center}
 \begin{tabular}{cc}
 \multicolumn{2}{c}{svm} \\
 comptage & ilr \\
 <<>>=
-kable(v_vacher$Svm)
+kable(v_mach_500$Svm)
 @
 &
 <<>>=
-kable(v_vacher_ilr$Svm)
+kable(v_mach_500_ilr$Svm)
+@
+\end{tabular}
+
+
+\begin{tabular}{cc}
+\multicolumn{2}{c}{kNN} \\
+comptage & ilr \\
+<<>>=
+kable(v_mach_500$kNN)
+@
+&
+<<>>=
+kable(v_mach_500_ilr$kNN)
 @
 \end{tabular}
 \end{center}
 
 
-
-
 \subsection{Performance simulateur}
 \subsubsection*{Graphique}
-<<>>=
+\begin{figure}[H]
+<<graphique bootstrap chaillou, fig.height = 4.5>>=
 data <- rbind(chaillou, chaillou_boot$data)
 metadata <- c(as.character(rep('real', nrow(chaillou))), rep('simu', nrow(chaillou_boot$data))) %>% as.factor()
 graph_biplot_normale(data, metadata, 1, 'Chaillou', 'data', ellipse=FALSE)[[1]]
 @
+\end{figure}
 
-
-<<>>=
+\begin{figure}[H]
+<<graphique bootstrap ravel, fig.height = 4.5>>=
 data <- rbind(ravel, ravel_boot$data)
 metadata <- c(as.character(rep('real', nrow(ravel))), rep('simu', nrow(ravel_boot$data))) %>% as.factor()
 graph_biplot_normale(data, metadata, 1, 'Ravel', 'data', ellipse=FALSE)[[1]]
 @
+\end{figure}
 
 
-<<>>=
-data <- rbind(vacher, vacher_boot$data)
-metadata <- c(as.character(rep('real', nrow(vacher))), rep('simu', nrow(vacher_boot$data))) %>% as.factor()
-graph_biplot_normale(data, metadata, 1, 'Vacher', 'data', ellipse=FALSE)[[1]]
+\begin{figure}[H]
+<<graphique bootstrap mach, fig.height = 4.5>>=
+data <- rbind(mach_500, mach_boot$data)
+metadata <- c(as.character(rep('real', nrow(mach_500))), rep('simu', nrow(mach_boot$data))) %>% as.factor()
+graph_biplot_normale(data, metadata, 1, 'Mach', 'data', ellipse=FALSE)[[1]]
 @
+\end{figure}
+
+
 \subsubsection*{Sur le jeu de données entier}\label{annexe donnees entier}
 
 \begin{center}
@@ -1224,9 +1392,6 @@ kable(t_chaillou$all$kNN)
 \end{tabular}
 \end{center}
 
-
-
-
 \begin{center}
 Ravel
 
@@ -1243,16 +1408,16 @@ kable(t_ravel$all$kNN)
 \end{center}
 
 \begin{center}
-Vacher
+Mach
 
 \begin{tabular}{cc}
 Random forest & kNN \\
 <<>>=
-kable(t_vacher$all$random_forest)
+kable(t_mach_500$all$random_forest)
 @
 &
 <<>>=
-kable(t_vacher$all$kNN)
+kable(t_mach_500$all$kNN)
 @
 \end{tabular}
 \end{center}
@@ -1281,7 +1446,6 @@ kable(c_super$all$kNN)
 \begin{center}
 Ravel
 
-\resizebox{\textwidth}{!}{%
 \begin{tabular}{cc}
 Random forest & kNN \\
 <<>>=
@@ -1292,27 +1456,22 @@ kable(r_super$all$random_forest)
 kable(r_super$all$kNN)
 @
 \end{tabular}
-}
 \end{center}
 
 
-
-
 \begin{center}
-Vacher
+Mach
 
-\resizebox{\textwidth}{!}{%
 \begin{tabular}{cc}
 Random forest & kNN \\
 <<>>=
-kable(v_super$all$random_forest)
+kable(m_super$all$random_forest)
 @
 &
 <<>>=
-kable(v_super$all$kNN)
+kable(m_super$all$kNN)
 @
 \end{tabular}
-}
 \end{center}
 
 
@@ -1338,7 +1497,6 @@ kable(c_chaillou$all$kNN)
 \begin{center}
 Ravel
 
-\resizebox{\textwidth}{!}{%
 \begin{tabular}{cc}
 Random forest & kNN \\
 <<>>=
@@ -1349,29 +1507,22 @@ kable(c_ravel$all$random_forest)
 kable(c_ravel$all$kNN)
 @
 \end{tabular}
-}
 \end{center}
-
-
-
 
 
 \begin{center}
-Vacher
+Mach
 
-\resizebox{\textwidth}{!}{%
 \begin{tabular}{cc}
 Random forest & kNN \\
 <<>>=
-kable(c_vacher$all$random_forest)
+kable(c_mach$all$random_forest)
 @
 &
 <<>>=
-kable(c_vacher$all$kNN)
+kable(c_mach$all$kNN)
 @
 \end{tabular}
-}
 \end{center}
-
 
 \end{document}
