@@ -254,16 +254,7 @@ simulation <- function(result, nb_sample=nrow(result$data), type="comptage"){
   if(!is.null(result$zero_inflated_comptage)){
     for(i in 1:nrow(zero_inflated_comptage)){
       if(zero_inflated_comptage$value[i]==0) {
-        p_simu <- 1
-        if(length(result_sample[which(simu_MAP$metadata==zero_inflated_comptage$cluster[i]), zero_inflated_comptage$OTU[i]])!=0) p_simu <- mean(result_sample[which(simu_MAP$metadata==zero_inflated_comptage$cluster[i]), zero_inflated_comptage$OTU[i]]==0)
-        
-        p <- 0
-        if(p_simu<zero_inflated_comptage$zero[i]) p <- (zero_inflated_comptage$zero[i]-p_simu)/(1-p_simu)
-        else p <- 0
-        p[p<0] <- 0
-        p[p>1] <- 1
-        
-        e <- rbinom(length(which(simu_MAP$metadata==zero_inflated_comptage$cluster[i])), 1, 1-p)
+        e <- rbinom(length(which(simu_MAP$metadata==zero_inflated_comptage$cluster[i])), 1, 1-zero_inflated_comptage$zero[i])
         result_sample[which(simu_MAP$metadata==zero_inflated_comptage$cluster[i]), zero_inflated_comptage$OTU[i]] <- result_sample[which(simu_MAP$metadata==zero_inflated_comptage$cluster[i]), zero_inflated_comptage$OTU[i]] * e
       }
     }
