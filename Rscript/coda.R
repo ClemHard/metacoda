@@ -138,7 +138,7 @@ mult<-function(x,t){
   x * t
 }
 
-ternary_diagram<-function(data){
+ternary_diagram<-function(data, colour="black", type_point=1, ...){
   
   data <- norm_data(data)
   u0=0.2;
@@ -149,10 +149,13 @@ ternary_diagram<-function(data){
   
   k=sum(data[1,])
   coord=(1./k)*(sapply(data[,1],mult,t=A)+sapply(data[,2],mult,t=B)+sapply(data[,3],mult,t=C))
-  plot(coord[1,],coord[2,],xlim=c(u0-0.2,u0+1.2),ylim=c(v0-0.2,v0+1.1))
+  plot(coord[1,],coord[2,], ylim=c(v0-0.03,v0+sqrt(3)/2+0.11), col=colour, pch=type_point, axes=FALSE, asp=1, xlab="", ylab="", ...)
   segments(B[1],B[2],A[1],A[2])
   segments(C[1],C[2],A[1],A[2])
   segments(B[1],B[2],C[1],C[2])
+  text(A[1], A[2], "A", pos=3)
+  text(B[1], B[2], "B", pos=2)
+  text(C[1], C[2], "C", pos=4)
   
 }
 
@@ -303,7 +306,7 @@ biplot<-function(data, base_binaire=Base_binary_matrix(ncol(data))){
   
   
   Z <- ilr(data, base_binaire = base_binaire)
-  
+
   C <- cov(Z)
   
   if(p>n){
@@ -316,7 +319,7 @@ biplot<-function(data, base_binaire=Base_binary_matrix(ncol(data))){
   val <- C$values
   
   x <- Z%*%vect
-  
+
   rval <- list(variance_explain=cumsum(val)/sum(val), vector=vect, values=val, coord=x)
   
   class(rval) <- "biplot"
