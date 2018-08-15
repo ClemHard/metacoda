@@ -58,7 +58,7 @@ knitr::opts_knit$set(root.dir = "..")
 @
 
 \title{Exploration des méthodes d'analyse de données compositionnelles pour l'étude du lien entre microbiote intestinal et santé.}
-\author{Clément Hardy}
+
 \date{}
 
 \begin{document}
@@ -72,6 +72,7 @@ source("Rscript/bootstrap.R")
 source("Rscript/test_bootstrap.R")
 source("Rscript/tree_phyloseq.R")
 source("Rscript/apprentissage_supervise.R")
+source("Rscript/fonction_presentation.R")
 @
 
 
@@ -86,6 +87,8 @@ load("rapport/resultats.RData")
 \tableofcontents
 \newpage
 \section{Présentation}
+Je réalise mon stage à l'Inra de Jouy en Josas dans l'unité "Mathématiques et Informatique Appliquées du Génome à l'Environnement" (MaIAGE).
+
 \subsection{Unité de recherche}
 L'unité de recherche MaIAGE regroupe des mathématiciens, des informaticiens, des bioinformaticiens et des biologistes autour de questions de biologie et agro-écologie, allant de l'échelle moléculaire à l'échelle du paysage en passant par l'étude de l'individu, de populations ou d'écosystèmes.
 
@@ -110,94 +113,20 @@ Cette équipe vise à développer et mettre en oeuvre des méthodes statistiques
 
 \section{Contexte biologique et enjeux}
 \subsection{Métagénomique}
-La métagénomique est une méthode de séquencage et d'analyse du contenu génétique d'un échantillon issu d'un milieu complexe (telle que le microbiote intestinal). La métagénomique à l'inverse de la génomique séquence le génome de l'ensemble des espèces présent dans un échantillon. Cette évolution a pus être réalisé grâce aux nouvelles méthodes de séquencage dit de séquencage haut débit ainsi qu'a la bioinformatique.\\
+La métagénomique est une méthode de séquencage et d'analyse du contenu génétique d'un échantillon issu d'un milieu complexe (tel que le microbiote intestinal). La métagénomique à l'inverse de la génomique séquence le génome de l'ensemble des espèces présentes dans un échantillon. Cette évolution a pu être réalisée grâce aux nouvelles méthodes de séquencage dit de séquencage haut débit ainsi qu'a la bioinformatique.\\
 En bactériologie, le génome n'est pas complètement séquencé mais seulement un gêne l'est, l'ARN 16S.\\
-Les séquences (reads) obtenus suite au séquencage sont assignées à une espèce bactérienne. Une fois cette étape effectué, la table de comptage des OTUS est contruite (un OTU est un ensemble de bactérie qui se ressemble).\\
-La table de comptage des OTUS n'est autre qu'un tableau contenant le nombre de séquence par OTU observé dans chaque échantillon.
+Les séquences (reads) obtenues suite au séquencage sont assignées à une espèce bactérienne. Une fois cette étape effectuée, la table de comptage des OTUS est contruite (un OTU est un ensemble de bactéries qui se ressemblent).\\
+La table de comptage des OTUS n'est autre qu'un tableau contenant le nombre de séquences par OTU observés dans chaque échantillon.
 
-\begin{center}
-\begin{tikzpicture}[node distance=2cm, auto]
-\draw (-3,0) circle (1);
-\draw (0,0) circle (1);
-\draw (3,0) circle (1);
-
-
-
-
-
-\draw[green, fill=green] (0.4,-0.08) circle (0.1);
-\draw[red, fill=red] (-0.61,0.46) circle (0.1);
-\draw[green, fill=green] (-0.31,0.57) circle (0.1);
-\draw[yellow, fill=yellow] (-0.37,0.27) circle (0.1);
-\draw[yellow, fill=yellow] (-0.7,0.11) circle (0.1);
-
-\draw[red, fill=red] (-0.64,-0.17) circle (0.1);
-\draw[green, fill=green] (-0.56,-0.55) circle (0.1);
-\draw[red, fill=red] (0.49,0.45) circle (0.1);
-
-\draw[yellow, fill=yellow] (0.11,0.11) circle (0.1);
-\draw[yellow, fill=yellow] (0.17,-0.31) circle (0.1);
-\draw[yellow, fill=yellow] (-0.23,-0.22) circle (0.1);
-\draw[red, fill=red] (0.63,-0.31) circle (0.1);
-\draw[yellow, fill=yellow] (-0.07,-0.7) circle (0.1);
-\draw[green, fill=green] (0.2,0.69) circle (0.1);
-\draw[red, fill=red] (0.54,0.17) circle (0.1);
-\draw[yellow, fill=yellow] (0.43,-0.76) circle (0.1);
-
-
-
-
-\draw[green, fill=green] (-.37+3, 0.75) circle (0.1);
-\draw[green, fill=green] (0.35+3, 0.74) circle (0.1);
-\draw[green, fill=green] (-0.42+3, -0.18) circle (0.1);
-\draw[green, fill=green] (0.27+3, -0.19) circle (0.1);
-\draw[green, fill=green] (0.15+3, 0.28) circle (0.1);
-\draw[green, fill=green] (-0.09+3, -0.71) circle (0.1);
-\draw[green, fill=green] (-0.75+3, 0.26) circle (0.1);
-\draw[green, fill=green] (-0.53+3, -0.6) circle (0.1);
-\draw[green, fill=green] (0.76+3, 0.24) circle (0.1);
-
-
-\draw[yellow, fill=yellow] (0.5+3, -0.59) circle (0.1);
-\draw[yellow, fill=yellow] (-0.77+3, -0.13) circle (0.1);
-
-
-\draw[red, fill=red] (0.76+3, -0.13) circle (0.1);
-\draw[red, fill=red] (-0.34+3, 0.39) circle (0.1);
-\draw[red, fill=red] (0.5+3, 0.5) circle (0.1);
-\draw[red, fill=red] (-0.12+3, -0.28) circle (0.1);
-\draw[red, fill=red] (-0.15+3, 0.11) circle (0.1);
-\draw[red, fill=red] (-0.05+3, 0.73) circle (0.1);
-
-
-
-
-
-
-
-\draw[red, fill=red] (-0.5-3,0.67) circle (0.1);
-\draw[red, fill=red] (-0.32-3,-0.43) circle (0.1);
-\draw[red, fill=red] (-0.15-3,0.12) circle (0.1);
-\draw[red, fill=red] (0.05-3,-0.72) circle (0.1);
-
-
-\draw[green, fill=green] (0.28-3,0.52) circle (0.1);
-\draw[green, fill=green] (0.79-3,0.13) circle (0.1);
-\draw[green, fill=green] (0.13-3,-0.18) circle (0.1);
-\draw[green, fill=green] (0.51-3,-0.62) circle (0.1);
-\draw[green, fill=green] (-0.6-3,0.2) circle (0.1);
-
-\end{tikzpicture}
-\end{center}
 
 \subsection{Problématique des données de comptage}
-L'une des problématiques pour l'étude statistiques des données issu de la métagénomique est due à la différence du nombre d'OTU par échantillon. En effet, les séquenceurs haut débit offre la possibilité de séquencer un grand nombre d'échantillon en même temps, mais ne garantit pas le nombre de séquence (profondeur de séquençage) obtenus par échantillon. Le nombre d'OTU obtenu suite au séquencage dans un échantillon peut être par exemple de 1000 tandis que dans un autre il ne peut être que de 500.\\
-La comparaison direct des échantillons est donc impossible.\\
+L'une des problématiques pour l'étude statistique des données issues de la métagénomique est due à la différence du nombre d'OTU par échantillon. En effet, les séquenceurs hauts débits offrent la possibilité de séquencer un grand nombre d'échantillons en même temps, mais ne garantit pas le nombre de séquences (profondeur de séquençage) obtenues par échantillon. Le nombre d'OTU obtenus suite au séquencage dans un échantillon peut être par exemple de 1000 tandis que dans un autre il ne peut être que de 500.\\
+La comparaison directe des échantillons est donc impossible.\\
 Le passage aux données compositionnelles est une méthode de résolution possible de cette problématique.\\
 
 \subsection{Objectif du stage}
-Le but de ce stage est de transformer ces données de comptage en données compositionnles et d'utiliser les méthodes d'analyse associée à ces données pour pouvoir leurs appliquer un modèle probabiliste. \\
-Ce modèle probabiliste a ensuite servit à développer un simulateur de nouvelles données.
+Le but de ce stage est de transformer ces données de comptage en données compositionnelles et d'utiliser les méthodes d'analyse associées à ces données pour pouvoir leur appliquer un modèle probabiliste. \\
+Ce modèle probabiliste a ensuite servi à développer un simulateur de nouvelles données.
 
 \section{Géométrie de Aitchison}
 Commençons par expliquer ce que sont les données compositionnelles.
@@ -220,14 +149,16 @@ Deux vecteurs \(x,y\in\mathbb{R}^D_{+}\) tels que \(x_i,\ y_i>0,\ \forall i=1,..
 
 La représentation graphique d'une donnée compositionnelle à trois composantes se fait grâce à un ternary diagram.\\
 Un ternary diagram est un triangle équilateral ; pour une composition
-\(X=\left[x_1, x_2, x_3\right]\), les composantes sont la distance entre sa  représentation graphique et un des côtes du triangle, comme montrer dans le graphique suivant
+\(X=\left[x_1, x_2, x_3\right]\), les composantes sont la distance entre sa  représentation graphique et un des côtés du triangle, comme montré dans le graphique suivant
 
 
 \begin{figure}[H]
 \begin{center}
-\includegraphics[scale=0.5]{ternarydiagram.png}
+<<fig.height=3>>=
+par(mar=rep(0,4))
+ternary_diagram2()
+@
 \end{center}
-\caption{Ternary diagram}
 \end{figure}
 
 
@@ -241,7 +172,7 @@ La distance euclidienne entre la composition \(x_1\) et \(x_2\) est la même que
 C'est une des raisons pour laquelle nous avons besoin de définir une nouvelle géométrie.
 \\
 \\
-Commençons par définir les opération de bases:\\
+Commençons par définir les opérations de bases:\\
 
 Perturbation d'une composition \(x\in S^D\) par une composition \(y\in S^D\),
 \[
@@ -271,18 +202,21 @@ Norme d'une \(x\in S^D\),
 \left\|x\right\|_a=\sqrt{\frac{1}{2D}\sum_{i=1}^D\sum_{j=1}^D\left(ln\frac{x_i}{x_j}\right)^2}
 \]
 
-Il devient ainsi possible de définir des objets géométriques tels que les lignes compositionnels (droite dans l'espace euclidien): \(y=x_0 \oplus \left(\alpha\odot x\right)\), avec \(x,x_0\in S^D\) et \(\alpha in \mathbb{R}\). Ce qui donne graphiquement pour D=3,
+Il devient ainsi possible de définir des objets géométriques telles que les lignes compositionnelles (droite dans l'espace euclidien): \(y=x_0 \oplus \left(\alpha\odot x\right)\), avec \(x,x_0 \in S^D\) et \(\alpha in \mathbb{R}\). Ce qui donne graphiquement pour D=3,
 
 
-\begin{figure}
+\begin{figure}[H]
 \begin{center}
-\includegraphics[scale=0.5]{ligne_compositionnel}
+<<fig.height=2>>=
+par(mar=c(rep(0,4)))
+ternary_diagram3()
+@
 \caption{Lignes compositionnels}
 \end{center}
 \end{figure}
 
 
-Les mesures statistique tels que la moyenne et la variance doivent être elles aussi redéfinit.\\
+Les mesures statistiques telles que la moyenne et la variance doivent être elles aussi redéfinies.\\
 
 Pour un échantillon de taille \(n\) de données compositionnelles à \(D\) composantes, la moyenne est définie comme:
 \[
@@ -290,7 +224,7 @@ g=C\left[g_1,g_2,...,g_D\right]
 \]
 avec \(g_i=\left(\prod_{j=1}^n x_{ij}\right)^{1/n},\ i=1,2,..,D\)
 \\
-La matrice de covariance quant à elle est définit par
+La matrice de covariance quant à elle est définie par
 \[
 T=\begin{pmatrix}
 t_{11} & t_{12} & ... & t_{1D} \\
@@ -299,12 +233,44 @@ t_{D1} & t_{D2} & ... & t_{DD}
 \end{pmatrix}
 ,\quad t_{ij}=var\left(ln\frac{x_i}{x_j}\right),
 \]
-ce qui permet de définir la variance total \[ totvar\left[X\right]=\frac{1}{2D}\sum_{i=1}^D\sum_{j=1}^Dt_{ij} \] \\
+ce qui permet de définir la variance totale \[ totvar\left[X\right]=\frac{1}{2D}\sum_{i=1}^D\sum_{j=1}^Dt_{ij} \] \\
 Pour centrer des données, il est alors nécessaire d'appliquer la perturbation avec \(g^{-1}\). \\
 De même, appliquer la puissance avec \(totvar\left[X\right]^{-1/2}\) permet de les réduire. 
+
+
+<<>>=
+n <- 20
+data <- matrix(c(runif(n,1,7),runif(n,0.1,1),runif(n,1,7)),nrow=n)
+@
+
+\begin{minipage}{\linewidth}
+      \centering
+      \begin{minipage}{0.45\linewidth}
+          \begin{figure}[H]
+          \captionsetup{justification=centering}
+          <<fig.height=4.5>>=
+          		par(mar=c(rep(0,4)))
+              ternary_diagram(data %>% closure(), colour="red", type_point = 16)
+              @
+              \caption{Avant transformation ilr}
+          \end{figure}
+      \end{minipage}
+      \hspace{0.05\linewidth}
+      \begin{minipage}{0.45\linewidth}
+          \begin{figure}[H]
+          \captionsetup{justification=centering}
+          <<fig.height=4.5>>=
+          par(mar=c(rep(0,4)))
+              ternary_diagram(data %>% closure() %>% center_scale(), colour="red", type_point = 16)
+              @
+              \caption{Après transformation ilr}
+          \end{figure}
+      \end{minipage}
+  \end{minipage}\\
+
 \subsection{Transformation}
 Comme nous avons pu le voir, l'espace du simplexe nécessite une redéfinition des opérations de base. Dans cette partie, nous allons voir des transformations permettant de repasser dans un espace euclidien.\\
-Tout d'abord, remarquons que la valeur de \(\kappa\)(somme des composantes) d'une composition n'a pas fondamentalement une grande importance. En effet, l'étude de données qu'elles soient exprimer en pourcentage ou en proportion ne change rien. \\
+Tout d'abord, remarquons que la valeur de \(\kappa\)(somme des composantes) d'une composition n'a pas fondamentalement une grande importance. En effet, l'étude de données qu'elles soient exprimées en pourcentages ou en proportions ne change rien. \\
 Les rapports relatifs sont bien plus intéressants. Il n'est donc pas étonnant que les transformations reposent sur des log ratios de composantes.\\
 
 Commençons par l'additive log-ratio transformation(alr).
@@ -356,7 +322,7 @@ Exemple de matrice \(\Psi\) en dimension 5:
 \end{pmatrix}
 \]
 
-Si nous cherchons une interprétation des coordonnées obtenues par la transformation \(ilr\), nous pouvons regarder la matrice des séquences binaires associées à la base.\\
+Si nous cherchons une interprétation des coordonnées obtenues par la transformation \(ilr\), nous pouvons regarder la matrice des séquences binaires associée à la base.\\
 Si nous reprenons l'exemple, nous avons comme matrice binaire
 
 \[
@@ -375,14 +341,24 @@ La deuxième : les trois premières composantes sur la quatrième et ainsi de su
 D'où le nom de balance. Une coordonnée ilr négative (balance négative) signifie que le groupe des composantes du dénominateur à plus de poids que le groupe des composantes du numérateur dans la donnée compositionnelle.
 \\
 \\
-Ces transformations permettent de passer dans un espace euclidien et de retrouver les formes géométrique habituels.\\
+Ces transformations permettent de passer dans un espace euclidien et de retrouver les formes géométriques habituelles.\\
+
+<<>>=
+c <- matrix(c(c(1,2,7)/10, ilr_inverse(c(-1.2,0)), c(1,8,1, 10/3, 10/3, 10/3)/10), byrow=TRUE, nrow=4)
+l <- ligne(1.2,c(0.2,1,3))
+y <- seq(0, 2*pi, length=1000)
+circl <- cbind(1*cos(y)-1.2, 1*sin(y))
+@
 
 \begin{minipage}{\linewidth}
       \centering
       \begin{minipage}{0.35\linewidth}
           \begin{figure}[H]
           \captionsetup{justification=centering}
-              \includegraphics[width=\linewidth]{ilr_avant.png}
+              <<fig.height=5.5>>=
+              par(mar=rep(0,4))
+              ternary_diagram1(c, colour=c(11, 2, 4, 1), style=c(16,16, 16, 3),add_line = l, colour_line = 15,             add_circle = (circl%>% ilr_inverse()), colour_circle = 14,               asp = 1, axes = FALSE)
+              @
               \caption{Avant transformation ilr}
           \end{figure}
       \end{minipage}
@@ -390,13 +366,18 @@ Ces transformations permettent de passer dans un espace euclidien et de retrouve
       \begin{minipage}{0.55\linewidth}
           \begin{figure}[H]
           \captionsetup{justification=centering}
-              \includegraphics[width=\linewidth]{ilr_apres.png}
+              <<fig.height=3>>=
+              par(mar=rep(0.1,4))
+              plot(c %>% ilr(), col=c(11, 2, 4, 1), pch=c(16, 16, 16, 3), cex=1.5, xlim = c(-2.2,2), ylim=c(-1,1.5), asp=1, xlab = "", ylab="")
+lines(l %>% ilr(), col=15, lwd=3)
+lines(circl, col=14, lwd=2)
+              @
               \caption{Apres transformation ilr}
           \end{figure}
       \end{minipage}
   \end{minipage}\\
 
-Ces trois transformations ont bien entendue leur transformations inverse qui sont définie par:\\
+Ces trois transformations ont bien entendu leur transformation inverse qui sont définies par:\\
 \begin{align*}
 &alr^{-1}\left(\xi\right)=C\left( \frac{\exp\left(\xi_1\right)}{\sum_{i=1}^{d-1} \exp\left(\xi_i\right) + 1},\ ...,\  \frac{1}{\sum_{i=1}^{d-1} \exp\left(\xi_i\right) + 1} \right)\\
 &clr^{-1}\left(\xi\right)=C\left( \exp\left(\xi_1\right),\ ...,\  \exp\left(\xi_D\right)\ \right)\\
@@ -405,9 +386,9 @@ Ces trois transformations ont bien entendue leur transformations inverse qui son
 
 \section{Analyse Multivariée}
 \subsection{Réduction de dimension}
-L'ACP est une méthode de réduction de dimension couramment utilisé pour synthétiser l'information.\\
-Dans "Lecture Notes on Compositionnal Data Analysis", ils redéfinissent l'acp dans les données compositionnelle.\\
-En effet, au lieu de réaliser la transformation puis de centrer et réduire les données, ils les centrent et les réduisent (avec les formules définit dans la géométrie de Aitchison) avant de réaliser la transformation ; ce qui est équivalent.
+L'ACP est une méthode de réduction de dimension couramment utilisée pour synthétiser l'information.\\
+Dans "Lecture Notes on Compositionnal Data Analysis", ils redéfinissent l'acp dans les données compositionnelles.\\
+En effet, au lieu de réaliser la transformation puis de centrer et réduire les données, ils les centrent et les réduisent (avec les formules définies dans la géométrie de Aitchison) avant de réaliser la transformation ; ce qui est équivalent.
 
 \subsection{Maximum a posteriori}
 Nos jeux de données étant des jeux de données de comptage, de nombreux zéros sont présents comme expliqué précédemment ; les transformations logarithmiques (ilr, clr) ne peuvent ainsi pas être directement appliquées.\\
@@ -430,44 +411,46 @@ MAP(p)=\underset{p}{argmax}\left(p|x\right)=\frac{x_i+1}{\sum_{i=1}^D\left(x_i+1
 \section{Transformation ilr et classification}
 
 \subsection{Jeux de données}
-Cinq jeux de données sont mis à ma disposition qui sont Chaillou, Mach, Liver, Ravel ainsi que Vacher. Tous ces jeux de données se présentent sous la forme de table de comptage d'OTU.\\
+Cinq jeux de données sont mis à ma disposition qui sont Chaillou\cite{Chaillou}, Mach\cite{Mach}, Liver, Ravel\cite{Ravel} ainsi que Vacher\cite{Vacher}. Tous ces jeux de données se présentent sous la forme de table de comptage d'OTU.\\
 
 \subsubsection*{Chaillou}
 Il s'agit d'un jeu de données d'origine alimentaire, il provient d'une étude sur les communautés bactériennes dans la nourriture périmée.\\
 Pour cela, quatre types de viande : boeuf hache, veau hache, lardons, saucisses de volaille et quatre types de fruit de mer: saumon fumé, crevettes, filet de saumon et filet de cabillaud ont été échantillonnés.\\
-Pour chaque type de nourriture huit échantillons (de lot différents) sont présent dans ce jeu de donnée. 508 OTUs ont été conservé lors de l'étude.\\
+Pour chaque type de nourriture huit échantillons (de lots différents) sont présents dans ce jeu de données. 508 OTU ont été conservés lors de l'étude.\\
 Durant mon stage, le type de nourriture a été la variable qualitative étudiée.
 
 
 \subsubsection*{Mach}
 L'évolution du microbiote intestinal de porcelet au cours des premiers mois (avant, après le sevrage) ainsi que son impact sur le métabolisme était le sujet de l'étude contenant ce jeu de données.\\
-Les excréments de 31 porcelets ont été séquencés à cinq périodes de leur vie (14, 36, 48, 60 et 70 jours) ; à chaque séquençage le sevrage ou non de l'animal a été relevé. Le jeu de donnée contient ainsi 155 échantillons, le nombre d'OTU quant à lui est 4031.\\
+Les excréments de 31 porcelets ont été séquencés à cinq périodes de leur vie (14, 36, 48, 60 et 70 jours) ; à chaque séquençage le sevrage ou non de l'animal a été relevé. Le jeu de données contient ainsi 155 échantillons, le nombre d'OTU quant à lui est 4031.\\
 
 
 \subsubsection*{Liver}
 
 \subsubsection*{Ravel}
-Le microbiote vaginal permet-il de prévenir les maladies urogenital? C'était la question que se posaient les chercheurs dans l'étude contenant les données.\\
-Pour répondre à cette question, ils ont séquencé le microbiote vaginal de 394 femmes provenant de quatre catégories ethniques différentes (Asiatiques, blanches, noires et hispanique), 247 OTU ont été gardé pour réaliser cette étude. Sur chaque échantillon (un pour chaque femme), le nugent score a été réalisé, il s'agit d'une méthode de diagnostic de la vaginose bactérienne.\\
-Selon le résultat de ce test, les échantillons ont été classé en 3 catégories (low, intermediate, high).
+Le microbiote vaginal permet-il de prévenir les maladies urogenitales ? C'était la question que se posaient les chercheurs dans l'étude contenant les données.\\
+Pour répondre à cette question, ils ont séquencé le microbiote vaginal de 394 femmes provenant de quatre catégories ethniques différentes (Asiatiques, blanches, noires et hispanique), 247 OTU ont été gardés pour réaliser cette étude. Sur chaque échantillon (un pour chaque femme), le nugent score a été réalisé, il s'agit d'une méthode de diagnostic de la vaginose bactérienne.\\
+Selon le résultat de ce test, les échantillons ont été classés en 3 catégories (low, intermediate, high).
 De plus, durant cette étude, les échantillons ont été classés dans cinq clusters, ces clusters ont été les groupes étudiés durant mon stage.
 
 
 \subsubsection*{Vacher}
-L'objectif de l'étude d'où provienne les données était de trouver les interactions les plus probables entre un champignon responsable de l'oidium du chêne (Erysiphe alphitoides) et les autres espèce de microorganisme présent sur les feuilles de chêne (Erysiphe alphitoides).\\
-Dans cette objectif, les feuilles de trois chêne ont été prélevé et séquencé (40 sur chaque arbre). Pour chaque arbre, les  feuilles proviennent de quatre branches différentes (10 pour chaque branche) ; pour chaque feuille plusieurs caractéristiques ont été relevé: sa distance à la base de l'arbre, sa distance au tronc de l'arbre et sa distance par rapport au sol ainsi que son orientation (South west, North East) et enfin son niveau d'infection.\\
-Cependant dans le jeu de donnée, seul 116 échantillons de feuilles sont présents (il en manque quatre), sur chaque échantillon le nombre de 114 OTU est donnée.
+L'objectif de l'étude d'où provienne les données était de trouver les interactions les plus probables entre un champignon responsable de l'oidium du chêne (Erysiphe alphitoides) et les autres espèces de microorganisme présentes sur les feuilles de chêne (Erysiphe alphitoides).\\
+Dans cet objectif, les feuilles de trois chênes ont été prélevées et séquencées (40 sur chaque arbre). Pour chaque arbre, les  feuilles proviennent de quatre branches différentes (10 pour chaque branche) ; pour chaque feuille plusieurs caractéristiques ont été relevées: sa distance à la base de l'arbre, sa distance au tronc de l'arbre et sa distance par rapport au sol ainsi que son orientation (South west, North East) et enfin son niveau d'infection.\\
+Cependant dans le jeu de données, seuls 116 échantillons de feuilles sont présents (il en manque quatre), sur chaque échantillon le nombre de 114 OTU est donné.
 
 L'objectif durant mon stage était de retrouver pour chaque échantillon l'arbre auquel il appartenait.
 
 
 
-Pour Liver, Mach, le nombre d'OTU étant très grand, j'ai choisis d'en enlever une partie (ceux présent dans moins de \(5\%\) des échantillons).\\
-Les nouvelles dimensions des jeux de données sont ainsi: 155 échantillons sur 1084 OTU pour mach, 237 échantillons et 533 OTU pour liver. 
+Pour Liver, Mach, le nombre d'OTU étant très grand, j'ai choisi d'en enlever une partie (ceux présents dans moins de \(5\%\) des échantillons).\\
+Les nouvelles dimensions des jeux de données sont ainsi: 155 échantillons sur 1084 OTU pour mach, 237 échantillons et 533 OTU pour liver. \\
+\\
+Dans les parties suivantes, seuls les résultats sur les jeux de données Vacher et Liver seront présentés. Les résultats sur les autres jeux de données sont donnés en annexe. 
 
 
 \subsection{Graphique ACP}
-Pour avoir un premier aperçus des jeux de données, faisons une acp sur les données compositionnelles et regardons la projections des échantillons sur les deux premiers axes.
+Pour avoir un premier aperçu des jeux de données, faisons une acp sur les données compositionnelles et regardons la projection des échantillons sur les deux premiers axes.
 
 <<graph biplot vacher, fig.height = 4.5>>=
 graph_biplot_normale(vacher, metadata_vacher$tree, 1, "vacher", "tree", ellipse=FALSE) [[1]]
@@ -480,14 +463,14 @@ graph_biplot_normale(liver_500, metadata_liver$status, 1, "liver", "status", ell
 \end{figure}
 
 
-Pour mach la séparation des échantillouns issus d'animaux sevré et non sevré est très franche. Le seul échantillon mal situé n'est autre qu'un échantillon issu d'un animal mal sevré.\\
+Pour vacher la séparation des échantillons issus des différents arbres est très franche.\\
 Dans le cas des données de liver, la séparation est cette fois ci moins franche, mais reste quant même convenable.
 
 \subsection{Classification non supervise}
-Dans chacun des jeux de données utilisés, les groupes semblent relativement bien séparé comme vu précédement (tout du moins sur les premiers axes d'une acp après transformation ilr).\\
+Dans chacun des jeux de données utilisés, les groupes semblent relativement bien séparés comme vu précédement (tout du moins sur les premiers axes d'une acp après transformation ilr).\\
 Une des questions que nous pouvons alors nous poser est : le passage aux données compositionnelles ( et transformation ilr) permet il de mieux distinguer les groupes?\\
-Une classification non supervisé répond bien à cette question, ainsi j'ai utilisé plusieurs algorithmes (k-means, Mélange gaussien, classification hiérarchique) et regarder s'ils ont tendance à regrouper les échantillons des mêmes groupes.\\
-Pour montrer l'intérêt de passer par les données compositionnelles pour la classification, j'ai comparer les résultats d'une classification effectuée sur les données initiales (de comptage) et les données compositionnelles (après transformation \(ilr\)).\\
+Une classification non supervisée répond bien à cette question, ainsi j'ai utilisé plusieurs algorithmes (k-means, Mélange gaussien, classification hiérarchique) et regardé s'ils ont tendance à regrouper les échantillons issus des mêmes groupes.\\
+Pour montrer l'intérêt de passer par les données compositionnelles pour la classification, j'ai comparé les résultats d'une classification effectuée sur les données initiales (de comptage) et les données compositionnelles (après transformation \(ilr\)).\\
 
 
 \begin{center}
@@ -576,7 +559,7 @@ kable(Mclust_liver$ilr_table)
 \end{center}
 
 La transformation \(ilr\) semble améliorer sensiblement la classification non supervisée.\\
-Les classificateur ont tendance sur les données de comptage à toute les mettre dans le même groupe.
+Les classificateurs ont tendance sur les données de comptage à toutes les mettre dans le même groupe.
 
  
 \subsection{Classification supervise}
@@ -672,8 +655,8 @@ kable(v_liver_500_ilr$kNN)
 @
 \end{tabular}
 \end{center}
-Dans le cas de certains classificateur tels que le svm, la classification supervisée sur certains jeux de données de comptage ne donne pas du tout des résultats concluant (voir chaillou en Annexe \ref{annexe classification supervise}).\\
-Que se soit pour la classification supervisée ou non supervisée, les résultats sont meilleurs sur les données compositionnelles (après transformation ilr) que sur les données initial. Ils semblent donc avoir un intérêt à passer par les données compositionnelles pour la classification.
+Dans le cas de certains classificateurs tel que le svm, la classification supervisée sur certains jeux de données de comptage ne donne pas du tout des résultats concluants (voir chaillou en Annexe \ref{annexe classification supervise}).\\
+Que ce soit pour la classification supervisée ou non supervisée, les résultats sont meilleurs sur les données compositionnelles (après transformation ilr) que sur les données initiales. Il semble donc avoir un intérêt à passer par les données compositionnelles pour la classification.
 
 \section{Simulateur}
 
@@ -718,7 +701,7 @@ Que se soit pour la classification supervisée ou non supervisée, les résultat
 
 
 \subsection{Réduction de dimension}
-Les jeux de données utilisé dans le cadre du simulateur ont un très grand nombre de variable (grande dimension); une réduction de dimension s'impose.\\
+Les jeux de données utilisés dans le cadre du simulateur ont un très grand nombre de variables (grande dimension); une réduction de dimension s'impose.\\
 Dans notre cas, nous cherchons à appliquer un modèle probabiliste à nos données. L'ACP dans sa définition la plus commune ne permet pas de prendre en compte un tel modèle. Pour ce faire, nous allons donc utiliser une variante de l'ACP qui n'est autre que l'ACP probabiliste qui est définie comme:
 \[
 X_i=Wy_i + \mu + \epsilon_i
@@ -736,7 +719,7 @@ De même, l'estimateur du maximun de vraisemblance de \(\sigma^2\)
 \]
 Cet estimateur peut être perçu comme la variance perdue lors de la projection.\\
 
-La dimension de l'espace latent a été choisis à l'aide de l'heuristique de pente (grâce au package capushe).\\
+La dimension de l'espace latent a été choisie à l'aide de l'heuristique de pente (grâce au package capushe).\\
 \subsection{Mélange Gaussien}
 L'apprentissage de la densité est confié à un mélange gaussien.\\
 Un mélange gaussien est défini comme:
@@ -752,7 +735,20 @@ Voici des exemples de mélange gaussien:
       \begin{minipage}{0.45\linewidth}
           \begin{figure}[H]
           \captionsetup{justification=centering}
-              \includegraphics[width=\linewidth]{melangegaussien2D.png}
+              <<fig.height=6.5>>=
+              par(mar=rep(4,4))
+              x <- seq(-5, 6, length=10000)
+				y1 <- dnorm(x, mean=-1.8)*0.3
+				y2 <- dnorm(x, mean=1.6, sd=1.4)*0.5
+				y3 <- dnorm(x, mean=-3, sd=0.4)*0.2
+
+				plot(x, y1, type='l', col='red', ylim=c(0,0.3), 						xlim=c(-4,5), ylab="y")
+				lines(x, y2, col='blue')
+				lines(x,y3, col="green")
+				lines(x, y1+y2+y3)
+				legend("topright", lty=c(1,1,1), col=c("red", 							"blue", "green", "black"), legend=c("G1","G2", 							"G3","G1+G2+G3"))
+
+              @
               \caption{Mélange de trois gaussiennes \newline univariée}
           \end{figure}
       \end{minipage}
@@ -760,12 +756,12 @@ Voici des exemples de mélange gaussien:
       \begin{minipage}{0.45\linewidth}
           \begin{figure}[H]
           \captionsetup{justification=centering}
-              \includegraphics[width=\linewidth]{melangegaussien.png}
+             \includegraphics[width=\linewidth]{melangegaussien.png}
               \caption{Mélange de trois gaussiennes \newline multivariée}
           \end{figure}
       \end{minipage}
   \end{minipage}\\
-Pour le simulateur, le nombre de gaussienne nécessaire à l'estimation de la densité est choisis en minimisant le critère BIC.\\
+Pour le simulateur, le nombre de gaussiennes nécessaires à l'estimation de la densité est choisi en minimisant le critère BIC.\\
 
 \subsection{Zero inflated}
 Les jeux de données contiennent un nombre excessif de zéros, la modélisation faite par un mélange gaussien ne parvient pas à bien prendre en compte tous ces zéros. Pour résoudre ce problème, nous allons modéliser cette particularité indépendamment. \\
@@ -790,7 +786,7 @@ où \(Z_{ik}\sim Bern\left(\pi_{jk}\right)\) et \(T_i\sim \mathbb{M}\left(N; \ti
 
 \section{Performance simulateur}
 \subsection{Méthode}
-La méthode la plus facile à mettre en œuvre est de regarder visuellement si les données simulées ressemblent aux données réels, pour ce faire j'ai regarder les projections des données (réels, simulées) sur les premiers axes d'une acp.
+La méthode la plus facile à mettre en œuvre est de regarder visuellement si les données simulées ressemblent aux données réelles, pour ce faire j'ai regardé les projections des données (réelles, simulées) sur les premiers axes d'une acp.
 
 \begin{figure}[H]
 <<graphique bootstrap vacher, fig.height = 4.5>>=
@@ -808,14 +804,14 @@ graph_biplot_normale(data, metadata, 1, 'Liver', 'data', ellipse=FALSE)[[1]]
 @
 \end{figure}
 
-Globalement, les données simulées se mélange bien avec les données réels.
+Globalement, les données simulées se mélangent bien avec les données réelles.
 La première impression sur les performances du simulateur sont positives.\\
 \\
-Cependant cette méthode n'est pas forcément la plus efficace. En effet, certain OTU peuvent être très mal simulée sans que pour autant nous puissions faire la différence visuellement. Par exemple, un OTU absent de tous les échantillons réels mais présent en de très faible proportions dans les échantillons simulées n'aura aucune incidence sur une acp, il n'est pas pour autant bien simulé.\\
+Cependant cette méthode n'est pas forcément la plus efficace. En effet, certains OTU peuvent être très mal simulés sans que pour autant nous puissions faire la différence visuellement. Par exemple, un OTU absent de tous les échantillons réels mais présent en de très faibles proportions dans les échantillons simulés n'aura aucune incidence sur une acp, il n'est pas pour autant bien simulé.\\
 \\
-Pour avoir des résultats plus fiable, l'étude de l'efficacité du simulateur est confiée à des classificateurs.\\
-L'objectif est de regarder si un classificateur parvient à faire la différence entre les données réels et les données simulées.\\
-Dans cette objectif, deux nouveaux jeux de données sont simulés, l'un d'entre eux servira de jeux d'entrainement (avec les données réels) à un classificateur, l'autre jeu de données servira quant à lui de test. Une petite partie des données réels ne sont pas incluse dans le jeu d'entrainement, elles serviront elles aussi de test.\\
+Pour avoir des résultats plus fiables, l'étude de l'efficacité du simulateur est confiée à des classificateurs.\\
+L'objectif est de regarder si un classificateur parvient à faire la différence entre les données réelles et les données simulées.\\
+Dans cet objectif, deux nouveaux jeux de données sont simulés, l'un d'entre eux servira de jeu d'entrainement (avec les données réelles) à un classificateur, l'autre jeu de données servira quant à lui de test. Une petite partie des données réelles n'est pas incluse dans le jeu d'entrainement, elle servira elle aussi de test.\\
 
 
 \subsection{Résultats}
@@ -851,15 +847,15 @@ kable(t_liver_500$all$random_forest)
  @
  \end{tabular}
 \end{center}
-Les performances du simulateur sont grandement variable selon le jeu de données. En effet, sur certains jeu de donnée les classificateurs peinent à faire la différence entre les données simulées et réels.\\
-A l'inverse sur Liver, le random Forest fait aisément la différence, cependant le kNN lui le fait moins facilement. Ainsi certaines caractéristiques des données Liver doivent être mal simulées (ce qui permet au random Forest de faire la différence), mais les données simulées doivent quant même relativement bien se mélanger aux données réels (comme le montre le kNN).
+Les performances du simulateur sont grandement variables selon le jeu de données. En effet, sur certains jeux de données les classificateurs peinent à faire la différence entre les données simulées et réelles.\\
+A l'inverse sur Liver, le random Forest fait aisément la différence, cependant le kNN lui le fait moins facilement. Ainsi certaines caractéristiques des données Liver doivent être mal simulées (ce qui permet au random Forest de faire la différence), mais les données simulées doivent quant même relativement bien se mélanger aux données réelles (comme le montre le kNN).
 
 \subsection{Classification}
-Un autre aspect de la performance du simulateur est sa capacité à simuler les caractéristiques de chaque groupe d'un jeu de donnée ; une donnée simulée ne doit pas avoir les caractéristiques de plusieurs groupes.\\
-Pour étudier cette aspect, la simulation ne se fera plus sur l'ensemble du jeux de données mais séparément sur chaque groupe du jeu de donnée.\\
-Les groupes des données simulées seront alors connu et nous pourrons vérifier si un classificateur retrouve bien ses groupes.\\
+Un autre aspect de la performance du simulateur est sa capacité à simuler les caractéristiques de chaque groupe d'un jeu de données ; une donnée simulée ne doit pas avoir les caractéristiques de plusieurs groupes.\\
+Pour étudier cet aspect, la simulation ne se fera plus sur l'ensemble du jeux de données mais séparément sur chaque groupe du jeu de données.\\
+Les groupes des données simulées seront alors connus et nous pourrons vérifier si un classificateur retrouve bien ses groupes.\\
 Voici un schéma illustratif de la méthode \\
-Soit \(1,2,...,k\) les groupes du jeu de donnée (ex: pour mach k=2, sevre, non sevre)
+Soit \(1,2,...,k\) les groupes du jeu de données (ex: pour Liver k=2, malade, non malade)
 \begin{center}
 \begin{tikzpicture}[node distance=2cm, auto]
      \node[cloud] (X1) {\(X_1\)};
@@ -933,10 +929,10 @@ kable(l_super$all$kNN)
 
 \end{tabular}
 \end{center}
-La classification supervisée des données simulées sont globalement bonne. Les résultats sont même quasiment comparables aux résultats de la validation croisée sur les données réels (pour le random Forest). Ainsi même si une partie des échantillons simulés est malheureusement "mal simulé" (notamment dans le cas du jeu de données liver); les caractéristiques des groupes restent quant à eux relativement bien simulés. \\
+La classification supervisée des données simulées sont globalement bonnes. Les résultats sont même quasiment comparables aux résultats de la validation croisée sur les données réelles (pour le random Forest). Ainsi même si une partie des échantillons simulés est malheureusement "mal simulée" (notamment dans le cas du jeu de données liver); les caractéristiques des groupes restent quant à eux relativement bien simulés. \\
 
 
-Pour vérifier que les données considéré comme bien "simulées" sont facilement classable dans un groupe (et ainsi relativement proche des données réels de leur groupe respectif), nous allons conserver uniquement ces données puis faire comme précédemment en faisant une classification supervisée et en vérifiant leur bonne classification.
+Pour vérifier que les données considérées comme bien "simulées" sont facilement classables dans un groupe (et ainsi relativement proches des données réelles de leur groupe respectif), nous allons conserver uniquement ces données puis faire comme précédemment en faisant une classification supervisée et en vérifiant leur bonne classification.
 
 Voici un schéma récapitulatif de la méthode.
 \begin{center}
@@ -1030,15 +1026,17 @@ kable(c_liver$all$kNN)
 \end{tabular}
 \end{center}
 Les résultats sont comparables à ceux obtenus avec la méthode précédente.
-Les données considéré comme réels (bien simulés) ne semblent pas plus facile, ni plus difficile à classer que dans le cas précédent. Les jeux de données où les résultats sur l'ensemble des données simulées étaient déjà très convaincant le sont toujours ; mais les jeux de données où la classification des données simulée était plus compliquée reste compliquée (le classificateur kNN pour liver).\\
-Cependant sur ces jeux de données, la validation croisée (Classification supervisée) sur les données réels ne permet pas non plus d'obtenir de bon résultats, la problématique ne semble donc pas venir des données simulées.\\
+Les données considérées comme réelles (bien simulées) ne semblent pas plus faciles, ni plus difficiles à classer que dans le cas précédent. Les jeux de données où les résultats sur l'ensemble des données simulées étaient déjà très convaincants le sont toujours ; mais les jeux de données où la classification des données simulées était plus compliquée reste compliquée (le classificateur kNN pour liver).\\
+Cependant sur ces jeux de données, la validation croisée (Classification supervisée) sur les données réelles ne permet pas non plus d'obtenir de bons résultats, la problématique ne semble donc pas venir des données simulées.\\
 
 
 \section{Conclusion}
-L'intérêt des données compositionnelles est de pouvoir s'affranchir de certaines contraintes technique comme la profondeur de séquencage.\\
-L'utilisation des transformations des données compositionnelles pour repasser dans un espace euclidien s'est révélé pertinent sur les jeux de données utilisé durant mon stage, les résultats des différentes classification étant au moins aussi bonne que sur les données initiales.\\
-De même les résultats obtenue sur les données simulées sont encourageants.\\
-Les caractéristiques des différents groupes des jeux de données semblent relativement bien simulées. Cependant, les résultats sont très variables selon les jeux de données. Des tests sont un plus grand nombre de jeux de données serait nécessaire pour étudier la robustesse du simulateur.
+L'intérêt des données compositionnelles est de pouvoir s'affranchir de certaines contraintes techniques comme la profondeur de séquencage.\\
+L'utilisation des transformations des données compositionnelles pour repasser dans un espace euclidien s'est révélée pertinente sur les jeux de données utilisé durant mon stage, les résultats des différentes classifications étant au moins aussi bons que sur les données initiales.\\
+De même les résultats obtenus sur les données simulées sont encourageants.\\
+Les caractéristiques des différents groupes des jeux de données semblent relativement bien simulées. Cependant, les résultats sont très variables selon les jeux de données. Des tests sur un plus grand nombre de jeux de données seraient nécessaires pour étudier la robustesse du simulateur.
+
+\newpage
 \section{Annexe}
 \appendix
 
@@ -1524,5 +1522,9 @@ kable(c_mach$all$kNN)
 @
 \end{tabular}
 \end{center}
+
+\nocite{*}
+\bibliographystyle{plain}
+\bibliography{bibli.bib}
 
 \end{document}
