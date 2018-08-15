@@ -7,7 +7,7 @@
 \usepackage{amsfonts,amsmath,amssymb}
 \usepackage{enumerate}
 \usepackage{enumitem}
-\usepackage[francais]{babel}
+\usepackage[french]{babel}
 \usepackage{mathrsfs}
 \usepackage{graphicx}
 \usepackage{appendix}
@@ -105,7 +105,7 @@ L'unité MaIAGE est structurée en 4 équipes de recherche :
 \item  acquisition et formalisation de connaissances à partir de texte(Bibliome )
 \end{enumerate}
 
-J'ai réalise mon stage au sein de l'équipe StatInfOmics.
+J'ai réalisé mon stage au sein de l'équipe StatInfOmics.
 \subsection{Equipe}
 L'équipe StatInfOmics vise à développer et mettre en oeuvre des méthodes statistiques et bioinformatiques dédiées à l’analyse de données “omiques”. D’un point de vue biologique, les questions abordées concernent principalement l’annotation structurale et fonctionnelle des génomes, les régulations géniques, la dynamique évolutive des génomes, et la caractérisation d’écosystèmes microbiens en terme de diversité et de fonctions présentes ; une cible commune étant la relation entre génotype et phénotype. Une part de plus en plus importante de notre activité est relative à l’intégration de données “omiques” hétérogènes pour en extraire de l’information pertinente et aussi prédire des processus biologiques. D’un point de vue méthodologique, nos travaux sont essentiellement d’ordre statistique : estimation de distributions, inférence de modèles à variables latentes, prédiction de relations entre jeux de variables, segmentation, visualisation et classification, avec une attention particulière au cadre de la grande dimension qui caractérise la majorité des jeux de données “omiques” étudiés. Ces recherches s’appuient souvent sur une ingénierie bioinformatique très forte.
 
