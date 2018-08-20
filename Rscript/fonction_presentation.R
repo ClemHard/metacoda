@@ -1,6 +1,5 @@
 library(MASS)
 library(randomForest)
-library(plotly)
 
 source("Rscript/read_metagenomic_data.R")
 source("Rscript/coda.R")
