@@ -58,7 +58,7 @@ knitr::opts_knit$set(root.dir = "..")
 
 \title{Exploration des méthodes d'analyse de données compositionnelles pour l'étude du lien entre microbiote intestinal et santé.}
 \author{Clément Hardy}
-\date{}
+\date{27 Août 2018}
 
 \begin{document}
 
