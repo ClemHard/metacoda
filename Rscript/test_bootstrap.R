@@ -117,11 +117,11 @@ create_data_frame_train <- function(data, metadata){
 
 
 
-create_data_frame_simu <- function(data1, apprent, test_real_data=NULL, type){
+create_data_frame_simu <- function(data1, apprent, test_real_data=NULL, type, zero_inflated){
   
-  boot <- simulation(apprent, nb_sample = nrow(data1), type = "comptage")
+  boot <- simulation(apprent, nb_sample = nrow(data1), type = "comptage", zero_inflated = zero_inflated)
   nb_sample <- 1000
-  boot_test <- simulation(apprent, nb_sample = nb_sample, type = "comptage")
+  boot_test <- simulation(apprent, nb_sample = nb_sample, type = "comptage", zero_inflated = zero_inflated)
   
   
   if(type=="MAP") {
@@ -192,7 +192,7 @@ pred_real_simu <- function(train, test){
 }
 
 
-test_bootstrap_all <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_train=1, proportion_real_data=0.1, type="comptage", base_binaire=Base_binary_matrix(ncol(data1))){
+test_bootstrap_all <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_train=1, proportion_real_data=0.1, type="comptage", zero_inflated=TRUE, base_binaire=Base_binary_matrix(ncol(data1))){
   
   
   data2 <- data1
@@ -217,7 +217,7 @@ test_bootstrap_all <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_train=1, 
                             apprent <- apprentissage(data3, nb_axe = nb_axe, nb_cluster = nb_cluster, base_binaire = base_binaire)
 
                             
-                            data_test <- create_data_frame_simu(data_train, apprent=apprent, test_real_data = test_real_data, type=type)
+                            data_test <- create_data_frame_simu(data_train, apprent=apprent, test_real_data = test_real_data, type=type, zero_inflated=zero_inflated)
                     
                             
                             pred <- pred_real_simu(data_test$train ,data_test$test)

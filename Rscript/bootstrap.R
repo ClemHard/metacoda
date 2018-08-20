@@ -131,7 +131,7 @@ simu_melange_gaussien <- function(n, probability, mean, Sigma){
 #' @param nb_cluster the number of gaussian in the gaussian mixture
 #' @param nb_sample the number of sample to produce
 #' @param  base_binaire binary sequential matrix use for the ilr transformation
-#'
+#' @param zero_inflated boolean, if TRUE a zero inflated method is apply, FALSE otherwise
 #' @return a list containing a matrix with the produce sample, an object of class "apprentissage", the dimension of the latent space, the number of gaussian
 #' 
 #' @author Clement Hardy
@@ -139,11 +139,11 @@ simu_melange_gaussien <- function(n, probability, mean, Sigma){
 #' 
 
 
-bootstrap <- function(data, nb_axe=NULL, nb_cluster=NULL, nb_sample=nrow(data), type="comptage", base_binaire=Base_binary_matrix(ncol(data))){
+bootstrap <- function(data, nb_axe=NULL, nb_cluster=NULL, nb_sample=nrow(data), type="comptage", zero_inflated=TRUE, base_binaire=Base_binary_matrix(ncol(data))){
   
   apprent <- apprentissage(data, nb_axe = nb_axe, nb_cluster = nb_cluster, base_binaire = base_binaire)
   if(type=="comptage"){
-    new.sample <- simulation(apprent, nb_sample = nb_sample)
+    new.sample <- simulation(apprent, nb_sample = nb_sample, zero_inflated = zero_inflated)
   } else if(type=="MAP"){
     new.sample <- simulation_MAP(apprent, nb_sample = nb_sample)$data
   } else if(type=="ilr"){
@@ -373,7 +373,7 @@ simulation_MAP <- function(result, nb_sample=nrow(result$data)){
 #' @param result an object of class "apprentissage"
 #' @param nb_sample the number of sample to simulate
 #' @param type the type of samples to simulate (ilr coordinate, compositionnal data, count data)
-#'
+#' @param zero_inflated boolean, if TRUE a zero inflated method is apply, FALSE otherwise
 #' @return the news samples
 #'
 #' @author Clement Hardy
@@ -381,7 +381,7 @@ simulation_MAP <- function(result, nb_sample=nrow(result$data)){
 #' @import stats
 
 
-simulation <- function(result, nb_sample=nrow(result$data), type="comptage"){
+simulation <- function(result, nb_sample=nrow(result$data), type="comptage", zero_inflated=TRUE){
   
   if(type=="ilr"){
     simu_ilr <- simulation_ilr(result, nb_sample = nb_sample)
@@ -405,10 +405,12 @@ simulation <- function(result, nb_sample=nrow(result$data), type="comptage"){
   result_sample <- sapply(1:nrow(simu_MAP$data), function(x){
     
     deep_simu <- sample(deep, 1)
-    temp <- zero_inflated_comptage[which(zero_inflated_comptage$cluster==simu_MAP$metadata[x]),]
-    coeff <- (1-temp$zero) %*% simu_MAP$data[x, ]
     
-    deep_simu <- deep_simu/coeff
+    if(zero_inflated==TRUE){
+      temp <- zero_inflated_comptage[which(zero_inflated_comptage$cluster==simu_MAP$metadata[x]),]
+      coeff <- (1-temp$zero) %*% simu_MAP$data[x, ]
+      deep_simu <- deep_simu/coeff
+    }
     
     if(any(x>0)){
       r <- rmultinom(1, round(deep_simu), simu_MAP$data[x, ])
@@ -418,7 +420,7 @@ simulation <- function(result, nb_sample=nrow(result$data), type="comptage"){
   
   
   
-  if(!is.null(result$zero_inflated_comptage)){
+  if(!is.null(result$zero_inflated_comptage) && zero_inflated==TRUE){
     for(i in 1:nrow(zero_inflated_comptage)){
       if(zero_inflated_comptage$value[i]==0) {
         e <- rbinom(length(which(simu_MAP$metadata==zero_inflated_comptage$cluster[i])), 1, 1-zero_inflated_comptage$zero[i])
