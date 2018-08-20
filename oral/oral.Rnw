@@ -1,0 +1,837 @@
+% Latex template: mahmoud.s.fahmy@students.kasralainy.edu.eg
+% For more details: https://www.sharelatex.com/learn/Beamer
+
+\documentclass{beamer}					% Document class
+\usetheme{Dresden}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{tikz}
+\usepackage{amsfonts,amsmath,amssymb}
+\usepackage{enumerate}
+\usepackage{enumitem}
+\usepackage[french]{babel}
+\usepackage{mathrsfs}
+\usepackage{graphicx}
+\usepackage{appendix}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{bbm}
+\usepackage[singlespacing]{setspace}
+\usepackage{float}
+\usepackage{textcomp}
+\usepackage{apptools}
+\usepackage{tabularx}
+\usepackage{makecell} 
+\usepackage{blkarray}
+\usepackage{calc}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{bigdelim}
+\usetikzlibrary{calc,trees,positioning,arrows,chains,shapes.geometric,%
+    decorations.pathreplacing,decorations.pathmorphing,shapes,%
+    matrix,shapes}
+
+\tikzstyle{decision} = [diamond, draw, text width=4.5em, 
+                        text badly centered, node distance=2cm, 
+                        inner sep=0pt]
+\tikzstyle{block} = [rectangle, draw, 
+                     text centered, rounded corners, 
+                     minimum height=4em]
+\tikzstyle{line} = [draw, -latex']
+\tikzstyle{cloud} = [draw, circle, minimum height=3em]
+
+
+
+
+\tikzset{
+>=stealth',
+  decoration={brace},
+  tuborg/.style={decorate},
+  tubnode/.style={midway, right=2pt},
+}
+
+
+
+% Uncomment this to have the outline at the beginning of each section highlighted.
+%\AtBeginSection[]
+%{
+%  \begin{frame}{Outline}
+%    \tableofcontents[currentsection]
+%  \end{frame}
+%}
+
+\mode<presentation>						% Set options
+{
+  \usetheme{default}					% Set theme
+  \usecolortheme{default} 				% Set colors
+  \usefonttheme{default}  				% Set font theme
+  \setbeamertemplate{caption}[numbered]	% Set caption to be numbered
+  \addtobeamertemplate{footline}{\insertframenumber/\inserttotalframenumber}
+}
+
+\newcolumntype{C}[1]{>{\centering\arraybackslash}m{#1}}
+\newcommand{\pointcol}[1]{
+\begin{tikzpicture}
+\filldraw[fill=#1, draw=#1] circle (3pt);
+\end{tikzpicture}
+}
+
+<<setup, include=FALSE, echo=FALSE>>=
+library(knitr)
+library(xtable)
+library(doParallel)
+knitr::opts_chunk$set(echo=FALSE, warning = FALSE, fig.path = "figure/", cache.path = "cache/", opts.label="kill_prefix")
+knitr::opts_knit$set(root.dir = "..")
+@
+
+
+\title{Exploration des méthodes d'analyse de données compositionnelles pour l'étude du lien entre microbiote intestinal et santé}	
+\author{Clément Hardy\\ encadré par Mahendra Mariadassou, Magali Berland }						
+\institute{Inra Jouy en Josas}	
+\date{2 Juillet 2018}	
+\titlegraphic{\includegraphics[width=1.5cm]{logo_paris_sud.jpg}\hspace*{4.75cm}~%
+   \includegraphics[width=2cm]{logoINRA.jpg}
+}
+
+
+
+
+
+\begin{document}
+
+<<chargement_source, echo=FALSE,  include=FALSE>>=
+source("Rscript/read_metagenomic_data.R")
+source("Rscript/coda.R")
+source("Rscript/comparaison_clustering.R")
+source("Rscript/graph.R")
+source("Rscript/bootstrap.R")
+source("Rscript/test_bootstrap.R")
+source("Rscript/tree_phyloseq.R")
+source("Rscript/apprentissage_supervise.R")
+source("Rscript/fonction_presentation.R")
+@
+
+
+<<chargement RData, echo=FALSE, include=FALSE>>=
+load("rapport/resultats.RData")
+@
+
+
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+% Outline
+% This page includes the outline (Table of content) of the presentation. All sections and subsections will appear in the outline by default.
+
+
+% The following is the most frequently used slide types in beamer
+% The slide structure is as follows:
+%
+%\begin{frame}{<slide-title>}
+%	<content>
+%\end{frame}
+
+
+\begin{frame}{Introduction}
+Métagénomique: méthode d'étude du contenu génétique d'échantillons issus d'environnements complexes
+
+\begin{center}
+\includegraphics[scale=0.3]{shotgun_sequencing.png}
+\end{center}
+
+\end{frame}
+
+
+\begin{frame}
+\begin{center}
+\begin{tikzpicture}
+\draw (-3,0) circle (1);
+\draw (0,0) circle (1);
+\draw (3,0) circle (1);
+
+
+
+
+
+\draw[green, fill=green] (0.4,-0.08) circle (0.1);
+\draw[red, fill=red] (-0.61,0.46) circle (0.1);
+\draw[green, fill=green] (-0.31,0.57) circle (0.1);
+\draw[yellow, fill=yellow] (-0.37,0.27) circle (0.1);
+\draw[yellow, fill=yellow] (-0.7,0.11) circle (0.1);
+
+\draw[red, fill=red] (-0.64,-0.17) circle (0.1);
+\draw[green, fill=green] (-0.56,-0.55) circle (0.1);
+\draw[red, fill=red] (0.49,0.45) circle (0.1);
+
+\draw[yellow, fill=yellow] (0.11,0.11) circle (0.1);
+\draw[yellow, fill=yellow] (0.17,-0.31) circle (0.1);
+\draw[yellow, fill=yellow] (-0.23,-0.22) circle (0.1);
+\draw[red, fill=red] (0.63,-0.31) circle (0.1);
+\draw[yellow, fill=yellow] (-0.07,-0.7) circle (0.1);
+\draw[green, fill=green] (0.2,0.69) circle (0.1);
+\draw[red, fill=red] (0.54,0.17) circle (0.1);
+\draw[yellow, fill=yellow] (0.43,-0.76) circle (0.1);
+
+\draw[blue, fill=blue] (-0.02,0.45) circle (0.1);
+
+
+
+
+
+\draw[green, fill=green] (-.37+3, 0.75) circle (0.1);
+\draw[green, fill=green] (0.35+3, 0.74) circle (0.1);
+\draw[green, fill=green] (-0.42+3, -0.18) circle (0.1);
+\draw[green, fill=green] (0.27+3, -0.19) circle (0.1);
+\draw[green, fill=green] (0.15+3, 0.28) circle (0.1);
+\draw[green, fill=green] (-0.09+3, -0.71) circle (0.1);
+\draw[green, fill=green] (-0.75+3, 0.26) circle (0.1);
+\draw[green, fill=green] (-0.53+3, -0.6) circle (0.1);
+\draw[green, fill=green] (0.76+3, 0.24) circle (0.1);
+
+
+\draw[yellow, fill=yellow] (0.5+3, -0.59) circle (0.1);
+\draw[yellow, fill=yellow] (-0.77+3, -0.13) circle (0.1);
+
+
+\draw[red, fill=red] (0.76+3, -0.13) circle (0.1);
+\draw[red, fill=red] (-0.34+3, 0.39) circle (0.1);
+\draw[red, fill=red] (0.5+3, 0.5) circle (0.1);
+\draw[red, fill=red] (-0.12+3, -0.28) circle (0.1);
+\draw[red, fill=red] (-0.15+3, 0.11) circle (0.1);
+\draw[red, fill=red] (-0.05+3, 0.73) circle (0.1);
+
+
+\draw[black, fill=black] (0.46+3,0.18) circle (0.1);
+\draw[orange, fill=orange] (0.22+3,-0.84) circle (0.1);
+
+
+
+\draw[red, fill=red] (-0.5-3,0.67) circle (0.1);
+\draw[red, fill=red] (-0.32-3,-0.43) circle (0.1);
+\draw[red, fill=red] (-0.15-3,0.12) circle (0.1);
+\draw[red, fill=red] (0.05-3,-0.72) circle (0.1);
+
+
+\draw[green, fill=green] (0.28-3,0.52) circle (0.1);
+\draw[green, fill=green] (0.79-3,0.13) circle (0.1);
+\draw[green, fill=green] (0.13-3,-0.18) circle (0.1);
+\draw[green, fill=green] (0.51-3,-0.62) circle (0.1);
+\draw[green, fill=green] (-0.6-3,0.2) circle (0.1);
+
+
+\draw[black, fill=black] (0.34-3,0.18) circle (0.1);
+
+
+
+\path[line] (0,-1.2) -- (0,-1.8);
+\path[line] (-3,-1.2) -- (-3,-1.8);
+\path[line] (3,-1.2) -- (3,-1.8);
+
+
+\node at (0,-2) {Séquençage};
+
+
+\path[line] (0,-2.2) -- (0,-2.8);
+\path[line] (-3,-2.2) -- (-3,-2.8);
+\path[line] (3,-2.2) -- (3,-2.8);
+\end{tikzpicture}
+\end{center}
+
+
+
+\begin{center}
+\begin{tabular}{c|c|c|c}
+OTU & échantillon 1 & échantillon 2 & échantillon 3 \\
+\hline
+
+\begin{tikzpicture}  
+\draw[red, fill=red] (0,0) circle (0.1);
+\end{tikzpicture}
+& 4 & 5 & 6 \\
+\hline
+
+\begin{tikzpicture}  
+\draw[yellow, fill=yellow] (0,0) circle (0.1);
+\end{tikzpicture}
+& 0 & 7 & 2 \\
+\hline
+
+\begin{tikzpicture}  
+\draw[green, fill=green] (0,0) circle (0.1);
+\end{tikzpicture}
+& 5 & 4 & 9 \\
+\hline
+
+\begin{tikzpicture}  
+\draw[black, fill=black] (0,0) circle (0.1);
+\end{tikzpicture}
+& 1 & 0 & 1 \\
+\hline
+
+\begin{tikzpicture}  
+\draw[blue, fill=blue] (0,0) circle (0.1);
+\end{tikzpicture}
+& 0 & 1 & 0 \\
+\hline
+
+\begin{tikzpicture}  
+\draw[orange, fill=orange] (0,0) circle (0.1);
+\end{tikzpicture}
+& 0 & 0 & 1 \\
+\hline
+
+\end{tabular}
+\end{center}
+
+
+\end{frame}
+
+
+
+\begin{frame}{Définition}
+	Composition: \[
+	x=\left[ x_1,x_2,...,x_D\right],\ x_i>0
+	\]
+	ne contient que de l'information relative (ex: pourcentage d'une masse).\\
+	\vspace{0.5cm}
+	Simplexe:
+	\[
+    S^D=\lbrace x=\left[x_1, x_2,...,x_D\right]|x_i>0,i=1,2,...,D;\sum_{i=1}^Dx_i=\kappa\rbrace
+    \]
+\end{frame}
+
+
+\begin{frame}{Closure}
+\[
+C(x)=\left[\frac{\kappa*x_1}{\sum_{i=1}^Dx_i},\frac{\kappa*x_2}{\sum_{i=1}^Dx_i},...,\frac{\kappa*x_D}{\sum_{i=1}^Dx_i}     \right]
+\]
+La closure met à l'échelle les composantes d'une composition (ici à l'échelle de \(\kappa\)).\\
+
+\end{frame}
+
+
+
+
+
+\begin{frame}[fragile]{ait}
+
+\begin{center}
+
+<<fig.height=3>>=
+par(mar=c(rep(0,4)))
+c <- matrix(c(c(1,2,7)/10, ilr_inverse(c(-1.2,0)), c(1,8,1, 10/3, 10/3, 10/3)/10), byrow=TRUE, nrow=4)
+l <- ligne(1.2,c(0.2,1,3))
+y <- seq(0, 2*pi, length=1000)
+circl <- cbind(1*cos(y)-1.2, 1*sin(y))
+
+ternary_diagram1(c, colour=c(11, 2, 4, 1), style=c(16, 16, 16, 3),add_line = l, colour_line = 15, 
+                add_circle = (circl%>% ilr_inverse()), colour_circle = 14, 
+                asp = 1, axes = FALSE)
+@
+
+\begin{tabular}{|c|c|c|c|}
+\hline
+& x1 & x2 & x3 \\
+\hline
+\pointcol{black} & \Sexpr{c[1,1] %>% round(2)} & \Sexpr{c[1,2] %>% round(2)} & \Sexpr{c[1,3]} \\
+\hline
+\pointcol{red} & \Sexpr{c[2,1] %>% round(2)} & \Sexpr{c[2,2] %>% round(2)} & \Sexpr{c[2,3] %>% round(2)} \\
+\hline
+\pointcol{blue} & \Sexpr{c[3,1] %>% round(2)} & \Sexpr{c[3,2] %>% round(2)} & \Sexpr{c[3,3] %>% round(2)} \\
+\hline
+\end{tabular}
+\end{center}
+\end{frame}
+
+
+
+
+
+
+\begin{frame}{Opérations de base}
+        Perturbation(\(\sim +\)) :
+        \[
+        x,y\in S^D,\ x\oplus y=C\left[x_1y_1,x_2y_2,...,x_Dy_D\right]
+        \]
+        Power transformation(\(\sim*\)) :
+        \[
+        x\in S^D,\ \alpha\in \mathbb{R},\ \alpha\odot  x=C\left[x_1^{\alpha},x_2^{\alpha},...,x_D^{\alpha}\right]
+        \]
+        Inner Product :
+        \[
+        x,y\in S^D,\ \left\langle x,y\right\rangle_a=\frac{1}{2D}\sum_{i=1}^D\sum_{j=1}^Dln
+        \frac{x_i}{x_j}ln\frac{y_i}{y_j}
+        \]
+\end{frame}
+
+
+\begin{frame}{Transformations}
+Plusieurs transformations permettent de passer de \(S^D\) à \(R^D\) ou \(R^{D-1}\)
+\begin{itemize}
+	\item\(
+	alr:S^D\rightarrow R^{D-1},\ alr\left(x\right)=\left[ln\left(\frac{x_1}{x_D}\right), ln\left(\frac{x_2}{x_D}\right),...,ln\left(\frac{x_{D-1}}{x_D}\right)\right]
+	\)
+	\item\(
+    clr:S^D\rightarrow R^{D},\ clr\left(x\right)=\left[ln\frac{x_1}{g(x)},...,ln\frac{x_D}{g(x)}\right]
+    \)\\
+    avec \(g(x)\) le centre de la composition défini par:
+    \[
+    g(x)=\left(\prod^D_{i=1}x_i\right)^{1/D}
+    \]
+    
+    \item  \(
+    ilr:S^D\rightarrow R^{D-1},\ ilr\left(x\right)=clr\left(x\right)\Psi^{'}\) 
+    
+    \[
+    \text{ avec }\Psi  \text{ l'image(clr) des vecteurs de la base.}
+    \]
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}[fragile]{Aitchison geometry}
+
+\begin{minipage}{\linewidth}
+      \centering
+      \begin{minipage}{0.65\linewidth}
+<<fig.height=4>>=
+par(mar=c(rep(0,4)))
+ternary_diagram1(c, colour=c(11, 2, 4, 1), style=c(16, 16, 16, 3),add_line = l, colour_line = 15, 
+                add_circle = (circl%>% ilr_inverse()), colour_circle = 14, 
+                asp = 1, axes = FALSE)
+@ 
+\end{minipage}
+\hspace{0.05\linewidth}
+\begin{minipage}{0.25\linewidth}
+\resizebox{\linewidth}{!}{%
+ \begin{tabular}{|c|c|c|c|}
+\hline
+& x1 & x2 & x3 \\
+\hline
+\pointcol{black} & \Sexpr{c[1,1] %>% round(2)} & \Sexpr{c[1,2] %>% round(2)} & \Sexpr{c[1,3]} \\
+\hline
+\pointcol{red} & \Sexpr{c[2,1] %>% round(2)} & \Sexpr{c[2,2] %>% round(2)} & \Sexpr{c[2,3] %>% round(2)} \\
+\hline
+\pointcol{blue} & \Sexpr{c[3,1] %>% round(2)} & \Sexpr{c[3,2] %>% round(2)} & \Sexpr{c[3,3] %>% round(2)} \\
+\hline
+\end{tabular}
+}
+\end{minipage}
+\end{minipage}
+
+
+
+
+
+
+
+\begin{minipage}{\linewidth}
+      \centering
+      \begin{minipage}{0.65\linewidth}
+<<fig.height=4>>=
+c_ilr <- ilr(c)
+l_ilr <- ilr(l)
+plot(c_ilr, col=c(11, 2, 4, 1), pch=c(16, 16, 16, 3), cex=1.5, xlim = c(-2.2,2), ylim=c(-1,1.5), asp=1, xlab = "", ylab="")
+lines(l_ilr, col=15, lwd=3)
+lines(circl, col=14, lwd=2)
+@ 
+\end{minipage}
+\hspace{0.05\linewidth}
+\begin{minipage}{0.25\linewidth}
+\resizebox{\linewidth}{!}{%
+ \begin{tabular}{|c|c|c|}
+\hline
+& x1 & x2  \\
+\hline
+\pointcol{black} & \Sexpr{c_ilr[1,1] %>% round(2)} & \Sexpr{c_ilr[1,2] %>% round(2)} \\
+\hline
+\pointcol{red} & \Sexpr{c_ilr[2,1] %>% round(2)} & \Sexpr{c_ilr[2,2] %>% round(2)} \\
+\hline
+\pointcol{blue} & \Sexpr{c_ilr[3,1] %>% round(2)} & \Sexpr{c_ilr[3,2] %>% round(2)}  \\
+\hline
+\end{tabular}
+}
+\end{minipage}
+\end{minipage}
+\end{frame}
+
+
+
+
+
+
+
+\begin{frame}{Transformations inverse}
+\begin{itemize}
+\item \(
+clr^{-1}\left(\xi\right)=C\left( \exp\left(\xi_1\right),\ ...,\  \exp\left(\xi_D\right)\ \right)
+\)
+
+\item \(
+alr^{-1}\left(\xi\right)=C\left( \frac{\exp\left(\xi_1\right)}{\sum_{i=1}^{d-1} \exp\left(y_i\right) + 1},\ ...,\  \frac{1}{\sum_{i=1}^{d-1} \exp\left(y_i\right) + 1} \right)
+\)
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+La transformation ilr permet de repasser dans un espace usuel.
+\\
+\begin{itemize}
+\item analyse multivariée
+\item test de normalité
+\item clustering
+\item estimation de densité
+\item ...
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Jeux de données}
+Jeux de données de comptage \(\Rightarrow\) prétraitement nécessaire (présence de 0).\newline
+\\
+estimateur maximum a posteriori (MAP):
+\[
+MAP(p)=\underset{p}{argmax}\left(p|x\right)=\frac{x_i+1}{\sum_{i=1}^D\left(x_i+1\right)}
+\]
+
+
+
+
+
+\end{frame}
+
+\begin{frame}{Différence entre MAP et maximun de vraisemblance}
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+\multicolumn{6}{|c|}{Compositions} \\
+\hline
+2 & 5 & 12 & 0 & 1 & 0 \\
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{1.5cm}
+
+\begin{tabular}{cc}
+
+\setlength{\extrarowheight}{4pt}
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+\multicolumn{6}{|c|}{Max de vraisemblance} \\
+\hline
+\(\frac{2}{20}\) & \(\frac{5}{20}\) & \(\frac{12}{20}\) & 0 & \(\frac{1}{20}\) & 0 \\
+\hline
+\end{tabular}
+
+&
+
+\setlength{\extrarowheight}{4pt}
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+\multicolumn{6}{|c|}{MAP} \\
+\hline
+\(\frac{3}{26}\) & \(\frac{3}{13}\) & \(\frac{1}{2}\) & \(\frac{1}{26}\) & \(\frac{1}{13}\) & \(\frac{1}{26}\) \\
+\hline
+\end{tabular}
+
+
+\end{tabular}
+\end{frame}
+
+\begin{frame}{Ravel\cite{Ravel}}
+\resizebox{\linewidth}{!}{%
+<<>>=
+head(metadata_ravel) %>% kable()
+@
+}
+\\
+pH: pH du vagin de la femme \\
+Nugent score: résultat du test (détection de Bacterial vaginosis)\\
+CST: cluster discret\\
+Depth: profondeur de séquençage
+\end{frame}
+
+
+\begin{frame}{Réduction de dimension}
+<<graph biplot ravel, fig.height = 4.5>>=
+graph_biplot_normale(ravel, metadata_ravel$CST, 1, "Ravel", "CST", ellipse=FALSE) [[1]]
+@
+\end{frame}
+
+
+
+\begin{frame}{Objectif}
+Utiliser le jeu de données pour en simuler un nouveau qui lui ressemble.
+\end{frame}
+
+\begin{frame}{Méthodes de simulation}
+\[
+X \overset{MAP}{\rightarrow} \left(S^p\right)^n \overset{ilr}{\rightarrow}    \left(\mathbb{R}^{p-1}\right)^n \overset{apprentissage}{\rightarrow} \left(\mathbb{R}^{p-1}\right)^n \overset{ilr^{-1}}{\rightarrow}\left(S^{p-1}\right)^n  \overset{multinomiale}{\rightarrow} \tilde{X}
+\]
+
+\end{frame}
+
+
+
+
+
+\begin{frame}{Simulations de données ("bootstrap")}{Réduction de dimension}
+
+ACP Probabiliste:
+\[
+Y_i=Wx_i+\epsilon_i, \ x_i\sim \mathcal{N}\left(0,\mathbb{I}_d\right), \ \epsilon_i \sim \mathcal{N}\left(0, \sigma^2\mathbb{I}_p\right)
+\]
+\newline
+Choix de la dimension faite en regardant l'erreur quadratique.
+\end{frame}
+
+\begin{frame}
+\resizebox{\linewidth}{!}{%
+<<>>=
+g <- graph_biplot_normale(ravel, "data")
+g[[1]] + geom_density2d(aes(X1, X2))
+@
+}
+\end{frame}
+
+\begin{frame}{Simulations de données ("bootstrap")}{Estimation loi}
+Mélange Gaussien:
+
+\[
+g\left(x, \Theta\right)=\sum_{k=1}^K \pi_kf(x,\theta_k)
+\]
+avec \(f\) la fonction de densité de la loi normale multivariée.
+
+\end{frame}
+
+
+\begin{frame}[fragile]{Résultats actuels}
+
+\begin{center}
+<<fig.height=3.5>>=
+ravel_boot <- bootstrap(ravel, nb_cluster = 4, nb_axe = 4, type="comptage", zero_inflated = FALSE)
+data <- rbind(ravel, ravel_boot$data)
+# metadata <- c(as.character(metadata_ravel$CST), as.character(ravel_boot$metadata)) %>% as.factor()
+metadata <- c(rep("real", nrow(ravel)), rep("simu", nrow(ravel_boot$data))) %>% as.factor()
+graph_biplot_normale(data, metadata, 4, title = "ravel", legend=FALSE, legend_title = "data")[[1]]
+@
+
+\begin{tabular}{p{3cm}p{2cm}}
+\begin{tabular}{cc}
+réels & \pointcol{red} \\
+simulés & \pointcol{blue}
+\end{tabular}
+&
+\begin{tabular}{|c|c|c|}
+\hline
+& réels & simulés \\
+\hline
+1 & 100 & 3 \\
+\hline
+0 & 0   & 97 \\
+\hline
+\end{tabular}
+\end{tabular}
+\end{center}
+\end{frame}
+
+\begin{frame}
+
+<<fig.height=4>>=
+ravel_boot <- bootstrap(ravel, nb_cluster = 4, nb_axe = 4, type="comptage", zero_inflated = FALSE)
+data <- rbind(ravel, ravel_boot$data)
+# metadata <- c(as.character(metadata_ravel$CST), as.character(ravel_boot$metadata)) %>% as.factor()
+metadata <- c(rep("real", nrow(ravel)), rep("simu", nrow(ravel_boot$data))) %>% as.factor()
+d <- data.frame(data, metadata=metadata)
+ggplot(d) + geom_histogram(aes(OTU_163, fill=metadata), position="dodge", binwidth = 1)
+@
+
+\end{frame}
+
+\begin{frame}{Zero inflated}
+Zero inflated: mettre des zeros aléatoirement dans le jeu de donnée simulé.
+ \[
+  \begin{array}{c|c|c|c|}
+ \multicolumn{4}{c}{\quad \quad \quad \quad \ \ Cluster} \\ 
+ \multicolumn{4}{c}{\quad \quad \quad \quad \ \ $\downbracefill$} \\
+  \cline{2-4}
+  \ldelim \{{6}{*}[OTUS]& 
+  1/3 & 1/2 & 1/5 \\
+  \cline{2-4}
+   &2/3 & 3/4 & 1/4 \\
+   \cline{2-4}
+   & . & . & . \\
+   \cline{2-4}
+   & . & . & . \\
+   \cline{2-4}
+   & . & . & . \\
+   \cline{2-4}
+   & . & . & . \\
+   \cline{2-4}
+  \end{array}
+\]
+\end{frame}
+
+\begin{frame}
+
+<<fig.height=4>>=
+ravel_boot <- bootstrap(ravel, nb_cluster = 4, nb_axe = 4, type="comptage", zero_inflated = TRUE)
+data <- rbind(ravel, ravel_boot$data)
+# metadata <- c(as.character(metadata_ravel$CST), as.character(ravel_boot$metadata)) %>% as.factor()
+metadata <- c(rep("real", nrow(ravel)), rep("simu", nrow(ravel_boot$data))) %>% as.factor()
+d <- data.frame(data, metadata=metadata)
+ggplot(d) + geom_histogram(aes(OTU_163, fill=metadata), position="dodge", binwidth = 1)
+@
+
+\end{frame}
+
+\begin{frame}{Résultat après zero inflated}
+\[
+\begin{tabular}{|c|c|c|}
+\hline
+& réels & simulés \\
+\hline
+1 & 87 & 30 \\
+\hline
+0 & 13   & 70 \\
+\hline
+\end{tabular}
+\]
+\vspace{1cm} \\
+Amélioration possible: \begin{itemize}
+\item zero inflated multivariée
+\item choix du coefficient de zero inflated
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Annexe}{PPCA}
+<<fig.height=4>>=
+
+set.seed(20160919)
+x <- rnorm(100)
+noise <- matrix(rnorm(200, 0.1), ncol = 2)
+mu <- c(-1, 1)
+data.perfect <- (x %*% t(c(x = 1, y = 2)) + matrix(rep(mu, each =
+                                                         length(x)), ncol = 2)) %>% as.data.frame()
+segment.data <- cbind(data.perfect, data.perfect + noise)
+names(segment.data) <- c("x", "y", "xend", "yend")
+p.template <- ggplot(data = NULL, aes(x, y)) + geom_abline(slope = 2,
+                                                           intercept = 3, color = "darkred") + scale_x_continuous(limits = c(-5,
+                                                                                                                             3)) + scale_y_continuous(limits = c(-4, 5))
+grid.arrange(ggplot(data.frame(x = x, y = 0), aes(x, y)) + geom_point()
+             + geom_hline(yintercept = 0, color = "darkred") +
+               ggtitle(expression(Latent~Space~(W))),
+             p.template + geom_point(data = data.perfect) +
+               ggtitle(expression(Parameter~Space~(mu+WB))),
+             p.template + geom_point(data = data.perfect, color =
+                                       "red") + ggtitle(expression(Observation~Space~(mu+WB))),
+             p.template + geom_point(data = data.perfect, color = "red") +
+               geom_point(data = data.perfect + noise) +
+               geom_segment(data = segment.data, aes(xend = xend, yend
+                                                     = yend), color = "black", alpha = 0.2) +
+               ggtitle(expression(Observation~Space~(mu+WB+E))),
+             ncol = 2)
+
+@
+\end{frame}
+
+\begin{frame}{Annexe}{mélange gaussien}
+<<fig.height=4>>=
+x <- seq(-5, 6, length=10000)
+y1 <- dnorm(x, mean=-1.8)*0.3
+y2 <- dnorm(x, mean=1.6, sd=1.4)*0.5
+y3 <- dnorm(x, mean=-3, sd=0.4)*0.2
+n <- 1000000
+r1 <- rnorm(n*0.3, -1.8)
+r2 <- rnorm(n*0.5, 1.6, 1.4)
+r3 <- rnorm(n*0.2, -3, 0.4)
+  
+hist(c(r1, r2, r3), proba=TRUE, breaks = 50, main="melange gaussien", xlab = "x")
+lines(x, y1, col="red")
+lines(x, y2, col='blue')
+lines(x,y3, col="green")
+lines(x, y1+y2+y3)
+legend("topright", lty=c(1,1,1), col=c("red", "blue", "green", "black"), legend=c("G1","G2", "G3","G1+G2+G3"))
+
+@
+\end{frame}
+
+\begin{frame}{Annexe}{conservation distance}
+
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{ccc}
+simplexe & alr & clr,ilr \\
+\begin{tabular}{cccc}
+& 1 & 2 & 3 \\
+2 & 2.14 & & \\
+3 & 2.37 & 2.8 & \\
+4 & 1.39 & 1.2 & 1.7 \\
+\end{tabular}
+&
+\begin{tabular}{cccc}
+& 1 & 2 & 3 \\
+2 & 2.82 & & \\
+3 & 3.86 & 3.05 & \\
+4 & 2.31 & 1.2 & 2.08 \\
+\end{tabular}
+&
+\begin{tabular}{cccc}
+& 1 & 2 & 3 \\
+2 & 2.14 & & \\
+3 & 2.37 & 2.8 & \\
+4 & 1.39 & 1.2 & 1.7 \\
+\end{tabular}
+\end{tabular}
+}
+
+\end{frame}
+
+\begin{frame}{Annexe}{Transformation ilr}
+Matrice utilisé pour coder la base:\\
+
+\[
+\begin{blockarray}{cccc}
+x1 & x2 & x3 & x4  \\
+\begin{block}{(cccc)}
+  1 & 1 & 1 & -1 \\
+1 & 1 & -1 & 0 \\
+1 & -1 & 0 & 0 \\
+\end{block}
+\end{blockarray}
+\]
+
+
+L'image \(clr\) de la base
+\[
+\Psi =\begin{pmatrix}
+\frac{1}{\sqrt{12}} & \frac{1}{\sqrt{12}} & \frac{1}{\sqrt{12}} & -\frac{3}{\sqrt{12}} \\
+\frac{1}{\sqrt{6}} & \frac{1}{\sqrt{6}} & -\frac{2}{\sqrt{6}} & 0 \\
+\frac{1}{\sqrt{2}} & -\frac{1}{\sqrt{2}} & 0 & 0
+\end{pmatrix}
+\]
+
+\end{frame}
+
+
+\begin{frame}{Annexe}{Transformation ilr}
+Systeme générateur: \(e_i=C(1,1,....e,...,1)\) \\
+On omet le dernier vecteur puis on orthogonalise avec gram-schmidt.
+\[
+wi=e_i-\sum_{k=1}^{i-1}\frac{\left\langle e_i, e_{k}\right\rangle}{||e_{k}||^2}e_{k}
+\]
+\end{frame}
+
+
+\begin{frame}{Références}
+\bibliographystyle{plain}
+\bibliography{bibli.bib}
+
+\end{frame}
+\end{document}
