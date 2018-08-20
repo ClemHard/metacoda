@@ -7,6 +7,18 @@ library(doParallel)
 source("Rscript/bootstrap.R")
 source("Rscript/test_bootstrap.R")
 
+
+#'  fit a gaussian mixture on each group of a dataset (OTU in column, sample in line)
+#'  
+#' @param data a dataset (count data)
+#' @param nb_cluster the number of gaussian in the gaussian mixture
+#' @param  base_binaire binary sequential matrix use for the ilr transformation (default the basis sequence)
+#'
+#' @return an object of class "apprentissage supervise"
+#' 
+#' @author Clement Hardy
+#' @export
+
 apprentissage_supervise <- function(data, metadata){
   
   name_group <- unique(metadata)
@@ -19,6 +31,22 @@ apprentissage_supervise <- function(data, metadata){
   })
   apprent
 }
+
+
+#' produce news sample (compositionnal data) using an object of class "apprentissage supervise"
+#' after simulated compositionnal data of each group, the method use a zero inflated to force zero.
+#' the proportion of zero in news samples is determine by the zero inflated function
+#' 
+#'
+#' @param apprent an object of class "apprentissage supervise"
+#' @param nb_sample a numerice vector containing the number of sample of each group to simulate
+#' 
+#' @return the news samples
+#' @return the group of each sample
+#'
+#' @author Clement Hardy
+#' @export
+#' @import stats
 
 
 simulation_supervise <- function(apprent, nb_sample=NULL){
@@ -41,6 +69,22 @@ simulation_supervise <- function(apprent, nb_sample=NULL){
   
   list(data=data, metadata=metadata)
 }
+
+#' produces news samples (with different group) from a dataset of OTU table,
+#' for each group of the dataset the following method is apply
+#' the method is a base on compositional data with isometric log ratio transformation 
+#' a dimension reduction and a gaussian mixture is used to produce the news samples
+#' the dimension of the latent space could be given in argument or by default find with the heuristic slope.
+#' the number of gaussian in the gaussian mixture could be given in argument or default find with the bic criteria
+#'
+#' @param data the dataset to simulate
+#' @param metadata a numeric vector containing the name of the group 
+#' @param nb_sample a numeric vector containing the number of sample to produce for each group
+#'
+#' @return a list containing a matrix with the produce sample, an object of class "apprentissage", the dimension of the latent space, the number of gaussian
+#' 
+#' @author Clement Hardy
+#' @export
 
 
 bootstrap_supervise <- function(data, metadata, nb_sample=NULL){

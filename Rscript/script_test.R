@@ -3,6 +3,7 @@ library(testthat)
 source("Rscript/coda.R");
 source("Rscript/test_groupe.R")
 source("Rscript/bootstrap.R")
+source("Rscript/test_bootstrap.R")
 
 ## Test norm data
 test_that("norm_data detects nonpositive values", {
