@@ -1,4 +1,4 @@
-\documentclass[11pt,a4paper]{report}
+\documentclass[11pt,a4paper]{article}
 \usepackage{geometry}
 \geometry{hmargin=2cm,vmargin=2cm}
 \usepackage[utf8]{inputenc}
@@ -38,8 +38,8 @@
 \tikzstyle{line} = [draw, -latex']
 \tikzstyle{cloud} = [draw, circle, minimum height=3em]
 
-\newcommand{\ER}{\ensuremath{\mathbb{R}}}
-\newcommand{\EE}{\ensuremath{\mathbb{E}}}
+
+
 
 \tikzset{
 >=stealth',
@@ -58,7 +58,7 @@ knitr::opts_knit$set(root.dir = "..")
 @
 
 \title{Exploration des méthodes d'analyse de données compositionnelles pour l'étude du lien entre microbiote intestinal et santé.}
-
+\author{Clément Hardy}
 \date{}
 
 \begin{document}
@@ -87,7 +87,7 @@ load("rapport/resultats.RData")
 \tableofcontents
 \newpage
 \section{Présentation}
-Je réalise mon stage à l'Inra de Jouy en Josas dans l'unité "Mathématiques et Informatique Appliquées du Génome à l'Environnement" (MaIAGE).
+J'ai réalisé mon stage à l'Inra de Jouy en Josas dans l'unité "Mathématiques et Informatique Appliquées du Génome à l'Environnement" (MaIAGE).
 
 \subsection{Unité de recherche}
 L'unité de recherche MaIAGE regroupe des mathématiciens, des informaticiens, des bioinformaticiens et des biologistes autour de questions de biologie et agro-écologie, allant de l'échelle moléculaire à l'échelle du paysage en passant par l'étude de l'individu, de populations ou d'écosystèmes.
@@ -105,7 +105,7 @@ L'unité MaIAGE est structurée en 4 équipes de recherche :
 \item  acquisition et formalisation de connaissances à partir de texte(Bibliome )
 \end{enumerate}
 
-J'ai réalisé mon stage au sein de l'équipe StatInfOmics.
+J'ai été accueillis au sein de l'équipe StatInfOmics.
 \subsection{Equipe}
 L'équipe StatInfOmics vise à développer et mettre en oeuvre des méthodes statistiques et bioinformatiques dédiées à l’analyse de données “omiques”. D’un point de vue biologique, les questions abordées concernent principalement l’annotation structurale et fonctionnelle des génomes, les régulations géniques, la dynamique évolutive des génomes, et la caractérisation d’écosystèmes microbiens en terme de diversité et de fonctions présentes ; une cible commune étant la relation entre génotype et phénotype. Une part de plus en plus importante de notre activité est relative à l’intégration de données “omiques” hétérogènes pour en extraire de l’information pertinente et aussi prédire des processus biologiques. D’un point de vue méthodologique, nos travaux sont essentiellement d’ordre statistique : estimation de distributions, inférence de modèles à variables latentes, prédiction de relations entre jeux de variables, segmentation, visualisation et classification, avec une attention particulière au cadre de la grande dimension qui caractérise la majorité des jeux de données “omiques” étudiés. Ces recherches s’appuient souvent sur une ingénierie bioinformatique très forte.
 
@@ -123,9 +123,151 @@ En bactériologie, le génome n'est pas complètement séquencé mais seulement 
 Les séquences (reads) obtenues suite au séquencage sont assignées à une espèce bactérienne. Une fois cette étape effectuée, la table de comptage des OTUS est contruite (un OTU est un ensemble de bactéries qui se ressemblent).\\
 La table de comptage des OTUS n'est autre qu'un tableau contenant le nombre de séquences par OTU observés dans chaque échantillon.
 
+\begin{center}
+\begin{tikzpicture}[node distance=2cm, auto]
+\draw (-3,0) circle (1);
+\draw (0,0) circle (1);
+\draw (3,0) circle (1);
+
+
+
+
+
+\draw[green, fill=green] (0.4,-0.08) circle (0.1);
+\draw[red, fill=red] (-0.61,0.46) circle (0.1);
+\draw[green, fill=green] (-0.31,0.57) circle (0.1);
+\draw[yellow, fill=yellow] (-0.37,0.27) circle (0.1);
+\draw[yellow, fill=yellow] (-0.7,0.11) circle (0.1);
+
+\draw[red, fill=red] (-0.64,-0.17) circle (0.1);
+\draw[green, fill=green] (-0.56,-0.55) circle (0.1);
+\draw[red, fill=red] (0.49,0.45) circle (0.1);
+
+\draw[yellow, fill=yellow] (0.11,0.11) circle (0.1);
+\draw[yellow, fill=yellow] (0.17,-0.31) circle (0.1);
+\draw[yellow, fill=yellow] (-0.23,-0.22) circle (0.1);
+\draw[red, fill=red] (0.63,-0.31) circle (0.1);
+\draw[yellow, fill=yellow] (-0.07,-0.7) circle (0.1);
+\draw[green, fill=green] (0.2,0.69) circle (0.1);
+\draw[red, fill=red] (0.54,0.17) circle (0.1);
+\draw[yellow, fill=yellow] (0.43,-0.76) circle (0.1);
+
+\draw[blue, fill=blue] (-0.02,0.45) circle (0.1);
+
+
+
+
+
+\draw[green, fill=green] (-.37+3, 0.75) circle (0.1);
+\draw[green, fill=green] (0.35+3, 0.74) circle (0.1);
+\draw[green, fill=green] (-0.42+3, -0.18) circle (0.1);
+\draw[green, fill=green] (0.27+3, -0.19) circle (0.1);
+\draw[green, fill=green] (0.15+3, 0.28) circle (0.1);
+\draw[green, fill=green] (-0.09+3, -0.71) circle (0.1);
+\draw[green, fill=green] (-0.75+3, 0.26) circle (0.1);
+\draw[green, fill=green] (-0.53+3, -0.6) circle (0.1);
+\draw[green, fill=green] (0.76+3, 0.24) circle (0.1);
+
+
+\draw[yellow, fill=yellow] (0.5+3, -0.59) circle (0.1);
+\draw[yellow, fill=yellow] (-0.77+3, -0.13) circle (0.1);
+
+
+\draw[red, fill=red] (0.76+3, -0.13) circle (0.1);
+\draw[red, fill=red] (-0.34+3, 0.39) circle (0.1);
+\draw[red, fill=red] (0.5+3, 0.5) circle (0.1);
+\draw[red, fill=red] (-0.12+3, -0.28) circle (0.1);
+\draw[red, fill=red] (-0.15+3, 0.11) circle (0.1);
+\draw[red, fill=red] (-0.05+3, 0.73) circle (0.1);
+
+
+\draw[black, fill=black] (0.46+3,0.18) circle (0.1);
+\draw[orange, fill=orange] (0.22+3,-0.84) circle (0.1);
+
+
+
+\draw[red, fill=red] (-0.5-3,0.67) circle (0.1);
+\draw[red, fill=red] (-0.32-3,-0.43) circle (0.1);
+\draw[red, fill=red] (-0.15-3,0.12) circle (0.1);
+\draw[red, fill=red] (0.05-3,-0.72) circle (0.1);
+
+
+\draw[green, fill=green] (0.28-3,0.52) circle (0.1);
+\draw[green, fill=green] (0.79-3,0.13) circle (0.1);
+\draw[green, fill=green] (0.13-3,-0.18) circle (0.1);
+\draw[green, fill=green] (0.51-3,-0.62) circle (0.1);
+\draw[green, fill=green] (-0.6-3,0.2) circle (0.1);
+
+
+\draw[black, fill=black] (0.34-3,0.18) circle (0.1);
+
+
+
+\path[line] (0,-1.2) -- (0,-1.8);
+\path[line] (-3,-1.2) -- (-3,-1.8);
+\path[line] (3,-1.2) -- (3,-1.8);
+
+
+\node at (0,-2) {Séquençage};
+
+
+\path[line] (0,-2.2) -- (0,-2.8);
+\path[line] (-3,-2.2) -- (-3,-2.8);
+\path[line] (3,-2.2) -- (3,-2.8);
+\end{tikzpicture}
+\end{center}
+
+\begin{figure}[H]
+\begin{center}
+\begin{tabular}{c|c|c|c}
+OTU & échantillon 1 & échantillon 2 & échantillon 3 \\
+\hline
+
+\begin{tikzpicture}  
+\draw[red, fill=red] (0,0) circle (0.1);
+\end{tikzpicture}
+& 4 & 5 & 6 \\
+\hline
+
+\begin{tikzpicture}  
+\draw[yellow, fill=yellow] (0,0) circle (0.1);
+\end{tikzpicture}
+& 0 & 7 & 2 \\
+\hline
+
+\begin{tikzpicture}  
+\draw[green, fill=green] (0,0) circle (0.1);
+\end{tikzpicture}
+& 5 & 4 & 9 \\
+\hline
+
+\begin{tikzpicture}  
+\draw[black, fill=black] (0,0) circle (0.1);
+\end{tikzpicture}
+& 1 & 0 & 1 \\
+\hline
+
+\begin{tikzpicture}  
+\draw[blue, fill=blue] (0,0) circle (0.1);
+\end{tikzpicture}
+& 0 & 1 & 0 \\
+\hline
+
+\begin{tikzpicture}  
+\draw[orange, fill=orange] (0,0) circle (0.1);
+\end{tikzpicture}
+& 0 & 0 & 1 \\
+\hline
+
+\end{tabular}
+\end{center}
+\caption{Tables des OTU}
+\end{figure}
+
+L'une des particularité de la table des OTU pour la métagénomique est qu'elle contient énormément de zéro. En effet, un OTU qui est présent dans un seul échantillon sera quant même comptabilisé dans les autres échantillons. La diversité des OTU dans chaque échantillon pouvant être très différente, il y a ainsi énormément de zéro.
 
 \subsection{Problématique des données de comptage}
-L'une des problématiques pour l'étude statistique des données issues de la métagénomique est due à la différence du nombre d'OTU par échantillon. En effet, les séquenceurs hauts débits offrent la possibilité de séquencer un grand nombre d'échantillons en même temps, mais ne garantit pas le nombre de séquences (profondeur de séquençage) obtenues par échantillon. Le nombre d'OTU obtenus suite au séquencage dans un échantillon peut être par exemple de 1000 tandis que dans un autre il ne peut être que de 500.\\
+L'une des problématiques pour l'étude statistique des données issues de la métagénomique est due à la différence du nombre d'OTU par échantillon. En effet, les séquenceurs hauts débits offrent la possibilité de séquencer un grand nombre d'échantillons en même temps, mais ne garantit pas le nombre de séquences (profondeur de séquençage) obtenues par échantillon. Le nombre d'OTU obtenus suite au séquençage dans un échantillon peut être par exemple de 1000 tandis que dans un autre il ne peut être que de 500.\\
 La comparaison directe des échantillons est donc impossible.\\
 Le passage aux données compositionnelles est une méthode de résolution possible de cette problématique.\\
 
@@ -133,6 +275,7 @@ Le passage aux données compositionnelles est une méthode de résolution possib
 Le but de ce stage est de transformer ces données de comptage en données compositionnelles et d'utiliser les méthodes d'analyse associées à ces données pour pouvoir leur appliquer un modèle probabiliste. \\
 Ce modèle probabiliste a ensuite servi à développer un simulateur de nouvelles données.
 
+\newpage
 \section{Géométrie de Aitchison}
 Commençons par expliquer ce que sont les données compositionnelles.
 \subsection{Simplexe}
@@ -163,6 +306,7 @@ Un ternary diagram est un triangle équilateral ; pour une composition
 par(mar=rep(0,4))
 ternary_diagram2()
 @
+\caption{Ternary diagram}
 \end{center}
 \end{figure}
 
@@ -257,7 +401,7 @@ data <- matrix(c(runif(n,1,7),runif(n,0.1,1),runif(n,1,7)),nrow=n)
           		par(mar=c(rep(0,4)))
               ternary_diagram(data %>% closure(), colour="red", type_point = 16)
               @
-              \caption{Avant transformation ilr}
+              \caption{Avant centrage et réduction}
           \end{figure}
       \end{minipage}
       \hspace{0.05\linewidth}
@@ -268,14 +412,14 @@ data <- matrix(c(runif(n,1,7),runif(n,0.1,1),runif(n,1,7)),nrow=n)
           par(mar=c(rep(0,4)))
               ternary_diagram(data %>% closure() %>% center_scale(), colour="red", type_point = 16)
               @
-              \caption{Après transformation ilr}
+              \caption{Après centrage et réduction}
           \end{figure}
       \end{minipage}
   \end{minipage}\\
 
 \subsection{Transformation}
 Comme nous avons pu le voir, l'espace du simplexe nécessite une redéfinition des opérations de base. Dans cette partie, nous allons voir des transformations permettant de repasser dans un espace euclidien.\\
-Tout d'abord, remarquons que la valeur de \(\kappa\)(somme des composantes) d'une composition n'a pas fondamentalement une grande importance. En effet, l'étude de données qu'elles soient exprimées en pourcentages ou en proportions ne change rien. \\
+Tout d'abord, remarquons que la valeur de \(\kappa\) (somme des composantes) d'une composition n'a pas fondamentalement une grande importance. En effet, l'étude de données qu'elles soient exprimées en pourcentages ou en proportions ne change rien. \\
 Les rapports relatifs sont bien plus intéressants. Il n'est donc pas étonnant que les transformations reposent sur des log ratios de composantes.\\
 
 Commençons par l'additive log-ratio transformation(alr).
@@ -292,7 +436,7 @@ Cependant, cette transformation est grandement dépendante de la composante choi
 La transformation centred log-ratio n'a pas cette problématique.
 Elle s'exprime comme suit:
 \[
-clr\left(x\right)=\left[ln\frac{x_1}{g(x)},...,ln\frac{x_D}{g(x)}\right]=\xi
+clr:S^D\rightarrow R^{D},\ clr\left(x\right)=\left[ln\frac{x_1}{g(x)},...,ln\frac{x_D}{g(x)}\right]=\xi
 \]	
 avec \(g\) le centre de la composition définie par:
 \[
@@ -303,7 +447,7 @@ Cependant, comme vu précédemment, la dernière composante peut s'exprimer en f
 
 Voyons enfin l'isometric log-ratio transformation (ilr),
 \[
-ilr\left(x\right)=clr\left(x\right)\Psi^{'}
+ilr:S^D\rightarrow R^{D-1},\ ilr\left(x\right)=clr\left(x\right)\Psi^{'}
 \]
 avec \(\Psi\) l'image \(clr\) de la base.\\
 Cette transformation permet de résoudre les problématiques des autres transformations, elle préserve les distances et ne génère pas une matrice de covariance liée. Pour cela, elle utilise un type de coordonnée particulier nommé balance.\\
@@ -389,6 +533,8 @@ Ces trois transformations ont bien entendu leur transformation inverse qui sont 
 &ilr^{-1}\left(\xi\right)=C\left(\exp{\xi\Psi}\right)
 \end{align*}
 
+\newpage
+
 \section{Analyse Multivariée}
 \subsection{Réduction de dimension}
 L'ACP est une méthode de réduction de dimension couramment utilisée pour synthétiser l'information.\\
@@ -413,6 +559,7 @@ MAP(p)=\underset{p}{argmax}\left(p|x\right)=\frac{x_i+1}{\sum_{i=1}^D\left(x_i+1
 \]
  Cela revient simplement à ajouter un comptage pour chaque OTU.
 
+\newpage
 \section{Transformation ilr et classification}
 
 \subsection{Jeux de données}
@@ -663,6 +810,8 @@ kable(v_liver_500_ilr$kNN)
 Dans le cas de certains classificateurs tel que le svm, la classification supervisée sur certains jeux de données de comptage ne donne pas du tout des résultats concluants (voir chaillou en Annexe \ref{annexe classification supervise}).\\
 Que ce soit pour la classification supervisée ou non supervisée, les résultats sont meilleurs sur les données compositionnelles (après transformation ilr) que sur les données initiales. Il semble donc avoir un intérêt à passer par les données compositionnelles pour la classification.
 
+\newpage
+
 \section{Simulateur}
 
 \subsection{Schéma simulateur}
@@ -788,6 +937,7 @@ Ce qui permet d'exprimer \(\tilde{X_{i}}\) comme
 où \(Z_{ik}\sim Bern\left(\pi_{jk}\right)\) et \(T_i\sim \mathbb{M}\left(N; \tilde{S}_i\right)\) avec \\
  \(\tilde{S}_i\) qui est le résultat de \(ilr^{-1}\left(\mathbb{N}\left(W\mu_k, W\Sigma_k W^T+\sigma^2I \right)\right)\)
  
+\newpage
 
 \section{Performance simulateur}
 \subsection{Méthode}
@@ -1034,12 +1184,13 @@ Les résultats sont comparables à ceux obtenus avec la méthode précédente.
 Les données considérées comme réelles (bien simulées) ne semblent pas plus faciles, ni plus difficiles à classer que dans le cas précédent. Les jeux de données où les résultats sur l'ensemble des données simulées étaient déjà très convaincants le sont toujours ; mais les jeux de données où la classification des données simulées était plus compliquée reste compliquée (le classificateur kNN pour liver).\\
 Cependant sur ces jeux de données, la validation croisée (Classification supervisée) sur les données réelles ne permet pas non plus d'obtenir de bons résultats, la problématique ne semble donc pas venir des données simulées.\\
 
-
+\newpage
 \section{Conclusion}
 L'intérêt des données compositionnelles est de pouvoir s'affranchir de certaines contraintes techniques comme la profondeur de séquencage.\\
 L'utilisation des transformations des données compositionnelles pour repasser dans un espace euclidien s'est révélée pertinente sur les jeux de données utilisé durant mon stage, les résultats des différentes classifications étant au moins aussi bons que sur les données initiales.\\
 De même les résultats obtenus sur les données simulées sont encourageants.\\
 Les caractéristiques des différents groupes des jeux de données semblent relativement bien simulées. Cependant, les résultats sont très variables selon les jeux de données. Des tests sur un plus grand nombre de jeux de données seraient nécessaires pour étudier la robustesse du simulateur.
+
 
 \newpage
 \section{Annexe}
