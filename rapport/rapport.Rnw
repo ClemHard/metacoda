@@ -50,7 +50,6 @@
 
 <<setup, include=FALSE, echo=FALSE>>=
 library(knitr)
-library(kableExtra)
 library(xtable)
 library(doParallel)
 knitr::opts_chunk$set(echo=FALSE, warning = FALSE, fig.path = "figure/", cache.path = "cache/")
@@ -101,7 +100,7 @@ L'unité MaIAGE est structurée en 4 équipes de recherche :
 \begin{enumerate}
 \item bioinformatique et statistique pour les données "omiques"(StatInfOmics)
 \item biologie des Systèmes(BioSys)
-\item modélisation dynamique et statistique pour les écosystèmes, l'épidémiologie et l'agronomie(Dynenvie)
+\item modélisation dynamique et statistique pour les écosystèmes,\newline l'épidémiologie et l'agronomie(Dynenvie)
 \item  acquisition et formalisation de connaissances à partir de texte(Bibliome )
 \end{enumerate}
 
@@ -269,7 +268,7 @@ L'une des particularité de la table des OTU pour la métagénomique est qu'elle
 \subsection{Problématique des données de comptage}
 L'une des problématiques pour l'étude statistique des données issues de la métagénomique est due à la différence du nombre d'OTU par échantillon. En effet, les séquenceurs hauts débits offrent la possibilité de séquencer un grand nombre d'échantillons en même temps, mais ne garantit pas le nombre de séquences (profondeur de séquençage) obtenues par échantillon. Le nombre d'OTU obtenus suite au séquençage dans un échantillon peut être par exemple de 1000 tandis que dans un autre il ne peut être que de 500.\\
 La comparaison directe des échantillons est donc impossible.\\
-Le passage aux données compositionnelles est une méthode de résolution possible de cette problématique.\\
+Le passage aux données compositionnelles est une méthode de résolution possible de cette problématique.
 
 \subsection{Objectif du stage}
 Le but de ce stage est de transformer ces données de comptage en données compositionnelles et d'utiliser les méthodes d'analyse associées à ces données pour pouvoir leur appliquer un modèle probabiliste. \\
@@ -292,9 +291,12 @@ Le simplexe est l'espace de probabilité des données compositionnelles  et est 
  \[
 C(x)=\left[\frac{\kappa*x_1}{\sum_{i=1}^Dx_i},\frac{\kappa*x_2}{\sum_{i=1}^Dx_i},...,\frac{\kappa*x_D}{\sum_{i=1}^Dx_i}     \right]
 \]
-\vspace*{0.3cm}
-Deux vecteurs \(x,y\in\mathbb{R}^D_{+}\) tels que \(x_i,\ y_i>0,\ \forall i=1,...,D\) sont dits compositionnellement équivalents s'il existe un \(\lambda\in \mathbb{R}^{+}\) tel que \(x=\lambda y\) ce qui est équivalent à \(C(x)=C(y)\).\\
 
+\vspace*{0.3cm}
+Deux vecteurs \(x,y\in\mathbb{R}^D_{+}\) tels que \(x_i,\ y_i>0,\ \forall i=1,...,D\) sont dits compositionnellement équivalents s'il existe un \(\lambda\in \mathbb{R}^{+}\) tel que \(x=\lambda y\) ce qui est équivalent à \(C(x)=C(y)\).
+\newline
+\vspace*{0.3cm}
+\newline
 La représentation graphique d'une donnée compositionnelle à trois composantes se fait grâce à un ternary diagram.\\
 Un ternary diagram est un triangle équilateral ; pour une composition
 \(X=\left[x_1, x_2, x_3\right]\), les composantes sont la distance entre sa  représentation graphique et un des côtés du triangle, comme montré dans le graphique suivant
