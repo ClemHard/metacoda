@@ -50,7 +50,6 @@
 
 <<setup, include=FALSE, echo=FALSE>>=
 library(knitr)
-library(kableExtra)
 library(xtable)
 library(doParallel)
 knitr::opts_chunk$set(echo=FALSE, warning = FALSE, fig.path = "figure/", cache.path = "cache/")
