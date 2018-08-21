@@ -117,10 +117,14 @@ L'équipe StatInfOmics vise à développer et mettre en oeuvre des méthodes sta
 
 \section{Contexte biologique et enjeux}
 \subsection{Métagénomique}
-La métagénomique est une méthode de séquencage et d'analyse du contenu génétique d'un échantillon issu d'un milieu complexe (tel que le microbiote intestinal). La métagénomique à l'inverse de la génomique séquence le génome de l'ensemble des espèces présentes dans un échantillon. Cette évolution a pu être réalisée grâce aux nouvelles méthodes de séquencage dit de séquencage haut débit ainsi qu'a la bioinformatique.\\
-En bactériologie, le génome n'est pas complètement séquencé mais seulement un gêne l'est, l'ARN 16S.\\
-Les séquences (reads) obtenues suite au séquencage sont assignées à une espèce bactérienne. Une fois cette étape effectuée, la table de comptage des OTUS est contruite (un OTU est un ensemble de bactéries qui se ressemblent).\\
-La table de comptage des OTUS n'est autre qu'un tableau contenant le nombre de séquences par OTU observés dans chaque échantillon.
+La métagénomique est une méthode d'analyse du contenu génétique d'un échantillon issu d'un milieu complexe (tel que le microbiote intestinal). La métagénomique, à l'inverse de la génomique, analyse le génome de l'ensemble des espèces présentes dans un échantillon. Cette évolution s'est faite grâce aux nouvelles méthodes de séquencage dit de séquencage haut débit ainsi qu'a la bioinformatique.\\
+Deux méthodes de séquençage existe, l'une dite "shotgun sequencing" consiste à séquencé la totalité du génome. Pour cela, les séquences d'ADN sont d'abord découpé en petit fragment de longueur prédéfinie ; ceux si sont ensuite séquencé individuellement.\\
+Les séquences sont par la suite réassemblé informatiquement dans le but de reconstruire le génome et de lui assigner une espèce bactérienne.\\
+L'autre méthode ne séquence pas l'ensemble du génome mais seulement l'ARN 16S (un gêne).
+Les séquences obtenues suite au séquencage sont assignées à une espèce bactérienne(l'étape de reconstruction du génome n'est pas à faire).\\
+
+ Une fois le séquencage effectué, la table de comptage des OTUS est contruite (un OTU est un ensemble de bactéries regroupées selon la similarité de leur séquence d'ADN). Dans le cas du séquencage shotgun, le terme employé n'est pas OTU mais MGS, pour simplifier l'écriture MGS sera remplacé par OTU dans la suite du rapport.\\
+La table de comptage des OTUS est un tableau contenant le nombre de séquences par OTU observés dans chaque échantillon.
 
 \begin{center}
 \begin{tikzpicture}[node distance=2cm, auto]
@@ -219,7 +223,7 @@ La table de comptage des OTUS n'est autre qu'un tableau contenant le nombre de s
 \begin{figure}[H]
 \begin{center}
 \begin{tabular}{c|c|c|c}
-OTU & échantillon 1 & échantillon 2 & échantillon 3 \\
+MGS/OTU & échantillon 1 & échantillon 2 & échantillon 3 \\
 \hline
 
 \begin{tikzpicture}  
@@ -266,8 +270,8 @@ OTU & échantillon 1 & échantillon 2 & échantillon 3 \\
 L'une des particularité de la table des OTU pour la métagénomique est qu'elle contient énormément de zéro. En effet, un OTU qui est présent dans un seul échantillon sera quant même comptabilisé dans les autres échantillons. La diversité des OTU dans chaque échantillon pouvant être très différente, il y a ainsi énormément de zéro.
 
 \subsection{Problématique des données de comptage}
-L'une des problématiques pour l'étude statistique des données issues de la métagénomique est due à la différence du nombre d'OTU par échantillon. En effet, les séquenceurs hauts débits offrent la possibilité de séquencer un grand nombre d'échantillons en même temps, mais ne garantit pas le nombre de séquences (profondeur de séquençage) obtenues par échantillon. Le nombre d'OTU obtenus suite au séquençage dans un échantillon peut être par exemple de 1000 tandis que dans un autre il ne peut être que de 500.\\
-La comparaison directe des échantillons est donc impossible.\\
+L'une des problématiques pour l'étude statistique des données issues de la métagénomique est due à la différence du nombre d'OTU par échantillon. En effet, les séquenceurs hauts débits offrent la possibilité de séquencer un grand nombre d'échantillons en même temps, mais ne garantit pas le nombre de séquences (profondeur de séquençage) obtenues par échantillon. Le nombre d'OTU obtenus suite au séquençage dans un échantillon peut être par exemple de 1000 tandis que dans un autre il ne peut être que de 500.
+La comparaison directe des échantillons est donc impossible.
 Le passage aux données compositionnelles est une méthode de résolution possible de cette problématique.
 
 \subsection{Objectif du stage}
@@ -279,15 +283,15 @@ Ce modèle probabiliste a ensuite servi à développer un simulateur de nouvelle
 Commençons par expliquer ce que sont les données compositionnelles.
 \subsection{Simplexe}
 Un vecteur \(x=\left[x_1,x_2,...x_D\right]\) est défini comme une D composition lorsque toutes ses composantes sont strictement positives et ne contiennent que de l'information relative, par exemple un pourcentage, une proportion.\\
-\vspace*{0.3cm}. 
+\vspace*{0.3cm}
 \\
 Le simplexe est l'espace de probabilité des données compositionnelles  et est défini par: 
 \[
     S^D=\lbrace x=\left[x_1, x_2,...,x_D\right]|x_i>0,i=1,2,...,D;\sum_{i=1}^Dx_i=\kappa\rbrace
 \]
  
- L'opération permettant de modifier la somme des composantes (ex:passer d'une proportion à un pourcentage) d'une composition (le \(\kappa\)) se nomme la closure:
-  
+ L'opération permettant de modifier la somme des composantes (ex:passer d'une proportion à un pourcentage) d'une composition (le \(\kappa\)) se nomme la closure.\\
+ En notant \(\kappa\) la somme des composantes souhaité, la closure est définie par:
  \[
 C(x)=\left[\frac{\kappa*x_1}{\sum_{i=1}^Dx_i},\frac{\kappa*x_2}{\sum_{i=1}^Dx_i},...,\frac{\kappa*x_D}{\sum_{i=1}^Dx_i}     \right]
 \]
@@ -297,8 +301,8 @@ Deux vecteurs \(x,y\in\mathbb{R}^D_{+}\) tels que \(x_i,\ y_i>0,\ \forall i=1,..
 \newline
 \vspace*{0.3cm}
 \newline
-La représentation graphique d'une donnée compositionnelle à trois composantes se fait grâce à un ternary diagram.\\
-Un ternary diagram est un triangle équilateral ; pour une composition
+La représentation graphique d'une donnée compositionnelle à trois composantes se fait grâce à un diagramme ternaire.\\
+Un diagramme ternaire est un triangle équilatéral ; pour une composition
 \(X=\left[x_1, x_2, x_3\right]\), les composantes sont la distance entre sa  représentation graphique et un des côtés du triangle, comme montré dans le graphique suivant
 
 
@@ -320,24 +324,26 @@ x_1=\left[0.1,0.4,0.5\right],\ x_2=\left[0.2,0.3,0.5\right],\ x_3=\left[0.4,0.4,
 \)
 \\
 La distance euclidienne entre la composition \(x_1\) et \(x_2\) est la même que celle entre \(x_3\) et \(x_4\), pourtant la proportion de la première composante a doublé dans le premier cas mais est loin d'avoir doublé dans le second.\\
-C'est une des raisons pour laquelle nous avons besoin de définir une nouvelle géométrie.
-\\
-\\
+La multiplication, l'addition sont de même inapproprié ; la multiplication d'une composition par un scalaire ne permet pas de rester dans le simplexe (la valeur du \(\kappa\) n'est pas conservée).\\
+Pour toute ces raisons, nous avons besoin de définir une nouvelle géométrie. Pour d'autres raisons tel que les régions de confiances de composition aléatoires voir (\cite{Lecture})
+\newline
+\vspace*{0.3cm}
+\newline
 Commençons par définir les opérations de bases:\\
 
 Perturbation d'une composition \(x\in S^D\) par une composition \(y\in S^D\),
 \[
-x\oplus y=C\left[x_1y_1,x_2y_2,...,x_Dy_D\right]
+x\oplus y=C\left(\left[x_1y_1,x_2y_2,...,x_Dy_D\right]\right)
 \]
 
 La puissance d'une composition \(x\in S^D\) par une constante \(\alpha\in \mathbb{R}\), 
 \[
-x\in S^D,\ \alpha\in \mathbb{R},\ \alpha\odot =C\left[x_1^{\alpha},x_2^{\alpha},...,x_D^{\alpha}\right]
+x\in S^D,\ \alpha\in \mathbb{R},\ \alpha\odot x =C\left(\left[x_1^{\alpha},x_2^{\alpha},...,x_D^{\alpha}\right]\right)
 \]
 Les deux opérations ci dessus permettent au simplexe de devenir un espace vectoriel (la perturbation en tant que loi de composition interne, la puissance en tant que loi de composition externe).\\
 A cela, on ajoute un produit scalaire ainsi qu'une distance et une norme associée.\\
 
-Inner Product de deux composition \(x,y\in S^D\),
+Produit scalaire de deux composition \(x,y\in S^D\),
 \[
 x,y\in S^D,\ \left\langle x,y\right\rangle_a=\frac{1}{2D}\sum_{i=1}^D\sum_{j=1}^Dln
 \frac{x_i}{x_j}ln\frac{y_i}{y_j}
@@ -353,7 +359,7 @@ Norme d'une \(x\in S^D\),
 \left\|x\right\|_a=\sqrt{\frac{1}{2D}\sum_{i=1}^D\sum_{j=1}^D\left(ln\frac{x_i}{x_j}\right)^2}
 \]
 
-Il devient ainsi possible de définir des objets géométriques telles que les lignes compositionnelles (droite dans l'espace euclidien): \(y=x_0 \oplus \left(\alpha\odot x\right)\), avec \(x,x_0 \in S^D\) et \(\alpha in \mathbb{R}\). Ce qui donne graphiquement pour D=3,
+Il devient ainsi possible de définir des objets géométriques telles que les lignes compositionnelles (droite dans l'espace euclidien): \(y=x_0 \oplus \left(\alpha\odot x\right)\), avec \(x,x_0 \in S^D\) et \(\alpha \in \mathbb{R}\). Ce qui donne graphiquement pour D=3,
 
 
 \begin{figure}[H]
@@ -424,18 +430,18 @@ Comme nous avons pu le voir, l'espace du simplexe nécessite une redéfinition d
 Tout d'abord, remarquons que la valeur de \(\kappa\) (somme des composantes) d'une composition n'a pas fondamentalement une grande importance. En effet, l'étude de données qu'elles soient exprimées en pourcentages ou en proportions ne change rien. \\
 Les rapports relatifs sont bien plus intéressants. Il n'est donc pas étonnant que les transformations reposent sur des log ratios de composantes.\\
 
-Commençons par l'additive log-ratio transformation(alr).
+Commençons par l'additive log-ratio transformation (alr).
 \[
 alr:S^D\rightarrow R^{D-1},\ alr\left(x\right)=\left[ln\left(\frac{x_1}{x_D}\right), ln\left(\frac{x_2}{x_D}\right),...,ln\left(\frac{x_{D-1}}{x_D}\right)\right]
 \]
-La dernière composante d'une composition pouvant s'exprimer comme 
+La dernière composante d'une composition pouvant s'exprimer comme, 
 \[
 x_D=\kappa -\sum_{i=1}^{D-1}x_i
 \]
-, le système sera alors lié. L'alr résout ce problème en prenant une composante comme dénominateur (la coordonnée est ainsi nulle).
+ le système sera alors lié. L'alr résout ce problème en prenant une composante comme dénominateur (une des coordonnées est ainsi nulle).
 Cependant, cette transformation est grandement dépendante de la composante choisie comme dénominateur. De plus, cette transformation ne préserve pas les distances.\\
 \\
-La transformation centred log-ratio n'a pas cette problématique.
+La transformation centred log-ratio (clr) n'a pas ces deux problèmes.
 Elle s'exprime comme suit:
 \[
 clr:S^D\rightarrow R^{D},\ clr\left(x\right)=\left[ln\frac{x_1}{g(x)},...,ln\frac{x_D}{g(x)}\right]=\xi
@@ -540,8 +546,8 @@ Ces trois transformations ont bien entendu leur transformation inverse qui sont 
 \section{Analyse Multivariée}
 \subsection{Réduction de dimension}
 L'ACP est une méthode de réduction de dimension couramment utilisée pour synthétiser l'information.\\
-Dans "Lecture Notes on Compositionnal Data Analysis", ils redéfinissent l'acp dans les données compositionnelles.\\
-En effet, au lieu de réaliser la transformation puis de centrer et réduire les données, ils les centrent et les réduisent (avec les formules définies dans la géométrie de Aitchison) avant de réaliser la transformation ; ce qui est équivalent.
+Aitchison J () redéfinie l'acp dans les données compositionnelles.\\
+En effet, le centrage et la réduction des données ne se fait pas après la transformation (clr, ilr) mais avant celle ci (avec les formules définies dans la géométrie de Aitchison) ; ce qui est équivalent.
 
 \subsection{Maximum a posteriori}
 Nos jeux de données étant des jeux de données de comptage, de nombreux zéros sont présents comme expliqué précédemment ; les transformations logarithmiques (ilr, clr) ne peuvent ainsi pas être directement appliquées.\\
@@ -565,7 +571,7 @@ MAP(p)=\underset{p}{argmax}\left(p|x\right)=\frac{x_i+1}{\sum_{i=1}^D\left(x_i+1
 \section{Transformation ilr et classification}
 
 \subsection{Jeux de données}
-Cinq jeux de données sont mis à ma disposition qui sont Chaillou\cite{Chaillou}, Mach\cite{Mach}, Liver, Ravel\cite{Ravel} ainsi que Vacher\cite{Vacher}. Tous ces jeux de données se présentent sous la forme de table de comptage d'OTU.\\
+Cinq jeux de données sont mis à ma disposition qui sont Chaillou\cite{Chaillou}, Mach\cite{Mach}, Liver\cite{Liver}, Ravel\cite{Ravel} ainsi que Vacher\cite{Vacher}. Tous ces jeux de données se présentent sous la forme de table de comptage d'OTU.\\
 
 \subsubsection*{Chaillou}
 Il s'agit d'un jeu de données d'origine alimentaire, il provient d'une étude sur les communautés bactériennes dans la nourriture périmée.\\
@@ -580,10 +586,12 @@ Les excréments de 31 porcelets ont été séquencés à cinq périodes de leur 
 
 
 \subsubsection*{Liver}
-
+L'objectif de cette étude était de caractériser le microbiote intestinal lié à la cirrhose du foie, pour cela le microbiote de 114 patients sains et 123 patients atteint de cirrhose ont été séquencés. Pour chaque patients, plusieurs caractéristiques ont été relevé tels que l'indice de masse corporel, un indice de coagulation du sang, des tests du bon fonctionnement des reins...\\
+Dans le cadre de l'étude, 1529 OTU ont été conservé.\\
+Les deux groupes qui sont malades ou non malades ont été les groupes étudiées durant mon stage.
 \subsubsection*{Ravel}
 Le microbiote vaginal permet-il de prévenir les maladies urogenitales ? C'était la question que se posaient les chercheurs dans l'étude contenant les données.\\
-Pour répondre à cette question, ils ont séquencé le microbiote vaginal de 394 femmes provenant de quatre catégories ethniques différentes (Asiatiques, blanches, noires et hispanique), 247 OTU ont été gardés pour réaliser cette étude. Sur chaque échantillon (un pour chaque femme), le nugent score a été réalisé, il s'agit d'une méthode de diagnostic de la vaginose bactérienne.\\
+Pour répondre à cette question, ils ont séquencé le microbiote vaginal de 394 femmes provenant de quatre catégories ethniques différentes (asiatiques, blanches, noires et hispanique), 247 OTU ont été gardés pour réaliser cette étude. Sur chaque échantillon (un pour chaque femme), le nugent score a été réalisé, il s'agit d'une méthode de diagnostic de la vaginose bactérienne.\\
 Selon le résultat de ce test, les échantillons ont été classés en 3 catégories (low, intermediate, high).
 De plus, durant cette étude, les échantillons ont été classés dans cinq clusters, ces clusters ont été les groupes étudiés durant mon stage.
 
@@ -594,8 +602,8 @@ Dans cet objectif, les feuilles de trois chênes ont été prélevées et séque
 Cependant dans le jeu de données, seuls 116 échantillons de feuilles sont présents (il en manque quatre), sur chaque échantillon le nombre de 114 OTU est donné.
 
 L'objectif durant mon stage était de retrouver pour chaque échantillon l'arbre auquel il appartenait.
-
-
+\newline
+\vspace*{0.3cm}
 
 Pour Liver, Mach, le nombre d'OTU étant très grand, j'ai choisi d'en enlever une partie (ceux présents dans moins de \(5\%\) des échantillons).\\
 Les nouvelles dimensions des jeux de données sont ainsi: 155 échantillons sur 1084 OTU pour mach, 237 échantillons et 533 OTU pour liver. \\
@@ -713,11 +721,11 @@ kable(Mclust_liver$ilr_table)
 \end{center}
 
 La transformation \(ilr\) semble améliorer sensiblement la classification non supervisée.\\
-Les classificateurs ont tendance sur les données de comptage à toutes les mettre dans le même groupe.
+Les classificateurs ont tendance sur les données de comptage à toutes les mettre dans le même groupe. La séparation entre les groupes n'a pas l'air toujours très franche comme dans le cas de Liver (un grand d'échantillon est mal classé) aussi bien pour les données de comptage que pour les données compositionnelles.\\
 
  
-\subsection{Classification supervise}
-Regardons maintenant les performances de classification supervisée par le biais de trois algorithmes qui sont, le randomForest (avec la matrice de confusion), le support machine vector et le k nearest neighbors (en faisant pour les deux derniers une 10-fold cross validation). \\
+\subsection{Classification supervise}\label{Classification supervise}
+Regardons si des classificateurs supervisées permettent de mieux faire la différence entre les groupes (notamment sur les jeux de données où une classification non supervisée ne donne pas de bon résultats). Pour cela une classification supervisée a été réalisé par le biais de trois algorithmes qui sont, le randomForest (avec la matrice de confusion), le support machine vector et le k nearest neighbors (en faisant pour les deux derniers une 10-fold cross validation). \\
 
 
 \begin{center}
@@ -809,7 +817,8 @@ kable(v_liver_500_ilr$kNN)
 @
 \end{tabular}
 \end{center}
-Dans le cas de certains classificateurs tel que le svm, la classification supervisée sur certains jeux de données de comptage ne donne pas du tout des résultats concluants (voir chaillou en Annexe \ref{annexe classification supervise}).\\
+Les meilleurs performances des classificateurs sur les données compositionnelles que sur les données de comptage semblent être confirmé, les classifications sur les données compositionnelles (après transformation ilr) sont dans le pire des cas identique à ceux des classification sur les données de comptage.\\
+ Malheureusement, dans le cas de certains classificateurs tel que le svm, la classification supervisée sur certains jeux de données de comptage ne donne pas du tout des résultats concluants (voir chaillou en Annexe \ref{annexe classification supervise}).\\
 Que ce soit pour la classification supervisée ou non supervisée, les résultats sont meilleurs sur les données compositionnelles (après transformation ilr) que sur les données initiales. Il semble donc avoir un intérêt à passer par les données compositionnelles pour la classification.
 
 \newpage
@@ -857,7 +866,7 @@ Que ce soit pour la classification supervisée ou non supervisée, les résultat
 
 
 \subsection{Réduction de dimension}
-Les jeux de données utilisés dans le cadre du simulateur ont un très grand nombre de variables (grande dimension); une réduction de dimension s'impose.\\
+Les jeux de données utilisés dans le cadre du simulateur ont un très grand nombre de variables, le nombre de variable est largement est largement supérieur au nombre d'échantillon (grande dimension); une réduction de dimension s'impose. En effet, il ne serait pas faisable d'estimer convenablement la densité des données en grande dimension.\\
 Dans notre cas, nous cherchons à appliquer un modèle probabiliste à nos données. L'ACP dans sa définition la plus commune ne permet pas de prendre en compte un tel modèle. Pour ce faire, nous allons donc utiliser une variante de l'ACP qui n'est autre que l'ACP probabiliste qui est définie comme:
 \[
 X_i=Wy_i + \mu + \epsilon_i
@@ -920,7 +929,7 @@ Voici des exemples de mélange gaussien:
 Pour le simulateur, le nombre de gaussiennes nécessaires à l'estimation de la densité est choisi en minimisant le critère BIC.\\
 
 \subsection{Zero inflated}
-Les jeux de données contiennent un nombre excessif de zéros, la modélisation faite par un mélange gaussien ne parvient pas à bien prendre en compte tous ces zéros. Pour résoudre ce problème, nous allons modéliser cette particularité indépendamment. \\
+Les jeux de données contiennent un nombre important de zéros, la modélisation faite par un mélange gaussien ne parvient pas à bien prendre en compte tous ces zéros. Pour résoudre ce problème, nous allons modéliser cette particularité indépendamment. \\
 Commençons par estimer la proportion de zéros pour chaque OTU de chaque gaussienne que nous notons \(\pi_{jk}\) (j désignant l'OTU et k la gaussienne d'appartenance de l'échantillon). Cette estimation est faite via le MAP comme pour la proportion d'un OTU dans un échantillon mais cette fois ci en prenant un pseudo comptage plus faible.\\
 Par la suite, nous modélisons les zéros par une loi de Bernoulli,
 
@@ -943,7 +952,7 @@ où \(Z_{ik}\sim Bern\left(\pi_{jk}\right)\) et \(T_i\sim \mathbb{M}\left(N; \ti
 
 \section{Performance simulateur}
 \subsection{Méthode}
-La méthode la plus facile à mettre en œuvre est de regarder visuellement si les données simulées ressemblent aux données réelles, pour ce faire j'ai regardé les projections des données (réelles, simulées) sur les premiers axes d'une acp.
+La méthode la plus facile à mettre en œuvre est d'estimer visuellement si les données simulées ressemblent aux données réelles, pour ce faire j'ai projecté les données (réelles, simulées) sur les premiers axes d'une acp.
 
 \begin{figure}[H]
 <<graphique bootstrap vacher, fig.height = 4.5>>=
@@ -964,15 +973,15 @@ graph_biplot_normale(data, metadata, 1, 'Liver', 'data', ellipse=FALSE)[[1]]
 Globalement, les données simulées se mélangent bien avec les données réelles.
 La première impression sur les performances du simulateur sont positives.\\
 \\
-Cependant cette méthode n'est pas forcément la plus efficace. En effet, certains OTU peuvent être très mal simulés sans que pour autant nous puissions faire la différence visuellement. Par exemple, un OTU absent de tous les échantillons réels mais présent en de très faibles proportions dans les échantillons simulés n'aura aucune incidence sur une acp, il n'est pas pour autant bien simulé.\\
-\\
+Cependant cette méthode n'est pas forcément la plus rigoureuse. En effet, certains OTU peuvent être très mal simulés sans que pour autant nous puissions faire la différence visuellement. Par exemple, un OTU absent de tous les échantillons réels mais présent en de très faibles quantité dans les échantillons simulés n'aura quasiment aucune incidence sur une acp (donc aucune différence graphique). Cet OTU n'est pas pour autant bien simulé; une bonne simulation donnerait des échantillons dans lesquels cet OTU est absent pour la quasi totalité d'entre eux.\\
+
 Pour avoir des résultats plus fiables, l'étude de l'efficacité du simulateur est confiée à des classificateurs.\\
 L'objectif est de regarder si un classificateur parvient à faire la différence entre les données réelles et les données simulées.\\
 Dans cet objectif, deux nouveaux jeux de données sont simulés, l'un d'entre eux servira de jeu d'entrainement (avec les données réelles) à un classificateur, l'autre jeu de données servira quant à lui de test. Une petite partie des données réelles n'est pas incluse dans le jeu d'entrainement, elle servira elle aussi de test.\\
 
 
 \subsection{Résultats}
-J'ai utilisé deux classificateurs, le random Forest ainsi que le k nearest neighbors (le classificateur svm a été ignoré pour sa faible efficacité pour les données de comptage).\\
+J'ai utilisé deux classificateurs, le random Forest ainsi que le k nearest neighbors (le classificateur svm a été ignoré pour sa faible efficacité pour les données de comptage, voir \ref{Classification supervise}).\\
 
 
 \begin{center}
@@ -1008,7 +1017,7 @@ Les performances du simulateur sont grandement variables selon le jeu de donnée
 A l'inverse sur Liver, le random Forest fait aisément la différence, cependant le kNN lui le fait moins facilement. Ainsi certaines caractéristiques des données Liver doivent être mal simulées (ce qui permet au random Forest de faire la différence), mais les données simulées doivent quant même relativement bien se mélanger aux données réelles (comme le montre le kNN).
 
 \subsection{Classification}
-Un autre aspect de la performance du simulateur est sa capacité à simuler les caractéristiques de chaque groupe d'un jeu de données ; une donnée simulée ne doit pas avoir les caractéristiques de plusieurs groupes.\\
+Un autre aspect de la performance du simulateur est sa capacité à simuler les caractéristiques de chaque groupe (les différents arbres dans le cas de vacher ; malade, non malade pour Liver) d'un jeu de données ; une donnée simulée ne doit pas avoir les caractéristiques de plusieurs groupes.\\
 Pour étudier cet aspect, la simulation ne se fera plus sur l'ensemble du jeux de données mais séparément sur chaque groupe du jeu de données.\\
 Les groupes des données simulées seront alors connus et nous pourrons vérifier si un classificateur retrouve bien ses groupes.\\
 Voici un schéma illustratif de la méthode \\
