@@ -59,10 +59,10 @@ simulation_supervise <- function(apprent, nb_sample=NULL){
   for(i in 1:length(apprent)){
     if(is.null(nb_sample)){
       data <- rbind(data, simulation(apprent[[i]]))
-      metadata <- c(metadata, rep(i, nrow(apprent[[i]]$data)))
+      metadata <- c(metadata, rep(apprent[[i]]$metadata, nrow(apprent[[i]]$data)) %>% as.character())
     }else{
       data <- rbind(data, simulation(apprent[[i]], nb_sample = nb_sample[i]))
-      metadata <- c(metadata, rep(i, nb_sample[i]))
+      metadata <- c(metadata, rep(apprent[[i]]$metadata, nb_sample[i]) %>% as.character())
     }
     
   }
@@ -147,7 +147,7 @@ find_group <- function(train, test, metadata_test){
  # nn <- nnet(metadata~., train, size=5, MaxNWts=1000000, maxit=500)
  # pred_nn <- predict(nn, test, type="class")
   
-  list(random_forest=table(pred_forest, metadata_test), kNN=table(kNN, metadata_test), Svm=table(pred_svm, metadata_test))
+  list(random_forest=table(pred_forest, metadata_test) %>% change_name_table(), kNN=table(kNN, metadata_test) %>% change_name_table(), Svm=table(pred_svm, metadata_test) %>% change_name_table())
 }
 
 
@@ -173,10 +173,9 @@ validation_croise <- function(data, metadata, n=nrow(data)){
     Svm <- svm(metadata~., train[x!=iid,])
     pred_Svm <-  predict(Svm, train[x==iid,-ncol(train)])
     
-    table1 <- table(metadata[x==iid], pred_kNN)
-    table2 <- table(metadata[x==iid], pred_Svm)
-    colnames(table1) <- 1:length(name_group)
-    colnames(table2) <- 1:length(name_group)
+    table1 <- table(pred_kNN, metadata[x==iid])
+    table2 <- table(pred_Svm, metadata[x==iid])
+
     
     list(table1, table2)
   })
@@ -186,7 +185,7 @@ validation_croise <- function(data, metadata, n=nrow(data)){
   all <- list_table_sum(l)
   names(all) <- c("kNN", "Svm")
   all$confusion_random_Forest <- randomForest(metadata~., create_data_frame_train(data, metadata))$confusion[,-(length(unique(metadata))+1)]
-  colnames(all$confusion_random_Forest) <- 1:(length(unique(metadata)))
+  all <- lapply(all, change_name_table)
   all
 }
 

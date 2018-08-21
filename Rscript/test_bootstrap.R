@@ -75,6 +75,14 @@ table_to_percentage_table <- function(table){
 }
 
 
+change_name_table <- function(table){
+  table <- table[,order(colnames(table))]
+  table <- table[order(rownames(table)), ]
+  colnames(table) <- colnames(table) %>% paste("(obs)", sep="")
+  rownames(table) <- rownames(table) %>% paste("(pred)", sep="")
+  table
+}
+
 list_table_sum <- function(l){
   
   if(class(l)!="list") stop("l isn't a list")
@@ -163,7 +171,6 @@ best_k_kNN <- function(train){
                           pred_kNN <- knn(train=train[x!=iid,], 
                                           test=train[x==iid,], 
                                           cl=metadata[x!=iid])
-                          print("eee")
                          sum(pred_kNN!=metadata[x==iid]) 
                 })
   which.min(l)
@@ -223,7 +230,8 @@ test_bootstrap_all <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_train=1, 
                             pred <- pred_real_simu(data_test$train ,data_test$test)
 
                             
-                            lapply(pred, function(x){x %>% table(data_test$metadata)})
+                            lapply(pred, function(x){x %>% table(data_test$metadata) %>% change_name_table()})
+                            
                             })
   
   stopCluster(cl)
