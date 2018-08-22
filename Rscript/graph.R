@@ -61,7 +61,7 @@ Graph_cumulative_evolution<-function(data, abscisse=1:nrow(data)){
 
 
 
-graph_biplot_normale <- function(data, metadata_group, nb_graph=1, title=NULL, legend=TRUE, legend_title="group", coord_biplot=FALSE, base_binaire=Base_binary_matrix(ncol(data)), ellipse=TRUE){
+graph_biplot_normale <- function(data, metadata_group, nb_graph=1, title=NULL, legend_title="group", coord_biplot=FALSE, legend=TRUE, base_binaire=Base_binary_matrix(ncol(data)), ellipse=TRUE){
   
   b_data <- 0
   
