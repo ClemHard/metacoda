@@ -6,6 +6,7 @@
 \usepackage{tikz}
 \usepackage{amsfonts,amsmath,amssymb}
 \usepackage{enumerate}
+\usepackage{colortbl} 
 \usepackage{enumitem}
 \usepackage[french]{babel}
 \usepackage{mathrsfs}
@@ -527,8 +528,7 @@ P\left(\theta|X\right)&=\frac{P\left(X|\theta\right)P\left(\theta\right)}{P\left
 &\propto P\left(X|\theta\right)P\left(\theta\right)
 \end{align*}
 
-Dans notre cas, nous allons prendre un a priori de Dirichlet, plus précisément \(Dir\left(\alpha\right)\) avec \(a=\left(1,...,1,\right)\) ce qui correspond à une loi uniforme sur les compositions,
-ce qui mène à l'estimateur suivant:
+Dans notre cas, nous allons prendre un a priori de Dirichlet, plus précisément \(Dir\left(\alpha\right)\) avec \(a=\left(1,...,1,\right)\) ce qui correspond à une loi uniforme sur les compositions. Il en découle l'estimateur suivant:
 \[
 MAP(\theta)=\underset{\therefore}{argmax}\left(\theta|X\right)=\frac{X_i+1}{\sum_{i=1}^D\left(X_i+1\right)}
 \]
@@ -931,8 +931,40 @@ Ce qui permet d'exprimer \(\tilde{X_{i}}\) comme
 \]
 où \(Z_{ik}\sim Bern\left(\pi_{jk}\right)\) et \(T_i\sim \mathbb{M}\left(N; \tilde{S}_i\right)\) avec \\
  \(\tilde{S}_i\) qui est le résultat de \(ilr^{-1}\left(\mathbb{N}\left(W\mu_k, W\Sigma_k W^T+\sigma^2I \right)\right)\)
+\\
+\\
+ Prenons un exemple avec un jeu de données à 2 OTU.
+ Lors de l'apprentissage, le simulateur a trouvé que le nombre de gaussiennes optimal est de 2 et il a calculé les estimateurs de zero inflation suivant:
+  \[
+  \begin{array}{c|>{\columncolor{red}}c|>{\columncolor{green}}c|}
+ \multicolumn{3}{c}{\quad \quad \quad \quad \ \ Cluster} \\ 
+ \multicolumn{3}{c}{\quad \quad \quad \quad \ \ $\downbracefill$} \\
+  \cline{2-3}
+  \ldelim \{{2}{*}[OTUS]& 
+  1/3 & 1/2  \\
+  \cline{2-3}
+   & 2/3 & 3/4 \\
+   \cline{2-3}
+  \end{array}
+\]
+Il simule un nouveau jeu de données (tableau de gauche), 3 données appartiennent à la gaussienne rouge et 5 à la gaussienne vert. Lors de la zero inflation, le simulateur va multiplier chaque comptage d'OTU du nouveau jeu de donnée (chaque case du tableau) par une variable de bernoulli de probabilité définit dans la case correspondant (OTU et gaussienne identique) du tableau ci dessus. Le résultat final obtenu par le simulateur est alors le jeu de donnée de droite.
+\begin{center}
+\begin{tabular}{cc}
+\begin{tabular}{|>{\columncolor{red}}c|>{\columncolor{red}}c|>{\columncolor{red}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|}
+\multicolumn{8}{c}{Avant zero inflation}\\
+1 & 2 & 18 & 5 & 9 & 7 & 0 & 21 \\
+32 & 2 & 3 & 6 & 2 & 1 & 2 & 14
+\end{tabular}
  
+ &
  
+ \begin{tabular}{|>{\columncolor{red}}c|>{\columncolor{red}}c|>{\columncolor{red}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|}
+ \multicolumn{8}{c}{Après zero inflation}\\
+1 & 0 & 18 & 0 & 9 & 0 & 0 & 21 \\
+0 & 0 & 3 & 0 & 0 & 1 & 0 & 14
+\end{tabular}
+ \end{tabular}
+ \end{center}
 \newpage
 
 \section{Performance simulateur}
