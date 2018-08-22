@@ -64,10 +64,17 @@ knitr::opts_chunk$set(echo=FALSE, warning = FALSE, fig.path = "figure/", cache.p
 knitr::opts_knit$set(root.dir = "..")
 @
 
-\title{Exploration des méthodes d'analyse de données compositionnelles pour l'étude du lien entre microbiote intestinal et santé.}
-\author{Clément Hardy\\ encadré par Mahendra Mariadassou, Magali Berland }	
+\def\mytitle{\begin{center}\Large{
+Exploration des méthodes d'analyse de données compositionnelles pour l'étude du lien entre microbiote intestinal et santé.}
+\end{center}}
+\def\myauthor{\begin{center}
+ Clément Hardy\\ encadré par Mahendra Mariadassou (MaIAGE), Magali Berland (MGP) \end{center}}	
 
-\date{27 Août 2018}
+\def\mydate{\begin{center}
+ 27 Août 2018\end{center}}
+\def\mylieu{\begin{center}
+INRA, Domaine de Vilvert, JOUY-EN-JOSAS
+\end{center}}
 
 \begin{document}
 
@@ -90,7 +97,20 @@ load("rapport/resultats.RData")
 
 \begin{titlepage}
 \includegraphics[width=4cm]{logoINRA.jpg} \hfill
-\includegraphics[width=6.5cm]{logo_paris_sud.jpg}
+\includegraphics[width=4cm]{logo_paris_sud.jpg}\\
+
+\vspace*{8cm}
+\mytitle 
+\myauthor
+\mydate
+\vspace*{1cm}
+\begin{center}
+\includegraphics[width=4cm]{LOGO_MaIAGE.png}
+\hspace*{1cm}
+\includegraphics[width=4cm]{LOGO_mgp.png}
+\end{center}
+\vspace*{1cm}
+\mylieu
 \end{titlepage}
 
 \newpage
@@ -144,7 +164,7 @@ La table de comptage des OTUS est un tableau contenant le nombre de séquences p
 \caption{Tables des OTU}
 \end{figure}
 
-L'une des particularité de la table des OTU pour la métagénomique est qu'elle contient énormément de zéro. En effet, un OTU qui est présent dans un seul échantillon apparaîtra avec un comptage nul dans les autres échantillons. Les OTUs présents dans chaque échantillon pouvant être très différents, il y a ainsi énormément de zéro.
+L'une des particularité de la table des OTU pour la métagénomique est qu'elle contient énormément de zéro. En effet, un OTU qui est présent dans un seul échantillon apparaîtra avec un comptage nul dans les autres échantillons. Les OTUs présents dans chaque échantillon pouvant être très différents, il y a ainsi énormément de zéro (de quelque dizaine à centaines de milliers de zéro).
 
 \subsection{Problématique des données de comptage}
 L'une des problématiques pour l'étude statistique des données issues de la métagénomique est due à la différence du nombre de lectures par échantillon. En effet, les séquenceurs hauts débits offrent la possibilité de séquencer un grand nombre d'échantillons en même temps, mais ne garantit pas le nombre de séquences (profondeur de séquençage) obtenues par échantillon. Le nombre de lectures obtenus suite au séquençage dans un échantillon peut être par exemple de 1000 tandis que dans un autre il ne peut être que de 500.
@@ -514,7 +534,7 @@ lines(x2[3:4,1],x2[3:4,2])
 \subsection{Réduction de dimension}
 L'ACP est une méthode de réduction de dimension couramment utilisée pour synthétiser l'information.\\
 Aitchison J redéfinie l'acp dans les données compositionnelles.\\
-En effet, le centrage et la réduction des données ne se fait pas après la transformation (clr, ilr) mais avant celle ci (avec les formules définies dans la géométrie de Aitchison) ; ce qui est équivalent.
+En effet, le centrage et la réduction des données ne se fait pas après la transformation (clr, ilr) mais avant celle ci (avec les formules définies dans la géométrie de Aitchison) ; ce qui est équivalent (ces transformation sont des morphismes).
 
 \subsection{Maximum a posteriori}
 Nos jeux de données étant des jeux de données de comptage, de nombreux zéros sont présents comme expliqué précédemment ; les transformations logarithmiques (ilr, clr) ne peuvent ainsi pas être directement appliquées ; il est nécessaire d'effectuer un lissage lors du passage des données de comptage
@@ -937,7 +957,7 @@ où \(Z_{ik}\sim Bern\left(\pi_{jk}\right)\) et \(T_i\sim \mathbb{M}\left(N; \ti
  Lors de l'apprentissage, le simulateur a trouvé que le nombre de gaussiennes optimal est de 2 et il a calculé les estimateurs de zero inflation suivant:
   \[
   \begin{array}{c|>{\columncolor{red}}c|>{\columncolor{green}}c|}
- \multicolumn{3}{c}{\quad \quad \quad \quad \ \ Cluster} \\ 
+ \multicolumn{3}{c}{\quad \quad \quad \quad \ \ Gaussienne} \\ 
  \multicolumn{3}{c}{\quad \quad \quad \quad \ \ $\downbracefill$} \\
   \cline{2-3}
   \ldelim \{{2}{*}[OTUS]& 
@@ -1000,8 +1020,9 @@ La première impression sur les performances du simulateur sont positives.\\
 Cependant cette méthode n'est pas forcément la plus rigoureuse. En effet, certains OTU peuvent être très mal simulés sans que pour autant nous puissions faire la différence visuellement. Par exemple, un OTU absent de tous les échantillons réels mais présent en de très faibles quantité dans les échantillons simulés n'aura quasiment aucune incidence sur une acp (donc aucune différence graphique). Cet OTU n'est pas pour autant bien simulé; une bonne simulation donnerait des échantillons dans lesquels cet OTU est absent pour la quasi totalité d'entre eux.\\
 
 Pour avoir des résultats plus fiables, l'étude de l'efficacité du simulateur est confiée à des classificateurs.\\
-L'objectif est de regarder si un classificateur parvient à faire la différence entre les données réelles et les données simulées.\\
-Dans cet objectif, deux nouveaux jeux de données sont simulés, l'un d'entre eux servira de jeu d'entrainement (avec les données réelles) à un classificateur, l'autre jeu de données servira quant à lui de test. Une petite partie des données réelles n'est pas incluse dans le jeu d'entrainement, elle servira elle aussi de test.\\
+L'objectif est de regarder si un classificateur parvient à faire la différence entre les données réelles et les données simulée.
+Une bonne simulation mènerait le classificateur à se tromper a de nombreuses reprises (l'objectif théorique optimal est que le classificateur se trompe dans \(50\%\) des cas).
+Dans ce but, deux nouveaux jeux de données sont simulés, l'un d'entre eux servira de jeu d'entrainement (avec les données réelles) à un classificateur, l'autre jeu de données servira quant à lui de test. Une petite partie des données réelles n'est pas incluse dans le jeu d'entrainement, elle servira elle aussi de test.\\
 
 
 \subsection{Résultats}
@@ -1250,20 +1271,22 @@ graph_biplot_normale(ravel, metadata_ravel$CST, 1, "Ravel", "CST", ellipse=FALSE
 graph_biplot_normale(mach_500, metadata_mach$Weaned, 1, "Mach", "Weaned", ellipse=FALSE) [[1]]
 @
 \end{figure}
-
+Dans le cas de Chaillou et de Mach, la séparation entre les différents groupes est franche. L'échantillon sevré de Mach mal situé provient d'un animal mal sevré, il n'est donc pas mal placé.
+Dans le cas de ravel, la séparation est moins franche.
 
 \subsection{Classification non supervise}\label{annexe classification non supervise}
 \begin{center}
 Chaillou
 
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{cc}
-\multicolumn{2}{c}{kmeans} \\
-comptage & ilr \\
+\begin{tabular}{c}
+\multicolumn{1}{c}{kmeans} \\
+comptage \\
 <<>>=
 kable(k_chaillou$comptage_table)
 @
-&
+\\
+ilr \\
 <<>>=
 kable(k_chaillou$ilr_table)
 @
@@ -1272,13 +1295,14 @@ kable(k_chaillou$ilr_table)
 
 
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{cc}
-\multicolumn{2}{c}{hiérarchique} \\
-comptage & ilr \\
+\begin{tabular}{c}
+\multicolumn{1}{c}{hiérarchique} \\
+comptage \\
 <<>>=
 kable(hclust_chaillou$comptage_table)
 @
-&
+\\
+ilr \\
 <<>>=
 kable(hclust_chaillou$ilr_table)
 @
@@ -1286,13 +1310,14 @@ kable(hclust_chaillou$ilr_table)
 }
 
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{cc}
-\multicolumn{2}{c}{Mélange gaussien} \\
-comptage & ilr \\
+\begin{tabular}{c}
+\multicolumn{1}{c}{Mélange gaussien} \\
+comptage\\
 <<>>=
 kable(Mclust_chaillou$comptage_table)
 @
-&
+\\
+ilr \\
 <<>>=
 kable(Mclust_chaillou$ilr_table)
 @
@@ -1305,6 +1330,7 @@ kable(Mclust_chaillou$ilr_table)
 \begin{center}
 Ravel
 
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{cc}
 \multicolumn{2}{c}{kmeans} \\
 comptage & ilr \\
@@ -1316,7 +1342,9 @@ kable(k_ravel$comptage_table)
 kable(k_ravel$ilr_table)
 @
 \end{tabular}
+}
 
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{cc}
 \multicolumn{2}{c}{hiérarchique} \\
 comptage & ilr \\
@@ -1328,8 +1356,9 @@ kable(hclust_ravel$comptage_table)
 kable(hclust_ravel$ilr_table)
 @
 \end{tabular}
+}
 
-
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{cc}
 \multicolumn{2}{c}{Mélange gaussien} \\
 comptage & ilr \\
@@ -1341,6 +1370,7 @@ kable(Mclust_ravel$comptage_table)
 kable(Mclust_ravel$ilr_table)
 @
 \end{tabular}
+}
 \end{center}
 
 
@@ -1385,7 +1415,7 @@ kable(Mclust_mach_500$ilr_table)
 \end{tabular}
 \end{center}
 
-
+Sur les données ilr, les groupes sont plus distinct les uns des autres que pour les données de comptage (les classificateurs mettent ensemble les données des même groupes). Excepté pour Ravel, aucune amélioration n'est visible en passant par les données ilr (voir moins bien que sur les données ilr).
 
 
 
@@ -1395,13 +1425,14 @@ kable(Mclust_mach_500$ilr_table)
 Chaillou
 
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{cc}
-\multicolumn{2}{c}{random Forest} \\
-comptage & ilr \\
+\begin{tabular}{c}
+\multicolumn{1}{c}{random Forest} \\
+comptage \\
 <<>>=
 kable(v_chaillou$confusion_random_Forest)
 @
-&
+\\
+ilr \\
 <<>>=
 kable(v_chaillou_ilr$confusion_random_Forest)
 @
@@ -1412,13 +1443,14 @@ kable(v_chaillou_ilr$confusion_random_Forest)
 
 \begin{center}
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{cc}
-\multicolumn{2}{c}{svm} \\
-comptage & ilr \\
+\begin{tabular}{c}
+\multicolumn{1}{c}{svm} \\
+comptage \\
 <<>>=
 kable(v_chaillou$Svm)
 @
-&
+\\
+ilr \\
 <<>>=
 kable(v_chaillou_ilr$Svm)
 @
@@ -1429,13 +1461,14 @@ kable(v_chaillou_ilr$Svm)
 
 \begin{center}
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{cc}
-\multicolumn{2}{c}{kNN} \\
-comptage & ilr \\
+\begin{tabular}{c}
+\multicolumn{1}{c}{kNN} \\
+comptage  \\
 <<>>=
 kable(v_chaillou$kNN)
 @
-&
+\\
+ilr \\
 <<>>=
 kable(v_chaillou_ilr$kNN)
 @
@@ -1448,6 +1481,7 @@ kable(v_chaillou_ilr$kNN)
 Ravel
 
 
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{cc}
 \multicolumn{2}{c}{random Forest} \\
 comptage & ilr \\
@@ -1459,10 +1493,13 @@ kable(v_ravel$confusion_random_Forest)
 kable(v_ravel_ilr$confusion_random_Forest)
 @
 \end{tabular}
+}
 \end{center}
 
 
 \begin{center}
+
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{cc}
 \multicolumn{2}{c}{svm} \\
 comptage & ilr \\
@@ -1474,10 +1511,13 @@ kable(v_ravel$Svm)
 kable(v_ravel_ilr$Svm)
 @
 \end{tabular}
+}
 \end{center}
 
 
 \begin{center}
+
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{cc}
 \multicolumn{2}{c}{kNN} \\
 comptage & ilr \\
@@ -1489,6 +1529,7 @@ kable(v_ravel$kNN)
 kable(v_ravel_ilr$kNN)
 @
 \end{tabular}
+}
 \end{center}
 
 
@@ -1535,7 +1576,7 @@ kable(v_mach_500_ilr$kNN)
 \end{tabular}
 \end{center}
 
-
+La classification supervisé améliore sensiblement les résultats sur le jeu de données Ravel, mais également sur les données de comptage (un classificateur semble mieux voir la différence entre les groupes qu'un classificateur non supervisée).
 \subsection{Performance simulateur}
 \subsubsection*{Graphique}
 \begin{figure}[H]
@@ -1563,7 +1604,7 @@ graph_biplot_normale(data, metadata, 1, 'Mach', 'data', ellipse=FALSE)[[1]]
 @
 \end{figure}
 
-
+Pour Mach, les données simulées ne recouvrent pas l'ensemble des données réels. Le simulateur semble pour ce jeu de donnée manqué d'un peu de variance.
 \subsubsection*{Sur le jeu de données entier}\label{annexe donnees entier}
 
 \begin{center}
@@ -1611,19 +1652,20 @@ kable(t_mach_500$all$kNN)
 \end{tabular}
 \end{center}
 
-
+Les résultats sont plutôt convaincants, pour les trois jeux de données une bonne partie des données simulées sont confondus avec des données réels (\(30-40\%\)).
 
 \subsubsection*{Sur les groupes}\label{annexe sur les groupes}
 \begin{center}
 Chaillou
 
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{cc}
-Random forest & kNN \\
+\begin{tabular}{c}
+Random forest \\
 <<>>=
 kable(c_super$all$random_forest)
 @
-&
+\\
+kNN \\
 <<>>=
 kable(c_super$all$kNN)
 @
@@ -1635,6 +1677,7 @@ kable(c_super$all$kNN)
 \begin{center}
 Ravel
 
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{cc}
 Random forest & kNN \\
 <<>>=
@@ -1645,6 +1688,7 @@ kable(r_super$all$random_forest)
 kable(r_super$all$kNN)
 @
 \end{tabular}
+}
 \end{center}
 
 
@@ -1663,18 +1707,20 @@ kable(m_super$all$kNN)
 \end{tabular}
 \end{center}
 
-
+Les bons résultats d'une classification supervisée se confirme sur ces jeux de données, le simulateur simule bien les différentes caractéristiques des groupes. 
 \subsubsection*{Sur les données simulées considéré comme réels}\label{reels/simu}
 \begin{center}
 Chaillou
 
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{cc}
-Random forest & kNN \\
+\begin{tabular}{c}
+Random forest \\
 <<>>=
 kable(c_chaillou$all$random_forest)
 @
-&
+\\
+kNN \\
+
 <<>>=
 kable(c_chaillou$all$kNN)
 @
@@ -1686,6 +1732,7 @@ kable(c_chaillou$all$kNN)
 \begin{center}
 Ravel
 
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{cc}
 Random forest & kNN \\
 <<>>=
@@ -1696,6 +1743,7 @@ kable(c_ravel$all$random_forest)
 kable(c_ravel$all$kNN)
 @
 \end{tabular}
+}
 \end{center}
 
 
