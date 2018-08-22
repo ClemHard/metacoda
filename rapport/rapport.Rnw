@@ -11,6 +11,7 @@
 \usepackage{mathrsfs}
 \usepackage{graphicx}
 \usepackage{appendix}
+\usepackage{hyperref}
 \usepackage{float}
 \usepackage{caption}
 \usepackage{bbm}
@@ -19,7 +20,7 @@
 \usepackage{textcomp}
 \usepackage{apptools}
 \usepackage{tabularx}
-\usepackage{makecell}
+\usepackage{makecell} 
 \usepackage{blkarray}
 \usepackage{calc}
 \usepackage{multirow}
@@ -29,14 +30,17 @@
     decorations.pathreplacing,decorations.pathmorphing,shapes,%
     matrix,shapes}
 
-\tikzstyle{decision} = [diamond, draw, text width=4.5em,
-                        text badly centered, node distance=2cm,
+\tikzstyle{decision} = [diamond, draw, text width=4.5em, 
+                        text badly centered, node distance=2cm, 
                         inner sep=0pt]
-\tikzstyle{block} = [rectangle, draw,
-                     text centered, rounded corners,
+\tikzstyle{block} = [rectangle, draw, 
+                     text centered, rounded corners, 
                      minimum height=4em]
 \tikzstyle{line} = [draw, -latex']
 \tikzstyle{cloud} = [draw, circle, minimum height=3em]
+
+
+
 
 \tikzset{
 >=stealth',
@@ -45,9 +49,11 @@
   tubnode/.style={midway, right=2pt},
 }
 
-
-%% Commentaires
-\newcommand{\MM}[2]{\textcolor{blue}{#1}\textcolor{red}{#2}}
+\newcommand{\pointcol}[1]{
+\begin{tikzpicture}
+\filldraw[fill=#1, draw=#1] circle (0.05);
+\end{tikzpicture}
+}
 
 <<setup, include=FALSE, echo=FALSE>>=
 library(knitr)
@@ -58,7 +64,8 @@ knitr::opts_knit$set(root.dir = "..")
 @
 
 \title{Exploration des méthodes d'analyse de données compositionnelles pour l'étude du lien entre microbiote intestinal et santé.}
-\author{Clément Hardy}
+\author{Clément Hardy\\ encadré par Mahendra Mariadassou, Magali Berland }	
+
 \date{27 Août 2018}
 
 \begin{document}
@@ -75,19 +82,21 @@ source("Rscript/apprentissage_supervise.R")
 source("Rscript/fonction_presentation.R")
 @
 
-<<chargement RData, echo=FALSE, include=FALSE, cache = TRUE>>=
+
+<<chargement RData, echo=FALSE, include=FALSE>>=
 load("rapport/resultats.RData")
 @
 
-\maketitle
-
-\MM{}{Faire une vraie page de titre avec logo de l'université, de l'INRA et de MaIAGE et MGP}
+\begin{titlepage}
+\includegraphics[width=4cm]{logoINRA.jpg} \hfill
+\includegraphics[width=6.5cm]{logo_paris_sud.jpg}
+\end{titlepage}
 
 \newpage
 \tableofcontents
 \newpage
 \section{Présentation}
-J'ai réalisé mon stage à l'Inra de Jouy en Josas dans l'unité "Mathématiques et Informatique Appliquées du Génome à l'Environnement" (MaIAGE). \MM{}{lien vers le site web}
+J'ai réalisé mon stage à l'Inra de Jouy en Josas dans l'unité "Mathématiques et Informatique Appliquées du Génome à l'Environnement" (MaIAGE) (\url{http://maiage.jouy.inra.fr/}).
 
 \subsection{Unité de recherche}
 L'unité de recherche MaIAGE regroupe des mathématiciens, des informaticiens, des bioinformaticiens et des biologistes autour de questions de biologie et agro-écologie, allant de l'échelle moléculaire à l'échelle du paysage en passant par l'étude de l'individu, de populations ou d'écosystèmes.
@@ -101,73 +110,78 @@ L'unité MaIAGE est structurée en 4 équipes de recherche :
 \begin{enumerate}
 \item bioinformatique et statistique pour les données "omiques"(StatInfOmics)
 \item biologie des Systèmes(BioSys)
-\item modélisation dynamique et statistique pour les écosystèmes, l'épidémiologie et l'agronomie(Dynenvie)
+\item modélisation dynamique et statistique pour les écosystèmes,\newline l'épidémiologie et l'agronomie(Dynenvie)
 \item  acquisition et formalisation de connaissances à partir de texte(Bibliome )
 \end{enumerate}
 
 J'ai été accueillis au sein de l'équipe StatInfOmics.
-
 \subsection{Equipe}
-L'équipe StatInfOmics vise à développer et mettre en oeuvre des méthodes statistiques et bioinformatiques dédiées à l’analyse de données “omiques”. D’un point de vue biologique, les questions abordées concernent principalement l’annotation structurale et fonctionnelle des génomes, les régulations géniques, la dynamique évolutive des génomes, et la caractérisation d’écosystèmes microbiens en terme de diversité et de fonctions présentes ; une cible commune étant la relation entre génotype et phénotype. Une part de plus en plus importante de l'activité de recherche est relative à l’intégration de données “omiques” hétérogènes pour en extraire de l’information pertinente et aussi prédire des processus biologiques. D’un point de vue méthodologique, les travaux de l'équipe sont essentiellement d’ordre statistique : estimation de distributions, inférence de modèles à variables latentes, prédiction de relations entre jeux de variables, segmentation, visualisation et classification, avec une attention particulière au cadre de la grande dimension qui caractérise la majorité des jeux de données “omiques” étudiés. Ces recherches s’appuient souvent sur une ingénierie bioinformatique très forte.
-
-\MM{}{Mon travail de stage a porté sur les méthodes d'analyse statistique utilisées pour étudier les écosystèmes microbiens.}
+L'équipe StatInfOmics vise à développer et mettre en oeuvre des méthodes statistiques et bioinformatiques dédiées à l’analyse de données “omiques”. D’un point de vue biologique, les questions abordées concernent principalement l’annotation structurale et fonctionnelle des génomes, les régulations géniques, la dynamique évolutive des génomes, et la caractérisation d’écosystèmes microbiens en terme de diversité et de fonctions présentes ; une cible commune étant la relation entre génotype et phénotype. Une part de plus en plus importante de notre activité est relative à l’intégration de données “omiques” hétérogènes pour en extraire de l’information pertinente et aussi prédire des processus biologiques. D’un point de vue méthodologique, nos travaux sont essentiellement d’ordre statistique : estimation de distributions, inférence de modèles à variables latentes, prédiction de relations entre jeux de variables, segmentation, visualisation et classification, avec une attention particulière au cadre de la grande dimension qui caractérise la majorité des jeux de données “omiques” étudiés. Ces recherches s’appuient souvent sur une ingénierie bioinformatique très forte.\\
+Mon travail de stage a porté sur les méthodes d’analyse statistique utilisées pour étudier les écosystèmes
+microbiens.
 
 \newpage
 
+
+
+
+
 \section{Contexte biologique et enjeux}
 \subsection{Métagénomique}
-La métagénomique est une méthode de séquencage et d'analyse du contenu génétique d'un échantillon issu d'un milieu complexe, \MM{}{c'est à dire qui abrite de nombreuses espèces}, tel que le microbiote intestinal. La métagénomique, à l'inverse de la génomique \MM{}{\emph{classique}}, séquence le génome de l'ensemble des espèces présentes dans un échantillon. Cette évolution a pu être réalisée grâce aux nouvelles méthodes de séquencage, dites à haut-débit, ainsi qu'à la bioinformatique.
+La métagénomique est une méthode d'analyse du contenu génétique d'un échantillon issu d'un milieu complexe, c’est à dire qui abrite de nombreuses espèces, tel que le microbiote intestinal. La métagénomique, à l'inverse de la génomique, analyse le génome de l'ensemble des espèces présentes dans un échantillon. Cette évolution s'est faite grâce aux nouvelles méthodes de séquencage dit de séquencage haut débit ainsi qu'a la bioinformatique.\\
+Deux méthodes de séquençage existe, l'une dite "shotgun sequencing" consiste à séquencé la totalité du génome. Pour cela, les séquences d'ADN sont d'abord découpé en petit fragment de longueur prédéfinie ; ceux si sont ensuite séquencé individuellement.\\
+Les séquences sont par la suite réassemblé informatiquement dans le but de reconstruire le génome et de lui assigner une espèce bactérienne.\\
+L'autre méthode ne séquence pas l'ensemble du génome mais seulement un gêne marqueur l'est: l'ARN 16S.
+Les séquences (lectures) obtenues suite au séquencage sont assignées à une espèce bactérienne(l'étape de reconstruction du génome n'est pas à faire).\\
 
-En \MM{bactériologie}{métagénomique de type amplicon}, le génome n'est pas complètement séquencé mais seulement un gêne \MM{}{marqueur} l'est: l'ARN 16S.\\
-Les séquences (reads) obtenues suite au séquencage sont assignées à une espèce bactérienne. Une fois cette étape effectuée, la table de comptage des OTUs est contruite (un OTU\MM{}{, ou \emph{Operational Taxonomic Unit},} est un ensemble de \MM{bactéries}{lectures} qui se ressemblent \MM{}{et est souvent utilisé comme une espèce bactérienne hypothétique}).\\
-La table de comptage des OTUs n'est autre qu'un tableau contenant le nombre de séquences OTU observés par OTU dans chaque échantillon.
+ Une fois le séquencage effectué, la table de comptage des OTUS est contruite (un OTU, ou Operational Taxonomic
+Unit, est un ensemble de lectures qui se ressemblent et est souvent utilisé comme une espèce bactérienne hypothétique). Dans le cas du séquencage shotgun, le terme employé n'est pas OTU mais MGS, pour simplifier l'écriture MGS sera remplacé par OTU dans la suite du rapport.\\
+La table de comptage des OTUS est un tableau contenant le nombre de séquences par OTU observés dans chaque échantillon.
 
 \begin{figure}[H]
 \input{tikz_figures/otu_table}
 \caption{Tables des OTU}
 \end{figure}
 
-L'une des particularité de la table des OTU pour la métagénomique \MM{}{par rapport à d'autres domaines} est qu'elle contient énormément de zéro. En effet, un OTU qui est présent dans un seul échantillon \MM{sera quant même comptabilisé}{apparaîtra avec un comptage nul} dans les autres échantillons. \MM{La diversité des OTU dans chaque échantillon pouvant être très différente}{Les OTUs présents dans chaque échantillon pouvant être très différents}, il y a ainsi énormément de zéro. \MM{}{Donner un ordre de grandeur issu de tes données.}
+L'une des particularité de la table des OTU pour la métagénomique est qu'elle contient énormément de zéro. En effet, un OTU qui est présent dans un seul échantillon apparaîtra avec un comptage nul dans les autres échantillons. Les OTUs présents dans chaque échantillon pouvant être très différents, il y a ainsi énormément de zéro.
 
 \subsection{Problématique des données de comptage}
-L'une des problématiques pour l'étude statistique des données issues de la métagénomique est due à la différence du nombre \MM{d'OTU}{de lectures} par échantillon. En effet, les séquenceurs hauts débits offrent la possibilité de séquencer un grand nombre d'échantillons en même temps, mais ne garantit pas le nombre de séquences (profondeur de séquençage) obtenues par échantillon. Le nombre \MM{d'OTU}{de lectures} obtenues suite au séquençage dans un échantillon peut être par exemple de 1000 tandis que dans un autre il peut n'être que de 500.\\
-
-La comparaison directe des échantillons est donc impossible.\\
-
-Le passage aux \textbf{données compositionnelles} est une méthode de résolution possible de cette problématique.
+L'une des problématiques pour l'étude statistique des données issues de la métagénomique est due à la différence du nombre de lectures par échantillon. En effet, les séquenceurs hauts débits offrent la possibilité de séquencer un grand nombre d'échantillons en même temps, mais ne garantit pas le nombre de séquences (profondeur de séquençage) obtenues par échantillon. Le nombre de lectures obtenus suite au séquençage dans un échantillon peut être par exemple de 1000 tandis que dans un autre il ne peut être que de 500.
+La comparaison directe des échantillons est donc impossible.
+Le passage aux données compositionnelles est une méthode de résolution possible de cette problématique.
 
 \subsection{Objectif du stage}
-Le but de ce stage est de transformer ces données de comptage en données compositionnelles \MM{et d'utiliser les méthodes d'analyse associées à ces données pour pouvoir leur appliquer un modèle probabiliste.}{avant de leur appliquer des méthodes d'analyses adéquates (notamment les transformations log-ratio) pour les projeter dans un espace euclidien usuel et apprendre la densité des données dans cet espace, à l'aide d'un modèle probabiliste} \\
+Le but de ce stage est de transformer ces données de comptage en données compositionnelles avant de leur appliquer des méthodes d’analyses adéquates (notamment les transformations
+log-ratio) pour les projeter dans un espace euclidien usuel et apprendre la densité des données dans cet espace, à l’aide d’un modèle probabiliste. \\
 Ce modèle probabiliste a ensuite servi à développer un simulateur de nouvelles données.
 
 \newpage
 \section{Géométrie de Aitchison}
 Commençons par expliquer ce que sont les données compositionnelles.
 \subsection{Simplexe}
-Un vecteur \(x=\left[x_1,x_2,...x_D\right]\) est défini comme une D composition lorsque toutes ses composantes sont strictement positives et ne contiennent que de l'information relative, par exemple un pourcentage, une proportion, etc.\\
-\vspace*{0.3cm}.
+Un vecteur \(x=\left[x_1,x_2,...x_D\right]\) est défini comme une D composition lorsque toutes ses composantes sont strictement positives et ne contiennent que de l'information relative, par exemple un pourcentage, une proportion.\\
+\vspace*{0.3cm}
 \\
-Le simplexe est l'espace de probabilité des données compositionnelles  et est défini par:
+Le simplexe est l'espace de probabilité des données compositionnelles  et est défini par: 
 \[
     S^D=\lbrace x=\left[x_1, x_2,...,x_D\right]|x_i>0,i=1,2,...,D;\sum_{i=1}^Dx_i=\kappa\rbrace
 \]
-
- L'opération permettant de modifier la somme des composantes d'une composition (le \(\kappa\)), pour passer par exemple d'une proportion à un pourcentage, se nomme la closure:
-
+ 
+ L'opération permettant de modifier la somme des composantes (ex:passer d'une proportion à un pourcentage) d'une composition (le \(\kappa\)) se nomme la closure.\\
+ En notant \(\kappa\) la somme des composantes souhaité, la closure est définie par:
  \[
-C(x)=\left[\frac{\kappa \times x_1}{\sum_{i=1}^Dx_i},\frac{\kappa \times x_2}{\sum_{i=1}^Dx_i},...,\frac{\kappa \times x_D}{\sum_{i=1}^Dx_i}     \right]
+C(\kappa,x)=\left(\left[\frac{\kappa*x_1}{\sum_{i=1}^Dx_i},\frac{\kappa*x_2}{\sum_{i=1}^Dx_i},...,\frac{\kappa*x_D}{\sum_{i=1}^Dx_i}     \right]\right)
 \]
-
+Dans la suite du rapport sauf mention contraire la notation \(C(x)\) correspondra à \(C(1,x)\).
 \vspace*{0.3cm}
 Deux vecteurs \(x,y\in\mathbb{R}^D_{+}\) tels que \(x_i,\ y_i>0,\ \forall i=1,...,D\) sont dits compositionnellement équivalents s'il existe un \(\lambda\in \mathbb{R}^{+}\) tel que \(x=\lambda y\) ce qui est équivalent à \(C(x)=C(y)\).
 \newline
 \vspace*{0.3cm}
 \newline
-La représentation graphique d'une donnée compositionnelle à trois composantes se fait grâce à un \MM{ternary diagram}{diagramme ternaire}.\\
-Un ternary diagram est un triangle équilateral ; pour une composition
+La représentation graphique d'une donnée compositionnelle à trois composantes se fait grâce à un diagramme ternaire.\\
+Un diagramme ternaire est un triangle équilatéral ; pour une composition
 \(X=\left[x_1, x_2, x_3\right]\), les composantes sont la distance entre sa  représentation graphique et un des côtés du triangle, comme montré dans le graphique suivant
 
-\MM{}{explication avec les barycentres?}
 
 \begin{figure}[H]
 \begin{center}
@@ -187,27 +201,26 @@ x_1=\left[0.1,0.4,0.5\right],\ x_2=\left[0.2,0.3,0.5\right],\ x_3=\left[0.4,0.4,
 \)
 \\
 La distance euclidienne entre la composition \(x_1\) et \(x_2\) est la même que celle entre \(x_3\) et \(x_4\), pourtant la proportion de la première composante a doublé dans le premier cas mais est loin d'avoir doublé dans le second.\\
-
-\MM{}{Faire un diagramme ternaire avec les 4 compositions et le reprendre dans l'espace de Aitchinson.}
-
-C'est une des raisons pour laquelle nous avons besoin de définir une nouvelle géométrie.
-\\
-\\
+La multiplication, l'addition sont de même inapproprié ; la multiplication d'une composition par un scalaire ne permet pas de rester dans le simplexe (la valeur du \(\kappa\) n'est pas conservée).\\
+Pour toute ces raisons, nous avons besoin de définir une nouvelle géométrie. Pour d'autres raisons tel que les régions de confiances de composition aléatoires voir (\cite{Lecture})
+\newline
+\vspace*{0.3cm}
+\newline
 Commençons par définir les opérations de bases:\\
 
 Perturbation d'une composition \(x\in S^D\) par une composition \(y\in S^D\),
 \[
-x\oplus y=C\left[x_1y_1,x_2y_2,...,x_Dy_D\right]
+x\oplus y=C\left(\left[x_1y_1,x_2y_2,...,x_Dy_D\right]\right)
 \]
 
-La puissance d'une composition \(x\in S^D\) par une constante \(\alpha\in \mathbb{R}\),
+La puissance d'une composition \(x\in S^D\) par une constante \(\alpha\in \mathbb{R}\), 
 \[
-x\in S^D,\ \alpha\in \mathbb{R},\ \alpha\odot =C\left[x_1^{\alpha},x_2^{\alpha},...,x_D^{\alpha}\right]
+x\in S^D,\ \alpha\in \mathbb{R},\ \alpha\odot x =C\left(\left[x_1^{\alpha},x_2^{\alpha},...,x_D^{\alpha}\right]\right)
 \]
 Les deux opérations ci dessus permettent au simplexe de devenir un espace vectoriel (la perturbation en tant que loi de composition interne, la puissance en tant que loi de composition externe).\\
 A cela, on ajoute un produit scalaire ainsi qu'une distance et une norme associée.\\
 
-\MM{Inner Product}{Produit scalaire} de deux composition \(x,y\in S^D\),
+Produit scalaire de deux composition \(x,y\in S^D\),
 \[
 x,y\in S^D,\ \left\langle x,y\right\rangle_a=\frac{1}{2D}\sum_{i=1}^D\sum_{j=1}^Dln
 \frac{x_i}{x_j}ln\frac{y_i}{y_j}
@@ -218,12 +231,12 @@ Distance entre \(x\) et \(y\in S^D\),
 x,y\in S^D,\ d_a\left(x,y\right)=\sqrt{\frac{1}{2D}\sum_{i=1}^D\sum_{j=1}^D\left(ln\frac{x_i}{x_j}-ln\frac{y_i}{y_j}\right)^2}
 \]
 
-Norme d'une composition \(x\in S^D\),
+Norme d'une \(x\in S^D\),
 \[
 \left\|x\right\|_a=\sqrt{\frac{1}{2D}\sum_{i=1}^D\sum_{j=1}^D\left(ln\frac{x_i}{x_j}\right)^2}
 \]
 
-Il devient ainsi possible de définir des objets géométriques telles que les lignes compositionnelles \MM{}{de direction $x$ et passant par $x_0$} (droite dans l'espace euclidien): \(y=x_0 \oplus \left(\alpha\odot x\right)\), avec \(x,x_0 \in S^D\) et \(\alpha in \mathbb{R}\). Ce qui donne graphiquement pour D=3,
+Il devient ainsi possible de définir des objets géométriques telles que les lignes compositionnelles de direction x et passant par x0 (droite dans l'espace euclidien): \(y=x_0 \oplus \left(\alpha\odot x\right)\), avec \(x,x_0 \in S^D\) et \(\alpha \in \mathbb{R}\). Ce qui donne graphiquement pour D=3,
 
 
 \begin{figure}[H]
@@ -241,7 +254,7 @@ Les mesures statistiques telles que la moyenne et la variance doivent être elle
 
 Pour un échantillon de taille \(n\) de données compositionnelles à \(D\) composantes, la moyenne est définie comme:
 \[
-g=C\left[g_1,g_2,...,g_D\right] = (1/n) \odot (g_1 \oplus \dots \oplus g_D)
+g=C\left[g_1,g_2,...,g_D\right]
 \]
 avec \(g_i=\left(\prod_{j=1}^n x_{ij}\right)^{1/n},\ i=1,2,..,D\)
 \\
@@ -256,7 +269,7 @@ t_{D1} & t_{D2} & ... & t_{DD}
 \]
 ce qui permet de définir la variance totale \[ totvar\left[X\right]=\frac{1}{2D}\sum_{i=1}^D\sum_{j=1}^Dt_{ij} \] \\
 Pour centrer des données, il est alors nécessaire d'appliquer la perturbation avec \(g^{-1}\). \\
-De même, appliquer la puissance avec \(totvar\left[X\right]^{-1/2}\) permet de les réduire.
+De même, appliquer la puissance avec \(totvar\left[X\right]^{-1/2}\) permet de les réduire. 
 
 
 <<>>=
@@ -298,46 +311,88 @@ Commençons par l'additive log-ratio transformation (alr).
 \[
 alr:S^D\rightarrow R^{D-1},\ alr\left(x\right)=\left[ln\left(\frac{x_1}{x_D}\right), ln\left(\frac{x_2}{x_D}\right),...,ln\left(\frac{x_{D-1}}{x_D}\right)\right]
 \]
-La dernière composante d'une composition pouvant s'exprimer comme
+La dernière composante d'une composition pouvant s'exprimer comme, 
 \[
 x_D=\kappa -\sum_{i=1}^{D-1}x_i
 \]
-, le système sera alors lié. L'alr résout ce problème en prenant une composante comme dénominateur (la coordonnée est ainsi nulle).
-Cependant, cette transformation est grandement dépendante de la composante choisie comme dénominateur. De plus, cette transformation ne préserve pas les distances. \MM{}{développer}\\
+ le système sera alors lié. L'alr résout ce problème en prenant une composante comme dénominateur (une des coordonnées est ainsi nulle).
+Cependant, cette transformation est grandement dépendante de la composante choisie comme dénominateur. De plus, cette transformation ne préserve pas les distances, c'est à dire
+\[
+d_a\left(x,y\right)\neq ||alr\left(x\right)-alr\left(y\right)||_2
+\]
 \\
-La transformation centred log-ratio (clr) n'a pas cette problématique.
+\\
+Cet aspect est facilement observable en reprenant les quatre compositions précédentes:
+\(
+x_1=\left[0.1,0.4,0.5\right],\ x_2=\left[0.2,0.3,0.5\right],\ x_3=\left[0.4,0.4,0.2\right],\ x_4=\left[0.5,0.3,0.2\right]
+\) 
+et en calculant les distances de Aitchison entre elles dans le simplexe et les distances euclidiennes après la transformation alr,
+
+<<>>=
+x <- matrix(c(0.1,0.4,0.5,0.2,0.3,0.5,0.4,0.4,0.2,0.5,0.3,0.2),byrow=TRUE, nrow=4)
+dis <- x %>% dist_simplex()
+dis_alr <- x %>% alr() %>% dist()
+@
+\begin{center}
+\begin{tabular}{cc}
+\begin{tabular}{cccc}
+\multicolumn{4}{c}{Simplexe}\\
+&\(x_1\) & \(x_2\) & \(x_3\) \\
+\(x_2\) & \Sexpr{round(dis[1], 2)} & & \\
+\(x_3\) & \Sexpr{round(dis[2], 2)} & \Sexpr{round(dis[4], 2)} & \\
+\(x_4\) & \Sexpr{round(dis[3], 2)} & \Sexpr{round(dis[5], 2)} & \Sexpr{round(dis[6], 2)}
+\end{tabular}
+
+&
+
+\begin{tabular}{cccc}
+\multicolumn{4}{c}{alr}\\
+&\(x_1\) & \(x_2\) & \(x_3\) \\
+\(x_2\) & \Sexpr{round(dis_alr[1], 2)} & & \\
+\(x_3\) & \Sexpr{round(dis_alr[2], 2)} & \Sexpr{round(dis_alr[4], 2)} & \\
+\(x_4\) & \Sexpr{round(dis_alr[3], 2)} & \Sexpr{round(dis_alr[5], 2)} & \Sexpr{round(dis_alr[6], 2)}
+\end{tabular}
+\end{tabular}
+\end{center}
+
+\vspace*{0.3cm}
+La transformation centred log-ratio (clr) n'a pas ces deux problèmes.
 Elle s'exprime comme suit:
 \[
 clr:S^D\rightarrow R^{D},\ clr\left(x\right)=\left[ln\frac{x_1}{g(x)},...,ln\frac{x_D}{g(x)}\right]=\xi
-\]
+\]	
 avec \(g\) le centre de la composition définie par:
 \[
  g(x)=\left(\prod^D_{i=1}x_i\right)^{1/D}
 \]
-Cependant, comme vu précédemment, la dernière composante peut s'exprimer en fonction des autres. Cette transformation conservant le nombre de coordonnées, les coordonnées ne seront pas indépendantes (la somme des coordonnées est égale à 0). En conséquence, la matrice de covariance est singulière.
+Cependant, comme vu précédemment, la dernière composante peut s'exprimer en fonction des autres. Cette transformation conservant le nombre de coordonnées, les coordonnées ne seront pas indépendantes (la somme des coordonnées est égale à 0). En conséquence, la matrice de covariance est singulière. 
 
 
 Voyons enfin l'isometric log-ratio transformation (ilr),
 \[
 ilr:S^D\rightarrow R^{D-1},\ ilr\left(x\right)=clr\left(x\right)\Psi^{'}
 \]
-avec \(\Psi\) l'image \(clr\) de la base. \MM{}{Expliciter}\\
-Cette transformation permet de résoudre les problématiques des autres transformations, elle préserve les distances et ne génère pas une matrice de covariance liée. Pour cela, elle utilise un type de coordonnée particulier nommé balance.\\
+avec \(\Psi\) l'image \(clr\) de la base. La méthode pour obtenir  l'image de la base de référence est expliquée ci dessous.\\
+\\
+La transformation ilr permet de résoudre les problématiques des autres transformations, elle préserve les distances et ne génère pas une matrice de covariance liée. Pour cela, elle utilise un type de coordonnée particulier nommé balance.\\
 
-Prenons comme système générateur, les vecteurs
-
+Image de la base de référence:\\
+Prenons comme système générateur de \(\mathbb{R}^{D-1}\), les vecteurs canoniques
 \[
-W_i=C\left(1,1,...,e,...\right),\quad i=1,...D-1
+e_i=(\underset{i-1}{\underbrace{0,...,0}},1,0,...,0),\quad i=1,...D-1
 \]
-\MM{}{Mettre des accolades}
+en appliquant \(clr^{-1}\) à ces vecteurs, on obtient un système générateur du simplexe,
+\[
+W_i=C([\underset{i-1}{\underbrace{1,...,1}},e,1,...1]),\quad i=1,...D-1
+\]
 
-En prenant l'image \(clr\) de ces vecteurs, puis en utilisant Gram-Schmidt  pour l'orthogonaliser, on obtient la matrice \(\Psi\).\\
+En prenant l'image \(clr\) de ces vecteurs (le résultat n'est pas les vecteurs canoniques étant donnée que la closure a été appliqué entre les deux transformations, \(clr^{-1}\) et \(clr\)), puis en utilisant Gram-Schmidt  pour l'orthogonaliser, on obtient la matrice \(\Psi\).\\
 Exemple de matrice \(\Psi\) en dimension 5:
 
 \[
 \Psi =\begin{pmatrix}
 \frac{1}{\sqrt{20}} & \frac{1}{\sqrt{20}} & \frac{1}{\sqrt{20}} & \frac{1}{\sqrt{20}} & \frac{-2}{\sqrt{5}}\\
-\frac{1}{\sqrt{12}} & \frac{1}{\sqrt{12}} & \frac{1}{\sqrt{12}} &
+\frac{1}{\sqrt{12}} & \frac{1}{\sqrt{12}} & \frac{1}{\sqrt{12}} & 
 -\frac{\sqrt{3}}{\sqrt{4}} & 0 \\
 \frac{1}{\sqrt{6}} & \frac{1}{\sqrt{6}} & -\frac{\sqrt{2}}{\sqrt{3}} & 0 & 0 \\
 \frac{1}{\sqrt{2}} & -\frac{1}{\sqrt{2}} & 0 & 0 & 0
@@ -360,10 +415,12 @@ x1 & x2 & x3 & x4  & x5 \\
 \]
 La première coordonnée ilr représente ainsi le ratio des quatre premières composantes de la composition sur la cinquième.\\
 La deuxième : les trois premières composantes sur la quatrième et ainsi de suite.\\
-D'où le nom de balance. Une coordonnée ilr négative (balance négative) signifie que le groupe des composantes du dénominateur à plus de poids que le groupe des composantes du numérateur dans la donnée compositionnelle. \MM{}{Mettre un exemple plus explicite, par exemple avec des sondages}
+D'où le nom de balance. Une coordonnée ilr négative (balance négative) signifie que la moyenne géométrique des composantes du dénominateur a plus de poids que la moyenne géométrique des composantes du numérateur.\\
+Exemple: Lors de plusieurs sondages, les personnes interrogées ont eu le choix entre cinq réponses possible A,B,C,D,E.
+On souhaiterais savoir si la moyenne géométrique des personnes ayant répondue D,E est plus élevé que celle des personnes ayant répondue A,B,C. Dans ce cas, la matrice binaire adaptée est \(\left(1,1,1,-1,-1\right)\).
 \\
 \\
-Ces transformations permettent de passer dans un espace euclidien et de retrouver les formes géométriques habituelles.\\
+Ces transformations permettent de passer dans un espace euclidien et de retrouver les formes géométriques habituelles.
 
 <<>>=
 c <- matrix(c(c(1,2,7)/10, ilr_inverse(c(-1.2,0)), c(1,8,1, 10/3, 10/3, 10/3)/10), byrow=TRUE, nrow=4)
@@ -403,110 +460,156 @@ Ces trois transformations ont bien entendu leur transformation inverse qui sont 
 \begin{align*}
 &alr^{-1}\left(\xi\right)=C\left( \frac{\exp\left(\xi_1\right)}{\sum_{i=1}^{d-1} \exp\left(\xi_i\right) + 1},\ ...,\  \frac{1}{\sum_{i=1}^{d-1} \exp\left(\xi_i\right) + 1} \right)\\
 &clr^{-1}\left(\xi\right)=C\left( \exp\left(\xi_1\right),\ ...,\  \exp\left(\xi_D\right)\ \right)\\
-&ilr^{-1}\left(\xi\right)=C\left(\exp{\xi\Psi}\right) \quad \text{où } \exp \text{ est appliquée composante par composante}
+&ilr^{-1}\left(\xi\right)=C\left(\exp{\xi\Psi}\right)
 \end{align*}
+\underline{Rm:}\\
+La transformation clr est un morphisme de \(S^D\) dans \(\tilde{X}^D\) avec \(\tilde{X}=\left\lbrace x\in \mathbb{R}^D, \sum_{i=1}^D x_i=0\right\rbrace\).\\
+De même la transformation ilr est un morphisme de \(S^D\) dans \(R^{D-1}\).\\
 
-\MM{}{Préciser qu'il s'agit de morphismes!!}
+Si nous reprenons l'exemple du début de cette partie (avec les quatre compositions), nous remarquons bien que les distances de Aitchison dans le simplexe et les distances euclidiennes après transformation ilr sont belles et bien différentes.\\
+
+\begin{minipage}{\linewidth}
+      \centering
+      \begin{minipage}{0.45\linewidth}
+      \begin{figure}[H]
+<<>>=
+x <- matrix(c(0.1,0.4,0.5,0.2,0.3,0.5,0.4,0.4,0.2,0.5,0.3,0.2),byrow=TRUE, nrow=4)
+x1 <- coord_ternary_diagram(x)
+ternary_diagram(x, type=16, colour = 1:4, cex=2)
+lines(x1[1,1:2],x1[2,1:2])
+lines(x1[1,3:4],x1[2,3:4])
+ @
+ \caption{Dans le simplexe}
+ \end{figure}
+\end{minipage}
+\centering
+      \begin{minipage}{0.45\linewidth}
+      \begin{figure}[H]
+<<>>=
+x2 <- x %>% ilr()
+plot(x2, col=1:4, pch=16, xlim=c(-0.5,1), asp=1, xlab="x", ylab="y", cex=2)
+lines(x2[1:2,1],x2[1:2,2])
+lines(x2[3:4,1],x2[3:4,2])
+@
+\caption{Après transformation ilr}
+\end{figure}
+\end{minipage}
+\centering
+\begin{minipage}{0.05\linewidth}
+\begin{tabular}{cc}
+\multicolumn{2}{c}{Légende} \\
+\pointcol{black} & \(x_1\) \\
+\pointcol{red} & \(x_2\) \\
+\pointcol{green} & \(x_3\) \\
+\pointcol{blue} & \(x_4\) \\
+\end{tabular}
+\end{minipage}
+\end{minipage}
+
 
 \newpage
 
 \section{Analyse Multivariée}
 \subsection{Réduction de dimension}
 L'ACP est une méthode de réduction de dimension couramment utilisée pour synthétiser l'information.\\
-Dans "Lecture Notes on Compositionnal Data Analysis", ils redéfinissent l'acp dans les données compositionnelles.\\
-En effet, au lieu de réaliser la transformation puis de centrer et réduire les données, ils les centrent et les réduisent (avec les formules définies dans la géométrie de Aitchison) avant de réaliser la transformation ; ce qui est équivalent. \MM{}{parce que c'est un morphisme!}
-
+Aitchison J redéfinie l'acp dans les données compositionnelles.\\
+En effet, le centrage et la réduction des données ne se fait pas après la transformation (clr, ilr) mais avant celle ci (avec les formules définies dans la géométrie de Aitchison) ; ce qui est équivalent.
 
 \subsection{Maximum a posteriori}
-Nos jeux de données étant des jeux de données de comptage, de nombreux zéros sont présents comme expliqué précédemment ; les transformations logarithmiques (ilr, clr) ne peuvent ainsi pas être directement appliquées. \MM{}{et il est nécessaire d'effectuer un \emph{lissage} lors du passage des données de comptage aux proportions. }\\
+Nos jeux de données étant des jeux de données de comptage, de nombreux zéros sont présents comme expliqué précédemment ; les transformations logarithmiques (ilr, clr) ne peuvent ainsi pas être directement appliquées ; il est nécessaire d'effectuer un lissage lors du passage des données de comptage
+aux proportions.
 Pour ce faire, nous n'allons pas utiliser l'estimateur du maximum de vraisemblance pour estimer la proportion de chaque OTU dans un échantillon.\\
-En mettant une distribution a priori sur les observations \(X\) et en utilisant le théorème de Bayes, nous avons
-
-
+En mettant une distribution a priori sur les proportions \(\theta\) et en utilisant le théorème de Bayes, nous avons
+ 
+ 
 \begin{align*}
 P\left(\theta|X\right)&=\frac{P\left(X|\theta\right)P\left(\theta\right)}{P\left(X\right)} \\
 &\propto P\left(X|\theta\right)P\left(\theta\right)
 \end{align*}
 
-Dans notre cas, nous allons prendre un a priori de Dirichlet sur \MM{les données}{$\theta$},
+Dans notre cas, nous allons prendre un a priori de Dirichlet, plus précisément \(Dir\left(\alpha\right)\) avec \(a=\left(1,...,1,\right)\) ce qui correspond à une loi uniforme sur les compositions,
 ce qui mène à l'estimateur suivant:
 \[
-MAP(p)=\underset{p}{argmax}\left(p|x\right)=\frac{x_i+1}{\sum_{i=1}^D\left(x_i+1\right)}
+MAP(\theta)=\underset{\therefore}{argmax}\left(\theta|X\right)=\frac{X_i+1}{\sum_{i=1}^D\left(X_i+1\right)}
 \]
  Cela revient simplement à ajouter un comptage pour chaque OTU.
-
-\MM{}{Notations incohérentes entre les deux parties}
 
 \newpage
 \section{Transformation ilr et classification}
 
 \subsection{Jeux de données}
-\MM{Cinq jeux de données sont mis à ma disposition qui sont Chaillou\cite{Chaillou}, Mach\cite{Mach}, Liver, Ravel\cite{Ravel} ainsi que Vacher\cite{Vacher}. Tous ces jeux de données se présentent sous la forme de table de comptage d'OTU.}{Cinq jeux de données, décrit ci-après, ont été mis à ma disposition. Ils se présentent sous la forme de table de comptage d'OTU accompagnés de quelques variables descriptives d'intérêt.}\\
-
-\MM{}{Mettre les ref dans chaque paragraphe. Homogénéiser le style et le contenu de chaque paragraphe}
-
-\subsubsection*{Chaillou}
-Il s'agit d'un jeu de données d'origine alimentaire, il provient d'une étude sur les communautés bactériennes \MM{dans la nourriture périmée.}{qui se développent lorsque la nourriture périme.}\\
-Pour cela, quatre types de viande : boeuf hache, veau hache, lardons, saucisses de volaille et quatre types de \MM{fruit de mer}{produits de la mer}: saumon fumé, crevettes, filet de saumon et filet de cabillaud ont été échantillonnés.\\
+Cinq jeux de données, décrit ci-après, ont été mis à ma disposition. Ils se présentent sous la forme de table
+de comptage d’OTU accompagnés de quelques variables descriptives d’intérêt.
+\subsubsection*{Chaillou\cite{Chaillou}}
+Il s'agit d'un jeu de données d'origine alimentaire, il provient d'une étude sur les communautés bactériennes qui se développent lorsque la nourriture périme.\\
+Pour cela, quatre types de viande : boeuf hache, veau hache, lardons, saucisses de volaille et quatre types de produits de la mer: saumon fumé, crevettes, filet de saumon et filet de cabillaud ont été échantillonnés.\\
 Pour chaque type de nourriture huit échantillons (de lots différents) sont présents dans ce jeu de données. 508 OTU ont été conservés lors de l'étude.\\
 Durant mon stage, le type de nourriture a été la variable qualitative étudiée.
 
 
-\subsubsection*{Mach}
+\subsubsection*{Mach\cite{Mach}}
 L'évolution du microbiote intestinal de porcelet au cours des premiers mois (avant, après le sevrage) ainsi que son impact sur le métabolisme était le sujet de l'étude contenant ce jeu de données.\\
 Les excréments de 31 porcelets ont été séquencés à cinq périodes de leur vie (14, 36, 48, 60 et 70 jours) ; à chaque séquençage le sevrage ou non de l'animal a été relevé. Le jeu de données contient ainsi 155 échantillons, le nombre d'OTU quant à lui est 4031.\\
 
 
-\subsubsection*{Liver}
-
-\subsubsection*{Ravel}
+\subsubsection*{Liver\cite{Liver}}
+L'objectif de cette étude était de caractériser le microbiote intestinal lié à la cirrhose du foie, pour cela le microbiote de 114 patients sains et 123 patients atteint de cirrhose ont été séquencés. Pour chaque patients, plusieurs caractéristiques ont été relevé tels que l'indice de masse corporel, un indice de coagulation du sang, des tests du bon fonctionnement des reins...\\
+Dans le cadre de l'étude, 1529 OTU ont été conservé.\\
+Les deux groupes qui sont malades ou non malades ont été les groupes étudiées durant mon stage.
+\subsubsection*{Ravel\cite{Ravel}}
 Le microbiote vaginal permet-il de prévenir les maladies urogenitales ? C'était la question que se posaient les chercheurs dans l'étude contenant les données.\\
-Pour répondre à cette question, ils ont séquencé le microbiote vaginal de 394 femmes provenant de quatre catégories ethniques différentes (Asiatiques, blanches, noires et hispanique), 247 OTU ont été gardés pour réaliser cette étude. Sur chaque échantillon (un pour chaque femme), le nugent score a été réalisé, il s'agit d'une méthode de diagnostic de la vaginose bactérienne.\\
+Pour répondre à cette question, ils ont séquencé le microbiote vaginal de 394 femmes provenant de quatre catégories ethniques différentes (asiatiques, blanches, noires et hispanique), 247 OTU ont été gardés pour réaliser cette étude. Sur chaque échantillon (un pour chaque femme), le nugent score a été réalisé, il s'agit d'une méthode de diagnostic de la vaginose bactérienne.\\
 Selon le résultat de ce test, les échantillons ont été classés en 3 catégories (low, intermediate, high).
 De plus, durant cette étude, les échantillons ont été classés dans cinq clusters, ces clusters ont été les groupes étudiés durant mon stage.
 
 
-\subsubsection*{Vacher}
+\subsubsection*{Vacher\cite{Vacher}}
 L'objectif de l'étude d'où provienne les données était de trouver les interactions les plus probables entre un champignon responsable de l'oidium du chêne (Erysiphe alphitoides) et les autres espèces de microorganisme présentes sur les feuilles de chêne (Erysiphe alphitoides).\\
 Dans cet objectif, les feuilles de trois chênes ont été prélevées et séquencées (40 sur chaque arbre). Pour chaque arbre, les  feuilles proviennent de quatre branches différentes (10 pour chaque branche) ; pour chaque feuille plusieurs caractéristiques ont été relevées: sa distance à la base de l'arbre, sa distance au tronc de l'arbre et sa distance par rapport au sol ainsi que son orientation (South west, North East) et enfin son niveau d'infection.\\
 Cependant dans le jeu de données, seuls 116 échantillons de feuilles sont présents (il en manque quatre), sur chaque échantillon le nombre de 114 OTU est donné.
 
 L'objectif durant mon stage était de retrouver pour chaque échantillon l'arbre auquel il appartenait.
-
-
+\newline
+\vspace*{0.3cm}
 
 Pour Liver, Mach, le nombre d'OTU étant très grand, j'ai choisi d'en enlever une partie (ceux présents dans moins de \(5\%\) des échantillons).\\
 Les nouvelles dimensions des jeux de données sont ainsi: 155 échantillons sur 1084 OTU pour mach, 237 échantillons et 533 OTU pour liver. \\
 \\
-Dans les parties suivantes, seuls les résultats sur les jeux de données Vacher et Liver seront présentés. Les résultats sur les autres jeux de données sont donnés en annexe.
+Dans les parties suivantes, seuls les résultats sur les jeux de données Vacher et Liver seront présentés. Les résultats sur les autres jeux de données sont donnés en annexe. 
 
 
 \subsection{Graphique ACP}
 Pour avoir un premier aperçu des jeux de données, faisons une acp sur les données compositionnelles et regardons la projection des échantillons sur les deux premiers axes.
 
+  \begin{minipage}{\linewidth}
+      \centering
+      \begin{minipage}{0.45\linewidth}
+      \begin{figure}[H]
 <<graph biplot vacher, fig.height = 4.5>>=
-graph_biplot_normale(vacher, metadata_vacher$tree, 1, "vacher", "tree", ellipse=FALSE) [[1]]
-@
-
-\begin{figure}[H]
-<<graph biplot liver, fig.height=4.5>>=
-graph_biplot_normale(liver_500, metadata_liver$status, 1, "liver", "status", ellipse=FALSE)[[1]]
+graph_biplot_normale(data = vacher, metadata_group = metadata_vacher$tree, nb_graph=1, title = "vacher", legend_title =  "pmInfection") [[1]]
 @
 \end{figure}
+\end{minipage}
+\hspace{0.05\linewidth}
+\begin{minipage}{0.45\linewidth}
+\begin{figure}[H]
+<<graph biplot liver, fig.height=4.5>>=
+graph_biplot_normale(data=liver_500, metadata_group=metadata_liver$status, nb_graph=4, title="liver", legend_title = "status")[[1]]
+@
+\end{figure}
+\end{minipage}
+\end{minipage}
 
-\MM{}{Faire apparaître la légende dans chaque figure. Mettre les deux graphiques en vis à vis}
 
 Pour vacher la séparation des échantillons issus des différents arbres est très franche.\\
 Dans le cas des données de liver, la séparation est cette fois ci moins franche, mais reste quant même convenable.
 
-\subsection{Classification non supervisée}
+\subsection{Classification non supervise}
 Dans chacun des jeux de données utilisés, les groupes semblent relativement bien séparés comme vu précédement (tout du moins sur les premiers axes d'une acp après transformation ilr).\\
 Une des questions que nous pouvons alors nous poser est : le passage aux données compositionnelles ( et transformation ilr) permet il de mieux distinguer les groupes?\\
 Une classification non supervisée répond bien à cette question, ainsi j'ai utilisé plusieurs algorithmes (k-means, Mélange gaussien, classification hiérarchique) et regardé s'ils ont tendance à regrouper les échantillons issus des mêmes groupes.\\
 Pour montrer l'intérêt de passer par les données compositionnelles pour la classification, j'ai comparé les résultats d'une classification effectuée sur les données initiales (de comptage) et les données compositionnelles (après transformation \(ilr\)).\\
 
-
-\MM{}{Préciser qui est en ligne (prédit/observé?) et en colonne}
 
 \begin{center}
 Vacher
@@ -594,11 +697,11 @@ kable(Mclust_liver$ilr_table)
 \end{center}
 
 La transformation \(ilr\) semble améliorer sensiblement la classification non supervisée.\\
-Les classificateurs ont tendance sur les données de comptage à toutes les mettre dans le même groupe.
+Les classificateurs ont tendance sur les données de comptage à toutes les mettre dans le même groupe. La séparation entre les groupes n'a pas l'air toujours très franche comme dans le cas de Liver (un grand d'échantillon est mal classé) aussi bien pour les données de comptage que pour les données compositionnelles.\\
 
-
-\subsection{Classification supervisée}
-Regardons maintenant les performances de classification supervisée par le biais de trois algorithmes qui sont, le randomForest (avec la matrice de confusion), le support machine vector et le k nearest neighbors (en faisant pour les deux derniers une 10-fold cross validation). \\
+ 
+\subsection{Classification supervise}\label{Classification supervise}
+Regardons si des classificateurs supervisées permettent de mieux faire la différence entre les groupes (notamment sur les jeux de données où une classification non supervisée ne donne pas de bon résultats). Pour cela une classification supervisée a été réalisé par le biais de trois algorithmes qui sont, le randomForest (avec la matrice de confusion), le support machine vector et le k nearest neighbors (en faisant pour les deux derniers une 10-fold cross validation). \\
 
 
 \begin{center}
@@ -617,9 +720,6 @@ kable(v_vacher_ilr$confusion_random_Forest)
 @
 \end{tabular}
 \end{center}
-
-
-\MM{}{Pour SVM et kNN, il manque la colone de gauche (noms des groupes)}
 
 
 \begin{center}
@@ -693,15 +793,18 @@ kable(v_liver_500_ilr$kNN)
 @
 \end{tabular}
 \end{center}
-Dans le cas de certains classificateurs tel que le svm, la classification supervisée sur certains jeux de données de comptage ne donne pas du tout des résultats concluants (voir chaillou en Annexe \ref{annexe classification supervise}).\\
-Que ce soit pour la classification supervisée ou non supervisée, les résultats sont meilleurs sur les données compositionnelles (après transformation ilr) que sur les données initiales. Il semble donc avoir un intérêt à passer par les données compositionnelles pour la classification. \MM{}{Plus facile à justifier si tu mets une seule valeur numérique à chaque fois par exemple le taux de mal classé.}
+Les meilleurs performances des classificateurs sur les données compositionnelles que sur les données de comptage semblent être confirmé, les classifications sur les données compositionnelles (après transformation ilr) sont dans le pire des cas identique à ceux des classification sur les données de comptage.\\
+ Malheureusement, dans le cas de certains classificateurs tel que le svm, la classification supervisée sur certains jeux de données de comptage ne donne pas du tout des résultats concluants (voir chaillou en Annexe \ref{annexe classification supervise}).\\
+Que ce soit pour la classification supervisée ou non supervisée, les résultats sont meilleurs sur les données compositionnelles (après transformation ilr) que sur les données initiales. Il semble donc avoir un intérêt à passer par les données compositionnelles pour la classification.
 
 \newpage
 
 \section{Simulateur}
-
-\MM{}{Quelques phrases sur la motivation et les grandes lignes du simulateur.}
-
+Passons maintenant à la partie simulation de jeux de données. L'objectif est de développer un simulateur capable de générer des jeux de données ressemblant aux jeux de données réels (les caractéristiques des différents groupes des donnée réels sont bien simulées).
+Pour ce faire, les données initial (données de comptage) sont tout d'abord transformé en données compositionnelles (via le MAP) puis la transformation ilr leurs est appliquées.\\
+Une fois ceux ci fait, le simulateur apprend la densité des données à l'aide d'un mélange gaussien (une réduction de dimension est au préalable nécessaire). La simulation de nouvelles données peut ainsi être réalisé; les opérations inverses sont alors effectué ("augmentation de dimension", \(ilr^{-1}\)....) pour obtenir un nouveau jeu de données de comptage.
+Comme lors du calcul de l'estimateur MAP, un a priori de dirichlet a été choisis, la transformation inverse au MAP est alors une multinomiale.\\
+Voici un schéma récapitulatif du simulateur, les étapes non encore expliquées (réduction de dimension, estimation de densité), le sont à la suite de ce schéma.\\ 
 \subsection{Schéma simulateur}
 \begin{center}
 \begin{tikzpicture}[node distance=2cm, auto]
@@ -716,16 +819,18 @@ Que ce soit pour la classification supervisée ou non supervisée, les résultat
      \node[cloud, below of=Y_tilde] (S_tilde) {\(\tilde{S}\)};
      \node[block, below of=S_tilde](ZIB) {Zero inflated};
      \node[cloud, below of=ZIB] (X_tilde) {\(\tilde{X}\)};
-
+     
      \node[right of=Z_tilde, node distance=1.7cm] (N) {\(\sim \mathbb{N}\left(\mu_k, \Sigma_k \right)\)};
      \node[right of=Y_tilde, node distance=3cm] (N1) {\(\sim \mathbb{N}\left(W\mu_k, W\Sigma_k W^T+\sigma^2I \right)\)};
-
-
+     
+     
      \node[left of=apprentissage] (temp1_simulation) {};
      \node[left of=X_tilde] (temp2_simulation) {};
+     \node[left of=X] (X_temp) {};
+     \node[left of=Z] (Z_temp) {};
   %\draw[tuborg, decoration={brace}] let %\p1=(Y.north), \p2=(Y_tilde.south) in
 %    ($(2, \y1)$) -- ($(2, \y2)$) node[tubnode] {Pro};
-
+    
   \path[line] (X) -- (apprent_ZIB);
   \path[line] (apprent_ZIB) --  node[midway, right] {MAP} (S);
   \path[line] (S) --  node[midway, right] {\(ilr\)} (Y);
@@ -736,14 +841,16 @@ Que ce soit pour la classification supervisée ou non supervisée, les résultat
   \path[line] (S_tilde) --  node[midway, right] {multinomiale} (ZIB);
   \path[line] (ZIB) --  node[midway, right] {} (X_tilde);
   \path[line] (Y) -- node[midway, right] {réduction de dimension} (Z);
-
+  
+  
 \draw[decorate,decoration={brace,mirror}] (temp1_simulation.north west) -- node[midway, left] {Simulation} (temp2_simulation.south west);
+\draw[decorate,decoration={brace,mirror}] (X_temp.north west) -- node[midway, left] {Transformation} (Z_temp.south west);
   \end{tikzpicture}
 \end{center}
 
 
 \subsection{Réduction de dimension}
-Les jeux de données utilisés dans le cadre du simulateur ont un très grand nombre de variables (grande dimension); une réduction de dimension s'impose.\\
+Les jeux de données utilisés dans le cadre du simulateur ont un très grand nombre de variables, le nombre de variable est largement est largement supérieur au nombre d'échantillon (grande dimension); une réduction de dimension s'impose. En effet, il ne serait pas faisable d'estimer convenablement la densité des données en grande dimension.\\
 Dans notre cas, nous cherchons à appliquer un modèle probabiliste à nos données. L'ACP dans sa définition la plus commune ne permet pas de prendre en compte un tel modèle. Pour ce faire, nous allons donc utiliser une variante de l'ACP qui n'est autre que l'ACP probabiliste qui est définie comme:
 \[
 X_i=Wy_i + \mu + \epsilon_i
@@ -805,8 +912,8 @@ Voici des exemples de mélange gaussien:
   \end{minipage}\\
 Pour le simulateur, le nombre de gaussiennes nécessaires à l'estimation de la densité est choisi en minimisant le critère BIC.\\
 
-\subsection{Zero inflated}
-Les jeux de données contiennent un nombre excessif de zéros, la modélisation faite par un mélange gaussien ne parvient pas à bien prendre en compte tous ces zéros. Pour résoudre ce problème, nous allons modéliser cette particularité indépendamment. \\
+\subsection{Zero inflation}
+Les jeux de données contiennent un nombre important de zéros, la modélisation faite par un mélange gaussien ne parvient pas à bien prendre en compte tous ces zéros. Pour résoudre ce problème, nous allons modéliser cette particularité indépendamment. \\
 Commençons par estimer la proportion de zéros pour chaque OTU de chaque gaussienne que nous notons \(\pi_{jk}\) (j désignant l'OTU et k la gaussienne d'appartenance de l'échantillon). Cette estimation est faite via le MAP comme pour la proportion d'un OTU dans un échantillon mais cette fois ci en prenant un pseudo comptage plus faible.\\
 Par la suite, nous modélisons les zéros par une loi de Bernoulli,
 
@@ -817,20 +924,24 @@ Par la suite, nous modélisons les zéros par une loi de Bernoulli,
     \end{array}
 \right.
 \]
-Ce qui permet d'exprimer \(\tilde{X_{i}}\) comme
+Ce qui permet d'exprimer \(\tilde{X_{i}}\) comme 
 
 \[
-\tilde{X}_{i}=\left(Z_{1k},Z_{jk},...,Z_{Dk}\right) \times T_i
+\tilde{X}_{i}=\left(Z_{1k},Z_{jk},...,Z_{Dk}\right)*T_i
 \]
-où \(Z_{ik}\sim Bern\left(\pi_{jk}\right)\) et \(T_i\sim \mathcal{M}\left(N; \tilde{S}_i\right)\) avec \\
- \(\tilde{S}_i\) qui est le résultat de \(ilr^{-1}\left(\mathcal{N}\left(W\mu_k, W\Sigma_k W^T+\sigma^2I \right)\right)\)
-
+où \(Z_{ik}\sim Bern\left(\pi_{jk}\right)\) et \(T_i\sim \mathbb{M}\left(N; \tilde{S}_i\right)\) avec \\
+ \(\tilde{S}_i\) qui est le résultat de \(ilr^{-1}\left(\mathbb{N}\left(W\mu_k, W\Sigma_k W^T+\sigma^2I \right)\right)\)
+ 
+ 
 \newpage
 
 \section{Performance simulateur}
 \subsection{Méthode}
-La méthode \MM{}{d'évaluation} la plus facile à mettre en œuvre est de regarder visuellement si les données simulées ressemblent aux données réelles, pour ce faire j'ai regardé les projections des données (réelles, simulées) sur les premiers axes d'une acp.
+La méthode la plus facile à mettre en œuvre est d'estimer visuellement si les données simulées ressemblent aux données réelles, pour ce faire j'ai projecté les données (réelles, simulées) sur les premiers axes d'une acp.
 
+\begin{minipage}{\linewidth}
+      \centering
+      \begin{minipage}{0.45\linewidth}
 \begin{figure}[H]
 <<graphique bootstrap vacher, fig.height = 4.5>>=
 data <- rbind(vacher, vacher_boot$data)
@@ -838,7 +949,9 @@ metadata <- c(as.character(rep('real', nrow(vacher))), rep('simu', nrow(vacher_b
 graph_biplot_normale(data, metadata, 1, 'Vacher', 'data', ellipse=FALSE)[[1]]
 @
 \end{figure}
-
+\end{minipage}
+\hspace{0.05\linewidth}
+\begin{minipage}{0.45\linewidth}
 \begin{figure}[H]
 <<graphique bootstrap liver, fig.height = 4.5>>=
 data <- rbind(liver_500, liver_boot$data)
@@ -846,21 +959,21 @@ metadata <- c(as.character(rep('real', nrow(liver))), rep('simu', nrow(liver_boo
 graph_biplot_normale(data, metadata, 1, 'Liver', 'data', ellipse=FALSE)[[1]]
 @
 \end{figure}
-
-\MM{}{Légende des couleurs}
+\end{minipage}
+\end{minipage}
 
 Globalement, les données simulées se mélangent bien avec les données réelles.
 La première impression sur les performances du simulateur sont positives.\\
 \\
-Cependant cette méthode n'est pas forcément la plus efficace. En effet, certains OTU peuvent être très mal simulés sans que pour autant nous puissions faire la différence visuellement. Par exemple, un OTU absent de tous les échantillons réels mais présent en de très faibles proportions dans les échantillons simulés n'aura aucune incidence sur une acp, il n'est pas pour autant bien simulé.\\
-\\
+Cependant cette méthode n'est pas forcément la plus rigoureuse. En effet, certains OTU peuvent être très mal simulés sans que pour autant nous puissions faire la différence visuellement. Par exemple, un OTU absent de tous les échantillons réels mais présent en de très faibles quantité dans les échantillons simulés n'aura quasiment aucune incidence sur une acp (donc aucune différence graphique). Cet OTU n'est pas pour autant bien simulé; une bonne simulation donnerait des échantillons dans lesquels cet OTU est absent pour la quasi totalité d'entre eux.\\
+
 Pour avoir des résultats plus fiables, l'étude de l'efficacité du simulateur est confiée à des classificateurs.\\
 L'objectif est de regarder si un classificateur parvient à faire la différence entre les données réelles et les données simulées.\\
 Dans cet objectif, deux nouveaux jeux de données sont simulés, l'un d'entre eux servira de jeu d'entrainement (avec les données réelles) à un classificateur, l'autre jeu de données servira quant à lui de test. Une petite partie des données réelles n'est pas incluse dans le jeu d'entrainement, elle servira elle aussi de test.\\
 
 
 \subsection{Résultats}
-J'ai utilisé deux classificateurs, le random Forest ainsi que le k nearest neighbors (le classificateur svm a été ignoré pour sa faible efficacité pour les données de comptage).\\
+J'ai utilisé deux classificateurs, le random Forest ainsi que le k nearest neighbors (le classificateur svm a été ignoré pour sa faible efficacité pour les données de comptage, voir \ref{Classification supervise}).\\
 
 
 \begin{center}
@@ -884,7 +997,7 @@ kable(t_vacher$all$kNN)
  \begin{tabular}{cc}
  Random forest & kNN \\
  <<>>=
-kable(t_liver_500$all$random_forest)
+kable(t_liver_500$all$random_forest) 
  @
  &
  <<>>=
@@ -896,7 +1009,7 @@ Les performances du simulateur sont grandement variables selon le jeu de donnée
 A l'inverse sur Liver, le random Forest fait aisément la différence, cependant le kNN lui le fait moins facilement. Ainsi certaines caractéristiques des données Liver doivent être mal simulées (ce qui permet au random Forest de faire la différence), mais les données simulées doivent quant même relativement bien se mélanger aux données réelles (comme le montre le kNN).
 
 \subsection{Classification}
-Un autre aspect de la performance du simulateur est sa capacité à simuler les caractéristiques de chaque groupe d'un jeu de données ; une donnée simulée ne doit pas avoir les caractéristiques de plusieurs groupes.\\
+Un autre aspect de la performance du simulateur est sa capacité à simuler les caractéristiques de chaque groupe (les différents arbres dans le cas de vacher ; malade, non malade pour Liver) d'un jeu de données ; une donnée simulée ne doit pas avoir les caractéristiques de plusieurs groupes.\\
 Pour étudier cet aspect, la simulation ne se fera plus sur l'ensemble du jeux de données mais séparément sur chaque groupe du jeu de données.\\
 Les groupes des données simulées seront alors connus et nous pourrons vérifier si un classificateur retrouve bien ses groupes.\\
 Voici un schéma illustratif de la méthode \\
@@ -913,19 +1026,19 @@ Soit \(1,2,...,k\) les groupes du jeu de données (ex: pour Liver k=2, malade, n
      \node[below of=temp] (temp2) {};
      \node[cloud, below of=point1] (point2)   {...};
      \node[cloud, below of=Xk] (Xk_tilde)   {\(\tilde{X}_k\)};
-
+     
      \node[cloud, below of=temp2](XU_tilde) {\(\tilde{X}_U\)};
-
+     
      \node[below of=XU_tilde] (temp3) {};
      \node[cloud, left of=temp3, node distance=1cm] (Y2_tilde) {\(\tilde{Y}_2\)};
      \node[cloud, left of=Y2_tilde] (Y1_tilde) {\(\tilde{Y}_1\)};
      \node[cloud, right of=temp3, node distance=1cm] (point3) {...};
-	 \node[cloud, right of=point3] (Yk_tilde) {\(\tilde{Y}_k\)};
-
-
+	 \node[cloud, right of=point3] (Yk_tilde) {\(\tilde{Y}_k\)};     
+     
+     
     % \draw[tuborg, decoration={brace}] let \p1=(X2.south), %\p2=(X2_tilde.north) in
   %  ($(2, \y1)$) -- ($(2, \y2)$) node[tubnode] {Pro};
-
+     
    	\path[line] (X1) --  node[midway, left] {Apprentissage, simulation} (X1_tilde);
    	\path[line] (X2) --  (X2_tilde);
    	\path[line] (point1) -- (point2);
@@ -938,7 +1051,7 @@ Soit \(1,2,...,k\) les groupes du jeu de données (ex: pour Liver k=2, malade, n
  	\path[line] (XU_tilde) --  (Y2_tilde);
  	\path[line] (XU_tilde) --  (point3);
  	\path[line] (XU_tilde) --  (Yk_tilde);
-
+ 	
   \end{tikzpicture}
 \end{center}
 Une bonne simulation devrait résulter en la présence des mêmes échantillons dans \(\tilde{X}_i\) et dans \(\tilde{Y}_i\) pour \(i\in \left\lbrace 1,2,...,k\right\rbrace\).
@@ -993,7 +1106,7 @@ Voici un schéma récapitulatif de la méthode.
      \node[below of=temp] (temp2) {};
      \node[cloud, below of=point1] (point2)   {...};
      \node[cloud, below of=Xk] (Xk_tilde)   {\(\tilde{X}_k\)};
-
+     
      \node[cloud, below of=temp2](XU_tilde) {\(\tilde{X}_U\)};
      \node[below of=XU_tilde, node distance=1cm] (temp_real) {};
      \node[cloud, below of=temp_real, node distance=1cm] (X_real_tilde) {\(\tilde{X}_{real}\)};
@@ -1001,12 +1114,12 @@ Voici un schéma récapitulatif de la méthode.
      \node[cloud, left of=temp3, node distance=1cm] (Y2_tilde) {\(\tilde{Y}_2\)};
      \node[cloud, left of=Y2_tilde] (Y1_tilde) {\(\tilde{Y}_1\)};
      \node[cloud, right of=temp3, node distance=1cm] (point3) {...};
-	 \node[cloud, right of=point3] (Yk_tilde) {\(\tilde{Y}_k\)};
-
-
+	 \node[cloud, right of=point3] (Yk_tilde) {\(\tilde{Y}_k\)};     
+     
+     
     % \draw[tuborg, decoration={brace}] let \p1=(X2.south), %\p2=(X2_tilde.north) in
   %  ($(2, \y1)$) -- ($(2, \y2)$) node[tubnode] {Pro};
-
+     
    	\path[line] (X1) --  node[midway, left] {Apprentissage, simulation} (X1_tilde);
    	\path[line] (X2) --  (X2_tilde);
    	\path[line] (point1) -- (point2);
@@ -1020,22 +1133,22 @@ Voici un schéma récapitulatif de la méthode.
  	\path[line] (X_real_tilde) --  (Y2_tilde);
  	\path[line] (X_real_tilde) --  (point3);
  	\path[line] (X_real_tilde) --  (Yk_tilde);
-
-
-
-
+ 	
+     
+     
+     
      \node[block, right of=XU_tilde, node distance=6cm, text width=3cm] (Apprentissage classificateur) {Apprentissage classificateur real/simu};
-     \node[cloud, above of=Apprentissage classificateur] (X_tilde) {\(\tilde{X}\)};
+     \node[cloud, above of=Apprentissage classificateur] (X_tilde) {\(\tilde{X}\)}; 
      \node[cloud, above of=X_tilde] (X) {X};
-
-
-
-
+     
+     
+     
+     
 
  	\path[line] (Apprentissage classificateur) |- (temp_real);
  	\path[line] (X) -- (X_tilde);
  	\path[line] (X_tilde) -- (Apprentissage classificateur);
-
+ 	
   \end{tikzpicture}
 \end{center}
 
@@ -1076,12 +1189,11 @@ Cependant sur ces jeux de données, la validation croisée (Classification super
 
 \newpage
 \section{Conclusion}
-L'intérêt des données compositionnelles est de pouvoir s'affranchir de certaines contraintes techniques comme la profondeur de séquencage.\\
+L'intérêt des données compositionnelles est de pouvoir s'affranchir de certaines contraintes techniques comme la profondeur de séquencage. De plus, grâce aux transformations log-ratio l'utilisation de l'ensemble des méthodes statistiques multivariée est possible.\\
 L'utilisation des transformations des données compositionnelles pour repasser dans un espace euclidien s'est révélée pertinente sur les jeux de données utilisé durant mon stage, les résultats des différentes classifications étant au moins aussi bons que sur les données initiales.\\
-De même les résultats obtenus sur les données simulées sont encourageants.\\
-Les caractéristiques des différents groupes des jeux de données semblent relativement bien simulées. Cependant, les résultats sont très variables selon les jeux de données. Des tests sur un plus grand nombre de jeux de données seraient nécessaires pour étudier la robustesse du simulateur.
+De même les résultats obtenus sur les données simulées sont encourageants.
+Les caractéristiques des différents groupes des jeux de données semblent relativement bien simulées. Cependant, les résultats sont très variables selon les jeux de données. Des tests sur un plus grand nombre de jeux de données seraient nécessaires pour étudier la robustesse du simulateur. L'intérêt d'un tel simulateur est qu'il permet d'obtenir des résultats convenable tout en ayant une complexité (temps de calcul) relativement faible.
 
-\MM{}{Temps de calcul très faible et accès au large panel des méthodes développées pour les données (gaussiennes) multivariées}
 
 \newpage
 \section{Annexe}

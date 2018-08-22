@@ -113,6 +113,23 @@ ternary_diagram1 <- function(data ,colour, style, add_line, colour_line,
 
 
 
+coord_ternary_diagram <- function(data){
+  
+  data <- norm_data(data)
+  u0=0.2;
+  v0=0.2;
+  A=c(u0+0.5,v0+sqrt(3)/2)
+  B=c(u0,v0)
+  C=c(u0+1,v0)
+  
+  k=sum(data[1,])
+  coord=(1./k)*(sapply(data[,1],mult,t=A)+sapply(data[,2],mult,t=B)+sapply(data[,3],mult,t=C))
+  coord
+}
+
+
+
+
 ### melange gaussian 3D
 density_gaussienne <- function(x, y, moy, sigma){
   xy <- c(x,y)-moy
