@@ -437,8 +437,8 @@ x1 & x2 & x3 & x4  & x5 \\
 La première coordonnée ilr représente ainsi le ratio des quatre premières composantes de la composition sur la cinquième.\\
 La deuxième : les trois premières composantes sur la quatrième et ainsi de suite.\\
 D'où le nom de balance. Une coordonnée ilr négative (balance négative) signifie que la moyenne géométrique des composantes du dénominateur a plus de poids que la moyenne géométrique des composantes du numérateur.\\
-Exemple: Lors de plusieurs sondages, les personnes interrogées ont eu le choix entre cinq réponses possible A,B,C,D,E.
-On souhaiterais savoir si la moyenne géométrique des personnes ayant répondue D,E est plus élevé que celle des personnes ayant répondue A,B,C. Dans ce cas, la matrice binaire adaptée est \(\left(1,1,1,-1,-1\right)\).
+Exemple: Lors d'un, les personnes interrogées ont eu le choix entre cinq réponses possible A,B,C,D,E.
+On souhaiterais savoir si la moyenne géométrique des personnes ayant répondue D,E est plus élevé que celle des personnes ayant répondue A,B,C. Dans ce cas, la matrice binaire adaptée est \(\left(1,1,1,-1,-1\right)\). Une coordonnée ilr inférieur (resp supérieur) à 0 indique la moyenne géométrique de D,E est supérieur (resp inférieur) à celle de A,B,C.
 \\
 \\
 Ces transformations permettent de passer dans un espace euclidien et de retrouver les formes géométriques habituelles.
@@ -487,7 +487,7 @@ Ces trois transformations ont bien entendu leur transformation inverse qui sont 
 La transformation clr est un morphisme de \(S^D\) dans \(\tilde{X}^D\) avec \(\tilde{X}=\left\lbrace x\in \mathbb{R}^D, \sum_{i=1}^D x_i=0\right\rbrace\).\\
 De même la transformation ilr est un morphisme de \(S^D\) dans \(R^{D-1}\).\\
 
-Si nous reprenons l'exemple du début de cette partie (avec les quatre compositions), nous remarquons bien que les distances de Aitchison dans le simplexe et les distances euclidiennes après transformation ilr sont belles et bien différentes.\\
+Si nous reprenons l'exemple du début de cette partie (avec les quatre compositions), nous remarquons bien que les distances de Aitchison dans le simplexe et les distances euclidiennes après transformation ilr sont belles et bien différentes, alors que dans le simplexe la distance euclidienne est identique (la distance euclidienne n'est donc pas la distance adaptée dans le simplexe).\\
 
 \begin{minipage}{\linewidth}
       \centering
@@ -820,10 +820,10 @@ Que ce soit pour la classification supervisée ou non supervisée, les résultat
 \newpage
 
 \section{Simulateur}
-Passons maintenant à la partie simulation de jeux de données. L'objectif est de développer un simulateur capable de générer des jeux de données ressemblant aux jeux de données réels (les caractéristiques des différents groupes des donnée réels sont bien simulées).
+Passons maintenant à la partie simulation de jeux de données. L'objectif est de développer un simulateur capable de générer des jeux de données ressemblant aux jeux de données réels (les caractéristiques des différents groupes des donnée réels doivent être bien simulées).
 Pour ce faire, les données initial (données de comptage) sont tout d'abord transformé en données compositionnelles (via le MAP) puis la transformation ilr leurs est appliquées.\\
-Une fois ceux ci fait, le simulateur apprend la densité des données à l'aide d'un mélange gaussien (une réduction de dimension est au préalable nécessaire). La simulation de nouvelles données peut ainsi être réalisé; les opérations inverses sont alors effectué ("augmentation de dimension", \(ilr^{-1}\)....) pour obtenir un nouveau jeu de données de comptage.
-Comme lors du calcul de l'estimateur MAP, un a priori de dirichlet a été choisis, la transformation inverse au MAP est alors une multinomiale.\\
+Une fois la transformation des données effectuée, le simulateur apprend la densité des données à l'aide d'un mélange gaussien (une réduction de dimension est au préalable nécessaire). La simulation de nouvelles données peut ainsi être réalisé; les opérations inverses sont alors effectué ("augmentation de dimension", \(ilr^{-1}\)....) pour obtenir un nouveau jeu de données de comptage.
+Comme lors du calcul de l'estimateur MAP, un a priori de dirichlet a été choisis, la transformation inverse au MAP est alors une multinomiale. Les jeux données ont un grand nombre, une gestion spécifique de cette caractéristique est nécessaire, une zero inflation est effectuée avant d'obtenir le jeu de données simulées final.\\
 Voici un schéma récapitulatif du simulateur, les étapes non encore expliquées (réduction de dimension, estimation de densité), le sont à la suite de ce schéma.\\ 
 \subsection{Schéma simulateur}
 \begin{center}
