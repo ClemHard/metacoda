@@ -780,26 +780,28 @@ Que ce soit pour la classification supervisée ou non supervisée, les résultat
 \newpage
 
 \section{Simulateur}
-Passons maintenant à la partie simulation de jeux de données. L'objectif est de développer un simulateur polyvalent capable de générer des jeux de données présentant les mêmes caractéristiques que les données réelles, éventuellement en capturant les caractéristiques des différents groupes des donnée si les données réelles présentent une structure discrète. Un tel simulateur a vocation à générer des données réalistes, dans un cadre contrôlé, pour comparer entre elles des méthodes statistiques concurrentes (par exemple de détection d'abondance différentielle) sans en favoriser une par rapport aux autres.
+Passons maintenant à la partie simulation de jeux de données. L'objectif est de développer un simulateur polyvalent, basé sur un modèle probabiliste et capable de générer des jeux de données présentant les mêmes caractéristiques que les données réelles. Un tel simulateur a vocation à générer des données réalistes, dans un cadre contrôlé, pour comparer entre elles des méthodes statistiques concurrentes (par exemple de détection d'abondance différentielle ou de clustering) sans en favoriser une par rapport aux autres.
 
-Dans les grandes lignes, le simulateur apprend la densité des données réelles comme suit. Les données initiales (données de comptage) sont tout d'abord transformé en données compositionnelles (via le MAP) puis la transformation ilr leurs est appliquées.\\
-Une fois la transformation des données effectuée, le simulateur apprend la densité des données à l'aide d'un mélange gaussien (une réduction de dimension est au préalable nécessaire). La simulation de nouvelles données peut ainsi être réalisé; les opérations inverses sont alors effectué ("augmentation de dimension", \(ilr^{-1}\)....) pour obtenir un nouveau jeu de données de comptage.
-Comme lors du calcul de l'estimateur MAP, un a priori de dirichlet a été choisis, la transformation inverse au MAP est alors une multinomiale. Les jeux données ont un grand nombre, une gestion spécifique de cette caractéristique est nécessaire, une zero inflation est effectuée avant d'obtenir le jeu de données simulées final.\\
-Voici un schéma récapitulatif du simulateur, les étapes non encore expliquées (réduction de dimension, estimation de densité), le sont à la suite de ce schéma.\\
+Dans les grandes lignes, le simulateur apprend la densité des données réelles comme suit. Les données initiales (données de comptage) sont tout d'abord transformées en données compositionnelles (via le MAP), avant d'être envoyées dans $\R^{D-1}$ avec la transformation ilr. Une fois revenu dans un espace euclidien, le simulateur apprend la densité des données à l'aide d'une réduction de dimensions et d'un mélange gaussien dans l'espace réduit. La simulation de nouvelles données peut alors être réalisé en tirant des données suivant le mélange gaussien puis en appliquant les opérations inverses ("augmentation de dimension", \(ilr^{-1}\), etc) pour obtenir un nouveau jeu de données de comptage. Lors du calcul de l'estimateur MAP, un a priori de Dirichlet a été choisi, la transformation inverse consistant à passer d'un point du simplexe à un vecteur de comptages est un tirage suivant une loi multinomiale.
+
+Les jeux données réelles présentant un grand nombre de $0$, une gestion spécifique de cette caractéristique est nécessaire et une zéro-inflation est effectuée en tout fin de processus, après le tirage multinomial, afin d'obtenir le jeu de données simulées final. Le schéma récapitulatif du simulateur est présenté Fig.~\ref{fig:simulateur}. Les étapes non décrites (réduction de dimension, estimation de densité), le sont en détails à la suite de ce schéma.
+
 \subsection{Schéma simulateur}
-\input{tikz_figures/simulateur_schema}
 
+\begin{figure}[H]
+\input{tikz_figures/simulateur_schema}
+\caption{\label{fig:simulateur}Schéma du simulateur de données.}
+\end{figure}
 
 \subsection{Réduction de dimension}
-Les jeux de données utilisés dans le cadre du simulateur ont un très grand nombre de variables, le nombre de variable est largement est largement supérieur au nombre d'échantillon (grande dimension); une réduction de dimension s'impose. En effet, il ne serait pas faisable d'estimer convenablement la densité des données en grande dimension.\\
-Dans notre cas, nous cherchons à appliquer un modèle probabiliste à nos données. L'ACP dans sa définition la plus commune ne permet pas de prendre en compte un tel modèle. Pour ce faire, nous allons donc utiliser une variante de l'ACP, l'ACP probabiliste qui est définie comme:
+
+Les jeux de données utilisés dans le cadre du simulateur ont un grand nombre de variables, largement supérieur au nombre d'échantillons disponibles (grande dimension): une réduction de dimension s'impose donc avant d'apprendre la densité des observations. Dans notre cas, nous cherchons à construire un modèle probabiliste pour simuler nos données. L'ACP dans sa définition la plus commune n'est pas associé à un modèle probabiliste et ne permet pas de construire un tel modèle. Nous allons donc lui substituer une variante de l'ACP, l'ACP probabiliste qui est définie comme:
 \[
 X_i=Wy_i + \mu + \epsilon_i
 \]
-où \(y_i\sim \mathcal{N}\left(0,I_d\right) \), \(\epsilon_i \sim \mathcal{N}\left(0,\ \sigma^2I_p\right)\) est un bruit gaussien et \(W\) une \(p \times d\) matrice.
+où \(y_i\sim \mathcal{N}\left(0,I_d\right) \), \(\epsilon_i \sim \mathcal{N}\left(0,\ \sigma^2I_p\right)\) est un bruit blanc gaussien et \(W\) une \(p \times d\) matrice.
 \\
-Si nous notons \(A\) la matrice des vecteurs propres de la matrice \(X^TX\), \(\Lambda\) la matrice diagonale contenant les valeurs propres associées et \(R\) une matrice orthogonale arbitraire, nous avons que le maximum de vraisemblance de \(W\) s'exprime comme:
-
+Si nous notons \(A\) la matrice des vecteurs propres de la matrice \(X^TX\), \(\Lambda\) la matrice diagonale contenant les valeurs propres associées et \(R\) une matrice orthogonale arbitraire, on peut montrer que le maximum de vraisemblance de \(W\) s'exprime comme:
 \[
 W_{ML}=A\left(\Lambda-\sigma^2I_d\right)^{1/2}R
 \]
@@ -807,24 +809,24 @@ De même, l'estimateur du maximun de vraisemblance de \(\sigma^2\)
 \[
 \sigma^2_{ML}=\frac{1}{d-q}\sum_{j=q+1}^d \lambda_j
 \]
-Cet estimateur peut être perçu comme la variance perdue lors de la projection.\\
+Cet estimateur peut être perçu comme la variance perdue lors de la projection. Le choix de $d$, la dimension de l'espace latent, est toujours une question délicate dans les modèles à variables latentes. Nous avons utilisé ici l'heuristique de pente (du package capushe) pour choisir $d$.
 
-La dimension de l'espace latent a été choisie à l'aide de l'heuristique de pente (grâce au package capushe).\\
+\MM{}{REF capushe, REF ACP probabiliste}
+
 \subsection{Mélange Gaussien}
-L'apprentissage de la densité est confié à un mélange gaussien.\\
-Un mélange gaussien est défini comme:
+
+La densité des données dans le sous-espace de dimension $d$ est apprise à l'aide d'un mélange gaussien, défini comme:
 \[
 g\left(x; \pi,\theta\right)=\sum_{k=1}^K \pi_kf(x,\theta_k)
 \]
-où \(\theta=\left(\theta_1,...,\theta_k\right)\) sont les paramètres des lois gaussiennes et \( \pi=\left(\pi_1,...,\pi_K\right)\) sont les proportions du mélange Gaussien dont la somme est égale à 1.\\
-\\
-Voici des exemples de mélange gaussien:
+où \(\theta=\left(\theta_1,...,\theta_k\right)\) sont les paramètres des lois gaussiennes et \( \pi=\left(\pi_1,\dots,\pi_K\right)\) sont les proportions du mélange Gaussien, qui somment à 1.
 
-  \begin{minipage}{\linewidth}
+Voici quelques exemples de mélange gaussien
+
+\begin{figure}[H]
       \centering
+      \begin{tabular}{cc}
       \begin{minipage}{0.45\linewidth}
-          \begin{figure}[H]
-          \captionsetup{justification=centering}
               <<fig.height=6.5>>=
               par(mar=rep(4,4))
               x <- seq(-5, 6, length=10000)
@@ -840,23 +842,29 @@ Voici des exemples de mélange gaussien:
 
               @
               \caption{Mélange de trois gaussiennes \newline univariée}
-          \end{figure}
       \end{minipage}
-      \hspace{0.05\linewidth}
-      \begin{minipage}{0.45\linewidth}
-          \begin{figure}[H]
-          \captionsetup{justification=centering}
+&
+\begin{minipage}{0.45\linewidth}
              \includegraphics[width=\linewidth]{melangegaussien.png}
               \caption{Mélange de trois gaussiennes \newline multivariée}
-          \end{figure}
       \end{minipage}
-  \end{minipage}\\
-Pour le simulateur, le nombre de gaussiennes nécessaires à l'estimation de la densité est choisi en minimisant le critère BIC.\\
+\end{tabular}
+\caption{\label{fig:melange}Exemple d'un mélange de trois gaussiennes univariés (gauche) et bivariés (droites)}
+\end{figure}
+
+Pour le simulateur, le nombre de gaussiennes nécessaires à l'estimation de la densité est choisi à l'aide du critère BIC.
 
 \subsection{Zero inflation}
-Les jeux de données contiennent un nombre important de zéros (comme vu précédemment), la modélisation faite par un mélange gaussien ne parvient pas à bien prendre en compte tous ces zéros. Pour résoudre ce problème, nous allons modéliser cette particularité indépendamment. \\
-Commençons par estimer la proportion de zéros pour chaque OTU de chaque gaussienne que nous notons \(\pi_{jk}\) (j désignant l'OTU et k la gaussienne d'appartenance de l'échantillon). Cette estimation est faite via le MAP comme pour la proportion d'un OTU dans un échantillon mais cette fois ci en prenant un pseudo comptage plus faible.\\
-Par la suite, nous modélisons les zéros par une loi de Bernoulli,
+
+Les jeux de données contiennent un nombre important de zéros (comme vu précédemment), la modélisation faite par le mélange gaussien ne parvient pas à bien prendre en compte cette surreprésentation. Pour résoudre ce problème, nous allons modéliser cette particularité indépendamment comme suit.
+
+MM{}{Le calcul des $\pi_{jk}$ est confus, essaie de le clarifier, par exemple en mettant les formules.}
+
+Commençons par estimer la proportion de zéros pour chaque OTU $j$ dans chaque composante gaussienne $k$, notée \(\pi_{jk}\). Cette estimation est faite en attribuant chaque échantillon à son composante gaussienne la plus probable puis en calculant au sein de chaque composante $k$, le nombre total $N_k$ d'échantillons et le nombre $N_{jk}$ d'échantillons dans lesquels l'OTU $j$ est absent. $\pi_{jk}$ est estimée par
+\[
+\pi_{jk} = \frac{N_{jk} + \alpha}{N_k + \alpha}
+\]
+avec $\alpha = ??$ un pseudo-comptage faible pour lisser les probabilités et éviter d'avoir des valeurs à $0$ ou $1$ \MM{}{A vérifier}. La régularisation adoptée revient à mettre un à priori $\mathcal{D}(\alpha, \alpha)$ sur la probabilité de $0$-inflation. Par la suite, nous modélisons les zéros à l'aide d'une loi de Bernoulli,
 
 \[P\left(Z_{jk}=x\right)=\left\{
     \begin{array}{ll}
@@ -866,29 +874,30 @@ Par la suite, nous modélisons les zéros par une loi de Bernoulli,
 \right.
 \]
 Ce qui permet d'exprimer \(\tilde{X_{i}}\) comme
-
 \[
-\tilde{X}_{i}=\left(Z_{1k},Z_{jk},...,Z_{Dk}\right)*T_i
+\tilde{X}_{i}=\left(Z_{1k},Z_{jk},...,Z_{Dk}\right) \times T_i
 \]
-où \(Z_{jk}\sim Bern\left(\pi_{jk}\right)\) et \(T_i\sim \mathbb{M}\left(N; \tilde{S}_i\right)\) avec \\
- \(\tilde{S}_i\) qui est le résultat de \(ilr^{-1}\left(\mathbb{N}\left(W\mu_k, W\Sigma_k W^T+\sigma^2I \right)\right)\)
-\\
-\\
- Prenons un exemple avec un jeu de données à 2 OTU.
- Lors de l'apprentissage, le simulateur a trouvé que le nombre de gaussiennes optimal est de 2 et il a calculé les estimateurs de zero inflation suivant:
+où \(Z_{jk}\sim Bern\left(\pi_{jk}\right)\) et \(T_i\sim \mathbb{M}\left(N; \tilde{S}_i\right)\) et \(\tilde{S}_i\) qui est le résultat de \(ilr^{-1}\left(\mathbb{N}\left(W\mu_k, W\Sigma_k W^T+\sigma^2I \right)\right)\)
+
+
+Illustrons ce mécanisme à l'aide d'un jeu de données à 2 OTUs. Lors de l'apprentissage, le simulateur a trouvé que le nombre de gaussiennes optimal est de 2 et il a calculé les estimateurs de zero inflation suivant:
+\begin{table}[H]
+\centering
   \[
   \begin{array}{c|>{\columncolor{red}}c|>{\columncolor{green}}c|}
- \multicolumn{3}{c}{\quad \quad \quad \quad \ \ Gaussienne} \\
+ \multicolumn{3}{c}{\quad \quad \quad \quad \ \ Gaussiennes} \\
  \multicolumn{3}{c}{\quad \quad \quad \quad \ \ $\downbracefill$} \\
   \cline{2-3}
-  \ldelim \{{2}{*}[OTUS]&
+  \ldelim \{{2}{*}[OTUs]&
   1/3 & 1/2  \\
   \cline{2-3}
    & 2/3 & 3/4 \\
    \cline{2-3}
   \end{array}
 \]
-Il simule un nouveau jeu de données (tableau de gauche), 3 données appartiennent à la gaussienne rouge et 5 à la gaussienne vert. Lors de la zero inflation, le simulateur va multiplier chaque comptage d'OTU du nouveau jeu de donnée (chaque case du tableau) par une variable de bernoulli de probabilité définit dans la case correspondant (OTU et gaussienne identique) du tableau ci dessus. Le résultat final obtenu par le simulateur est alors le jeu de donnée de droite.
+\caption{\label{tab:zeo_inflation} Exemple de matrice de zero-inflation.}
+\end{table}
+Il simule un nouveau jeu de données (tableau de gauche), 3 données appartiennent à la gaussienne rouge et 5 à la gaussienne verte. Lors de la zero inflation, le simulateur va multiplier chaque comptage d'OTU du nouveau jeu de donnée (chaque case du tableau) par une variable de bernoulli de probabilité défini dans la case correspondante (OTU et gaussienne identique) du tableau Tab.~\ref{tab:zero_inflation}. Le résultat final obtenu par le simulateur est alors le jeu de donnée de droite.
 \begin{center}
 \begin{tabular}{cc}
 \begin{tabular}{|>{\columncolor{red}}c|>{\columncolor{red}}c|>{\columncolor{red}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|}
@@ -896,9 +905,7 @@ Il simule un nouveau jeu de données (tableau de gauche), 3 données appartienne
 1 & 2 & 18 & 5 & 9 & 7 & 0 & 21 \\
 32 & 2 & 3 & 6 & 2 & 1 & 2 & 14
 \end{tabular}
-
  &
-
  \begin{tabular}{|>{\columncolor{red}}c|>{\columncolor{red}}c|>{\columncolor{red}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|}
  \multicolumn{8}{c}{Après zero inflation}\\
 1 & 0 & 18 & 0 & 9 & 0 & 0 & 21 \\
@@ -907,18 +914,21 @@ Il simule un nouveau jeu de données (tableau de gauche), 3 données appartienne
  \end{tabular}
  \end{center}
 
-\subsection{Multinomiale}
-La zéro inflation rajoute des zéros dans les jeux de données simulées, la profondeur de séquencage (le nombre de lecture par échantillon) va en conséquence diminuer. Pour remédier à ce problème et éviter que la profondeur de séquencage final soit largement inférieur à celle souhaité, il est nécessaire au préalable de la zéro inflation d'augmenter cette profondeur (dans le simulateur la profondeur de séquencage est choisie avec le N de la multinomiale).
-Un estimateur de la proportion de zéro rajouté dans un échantillon i par la zéro inflation est:
+\subsection{Correction de la profondeur de séquençage}
+
+La zéro inflation rajoute des zéros dans les jeux de données simulées, la profondeur de séquencage (le nombre de lecture par échantillon) va en conséquence diminuer. Pour remédier à ce problème et éviter que la profondeur de séquencage finale ne soit trop inférieure à celle souhaitée, il est nécessaire de l'augmenter au préalable pour corriger l'effet de la zéro inflation. Cela permet de contrôler la profondeur de séquençage \emph{moyenne} produite par le simulateur.
+
+Un estimateur de la proportion de zéro rajoutés dans un échantillon $i$ par la zéro inflation est:
 \[
-\hat{p_i}=\sum_{j=1}^D \pi_{jk}*\tilde{S_i}
+\hat{p_i}=\sum_{j=1}^D \pi_{jk}\tilde{S}_{ij}
 \]
-La profondeur de séquencage (N de la multinomiale) a prendre dans le simulateur pour échantillon i est donc \(\hat{N_i}=N_i/\hat{p_i}\).
+La profondeur de séquencage ($N$ de la multinomiale) à utiliser dans le simulateur est donc \(\hat{N_i}=N_i/\hat{p_i}\).
 \newpage
 
-\section{Performance simulateur}
+\section{Performances du simulateur}
 \subsection{Méthode}
-La méthode la plus facile à mettre en œuvre est d'estimer visuellement si les données simulées ressemblent aux données réelles, pour ce faire j'ai projecté les données (réelles, simulées) sur les premiers axes d'une acp.
+
+La méthode d'évaluation la plus facile à mettre en œuvre est d'estimer visuellement si les données simulées ressemblent aux données réelles. Pour ce faire j'ai projecté les données (réelles et simulées) sur les premiers axes d'une ACP.
 
 \begin{minipage}{\linewidth}
       \centering
@@ -943,20 +953,15 @@ graph_biplot_normale(data, metadata, 1, 'Liver', 'data', ellipse=FALSE)[[1]]
 \end{minipage}
 \end{minipage}
 
-Globalement, les données simulées se mélangent bien avec les données réelles.
-La première impression sur les performances du simulateur sont positives.\\
-\\
-Cependant cette méthode n'est pas forcément la plus rigoureuse. En effet, certains OTU peuvent être très mal simulés sans que pour autant nous puissions faire la différence visuellement. Par exemple, un OTU absent de tous les échantillons réels mais présent en de très faibles quantité dans les échantillons simulés n'aura quasiment aucune incidence sur une acp (donc aucune différence graphique). Cet OTU n'est pas pour autant bien simulé; une bonne simulation donnerait des échantillons dans lesquels cet OTU est absent pour la quasi totalité d'entre eux.\\
+Globalement, les données simulées se mélangent bien avec les données réelles. La première impression sur les performances du simulateur est donc positive.
 
-Pour avoir des résultats plus fiables, l'étude de l'efficacité du simulateur est confiée à des classificateurs.\\
-L'objectif est de regarder si un classificateur parvient à faire la différence entre les données réelles et les données simulée.
-Une bonne simulation mènerait le classificateur à se tromper a de nombreuses reprises (l'objectif théorique optimal est que le classificateur se trompe dans \(50\%\) des cas).
-Dans ce but, deux nouveaux jeux de données sont simulés, l'un d'entre eux servira de jeu d'entrainement (avec les données réelles) à un classificateur, l'autre jeu de données servira quant à lui de test. Une petite partie des données réelles n'est pas incluse dans le jeu d'entrainement, elle servira elle aussi de test.\\
+Cependant cette méthode, bien que très utilisée dans la littérature, n'est pas forcément rigoureuse. En effet, certains OTUs peuvent être très mal simulés sans pour autant que nous ne puissions faire la différence visuellement. Par exemple, un OTU absent de tous les échantillons réels mais présent en très faibles quantité dans les échantillons simulés n'aura quasiment aucune incidence sur une ACP (et n'induira donc aucune différence graphique). Cet OTU n'est pas pour autant bien simulé; une bonne simulation donnerait des échantillons dans lesquels cet OTU est absent la plupart du temps.
 
+Pour avoir des résultats plus fiables, l'étude de l'efficacité du simulateur est confiée à des classificateurs. L'objectif est de regarder si un classificateur parvient à faire la différence entre les données réelles et les données simulée. Une bonne simulation mènerait le classificateur à se tromper à de nombreuses reprises (l'objectif théorique est que le classificateur se trompe dans \(50\%\) des cas). Dans ce but, deux nouveaux jeux de données sont simulés, l'un d'entre eux servira de jeu d'entrainement (avec les données réelles) à un classificateur, l'autre jeu de données servira quant à lui de test. Une petite partie des données réelles n'est pas incluse dans le jeu d'entrainement, elle servira elle aussi de jeu de données test.
 
 \subsection{Résultats}
-J'ai utilisé deux classificateurs, le random Forest ainsi que le k nearest neighbors (le classificateur svm a été ignoré pour sa faible efficacité pour les données de comptage, voir \ref{Classification supervise}).\\
 
+J'ai utilisé deux classificateurs, les random Forest (RF) ainsi que le k Nearest Neighbors (K-NN). Le classificateur SVM a été ignoré en raison de sa faible efficacité sur les données de comptage, voir \ref{Classification supervise}).
 
 \begin{center}
 Vacher
@@ -987,18 +992,19 @@ kable(t_liver_500$all$random_forest)
  @
  \end{tabular}
 \end{center}
-Les performances du simulateur sont grandement variables selon le jeu de données. En effet, sur certains jeux de données les classificateurs peinent à faire la différence entre les données simulées et réelles.\\
-A l'inverse sur Liver, le random Forest fait aisément la différence, cependant le kNN lui le fait moins facilement. Ainsi certaines caractéristiques des données Liver doivent être mal simulées (ce qui permet au random Forest de faire la différence), mais les données simulées doivent quant même relativement bien se mélanger aux données réelles (comme le montre le kNN).
+
+Les performances du simulateur sont grandement variables selon le jeu de données. En effet, sur certains jeux de données, notamment Vacher, les classificateurs peinent à faire la différence entre les données simulées et réelles. À l'inverse sur Liver, le random Forest détecte aisément les données simulées tandis le k-NN y arrive moins facilement. Ainsi certaines caractéristiques des données Liver doivent être mal simulées (ce qui permet au random Forest de faire la différence), mais les données simulées doivent quant même relativement bien se mélanger aux données réelles (comme le montre le kNN).
 
 \subsection{Classification}
-Un autre aspect de la performance du simulateur est sa capacité à simuler les caractéristiques (les OTU présents) de chaque groupe (exemple: les différents arbres dans le cas de vacher ; malade, non malade pour Liver) d'un jeu de données ; une donnée simulée ne doit pas avoir les caractéristiques de plusieurs groupes.\\
-Pour étudier cet aspect, la simulation ne se fera plus sur l'ensemble du jeux de données mais séparément sur chaque groupe du jeu de données.\\
-Les groupes des données simulées seront alors connus et nous pourrons vérifier si un classificateur retrouve bien ses groupes.\\
-Voici un schéma illustratif de la méthode \\
-Soit \(1,2,...,k\) les groupes du jeu de données (ex: pour Liver k=2, malade, non malade)
 
+Un autre aspect de la performance du simulateur est sa capacité à capturer et simuler les caractéristiques (les OTUs présents et leurs abondances) de chaque groupe (exemple: les différents arbres dans le cas de Vacher; le status maladeou sain des patients pour Liver) d'un jeu de données; une donnée simulée ne devrait pas présenter les caractéristiques de plusieurs groupes. Pour étudier cet aspect, la simulation ne se fera plus sur l'ensemble du jeux de données mais séparément sur chaque groupe du jeu de données (par exemple sain puis malade). Les groupes des données simulées seront alors connus et nous pourrons vérifier si un classificateur \emph{entrainé sur les données réelles} retrouve bien ces groupes.\footnote{Ou plus prosaïquement atteint les mêmes taux de bonne et mauvaise classification que sur les données réelles.}
 
+La figure Fig.~\ref{fig:classif_all} présente un schéma illustratif de la méthode: soit \(1,2,...,k\) les groupes du jeu de données (ex: pour Liver k=2, malade, non malade)
+
+\begin{figure}
 \input{tikz_figures/classification_schema}
+\caption{\label{fig:classif_all}Procédé utilisé pour évaluer la qualité du simulateur, notamment sa capacité à reproduire les caractéristiques de groupes différents.}
+\end{figure}
 
 Une bonne simulation devrait résulter en la présence des mêmes échantillons dans \(\tilde{X}_i\) et dans \(\tilde{Y}_i\) pour \(i\in \left\lbrace 1,2,...,k\right\rbrace\).
 
@@ -1033,14 +1039,14 @@ kable(l_super$all$kNN)
 
 \end{tabular}
 \end{center}
-La classification supervisée des données simulées sont globalement bonnes. Les résultats sont même quasiment comparables aux résultats de la validation croisée sur les données réelles (pour le random Forest). Ainsi même si une partie des échantillons simulés est malheureusement "mal simulée" (notamment dans le cas du jeu de données liver); les caractéristiques des groupes restent quant à eux relativement bien simulés. \\
+La classification supervisée des données simulées est globalement bonne. Les résultats sont même quasiment comparables aux résultats de la validation croisée sur les données réelles (pour le random Forest). Ainsi même si une partie des échantillons simulés est malheureusement "mal simulée" (notamment dans le cas du jeu de données Liver); les caractéristiques des groupes restent quant à eux relativement bien simulés.
 
+Une partie des erreurs de classification peut être dûe aux données "mal simulées" qui ne ressemblent aux données d'aucun groupe. Pour tester cette hypothèse et vérifier si les données considérées comme bien "simulées" sont faciles à classer dans un groupe (et ainsi relativement proches des données réelles de leur groupe respectif), nous allons procéder à une nouvelle expérience numérique et conserver uniquement les données "bien simulées". Nous allons ensuite utiliser le même classificateur que précédemment et vérifier la bonne classification de ces données (Fig.~\ref{fig:classif_good}).
 
-Pour vérifier que les données considérées comme bien "simulées" sont facilement classables dans un groupe (et ainsi relativement proches des données réelles de leur groupe respectif), nous allons conserver uniquement ces données puis faire comme précédemment en faisant une classification supervisée et en vérifiant leur bonne classification.
-
-Voici un schéma récapitulatif de la méthode.
-
+\begin{figure}[h]
 \input{tikz_figures/classification_groupe_schema}
+\caption{\label{fig:classif_good}Procédé utilisé pour évaluer la qualité du simulateur, notamment sa capacité à reproduire les caractéristiques de groupes différents, en se restreignant aux données bien simulées.}
+\end{figure}
 
 \begin{center}
 Vacher
@@ -1072,24 +1078,21 @@ kable(c_liver$all$kNN)
 @
 \end{tabular}
 \end{center}
-Les résultats sont comparables à ceux obtenus avec la méthode précédente.
-Les données considérées comme réelles (bien simulées) ne semblent pas plus faciles, ni plus difficiles à classer que dans le cas précédent. Les jeux de données où les résultats sur l'ensemble des données simulées étaient déjà très convaincants le sont toujours ; mais les jeux de données où la classification des données simulées était plus compliquée reste compliquée (le classificateur kNN pour liver).\\
-Cependant sur ces jeux de données, la validation croisée (Classification supervisée) sur les données réelles ne permet pas non plus d'obtenir de bons résultats, la problématique ne semble donc pas venir des données simulées.\\
+
+Les résultats sont meilleurs même si comparables à ceux obtenus avec la méthode précédente. Les données considérées comme réelles (bien simulées) sont donc légèrement plus faciles que dans le cas précédent, sans pour autant atteindre les taux de bonne classification observées sur les données réelles. Les jeux de données où les résultats sur l'ensemble des données simulées étaient déjà très convaincants le sont toujours ; mais les jeux de données où la classification des données simulées était plus compliquée reste compliquée (le classificateur kNN pour liver). Cependant sur ces jeux de données, la validation croisée (Classification supervisée) sur les données réelles ne permet pas non plus d'obtenir de bons résultats, la problématique ne semble donc pas venir des données simulées.\\
 
 \newpage
 \section{Conclusion}
-L'intérêt des données compositionnelles est de pouvoir s'affranchir de certaines contraintes techniques comme la profondeur de séquencage. De plus, grâce aux transformations log-ratio l'utilisation de l'ensemble des méthodes statistiques multivariée est possible.\\
-L'utilisation des transformations des données compositionnelles pour repasser dans un espace euclidien s'est révélée pertinente sur les jeux de données utilisé durant mon stage, les résultats des différentes classifications étant au moins aussi bons que sur les données initiales.\\
-De même les résultats obtenus sur les données simulées sont encourageants.
-Les caractéristiques des différents groupes des jeux de données semblent relativement bien simulées. Cependant, les résultats sont très variables selon les jeux de données. Des tests sur un plus grand nombre de jeux de données seraient nécessaires pour étudier la robustesse du simulateur. L'intérêt d'un tel simulateur est qu'il permet d'obtenir des résultats convenable tout en ayant une complexité (temps de calcul) relativement faible.
 
+L'intérêt des données compositionnelles est de pouvoir s'affranchir de certaines contraintes techniques comme la profondeur de séquencage. De plus, les transformations log-ratio permettent de se ramener à l'espace euclidien usuel et ainsi d'accéder à l'ensemble des méthodes statistiques multivariée est possible. L'utilisation des transformations des données compositionnelles pour repasser dans un espace euclidien s'est révélée pertinente sur les jeux de données utilisés durant mon stage, les résultats des différentes classifications étant au moins aussi bons que sur les données initiales.
+
+De même, les résultats obtenus sur les données simulées sont encourageants. Les caractéristiques des différents groupes des jeux de données semblent relativement bien simulées et montrent que les grandes structures peuvent être apprises assez facilement. Cependant, les résultats sont très variables selon les jeux de données. Des tests sur un plus grand nombre de jeux de données seraient nécessaires pour étudier la robustesse du simulateur. L'intérêt d'un tel simulateur est qu'il permet d'obtenir des résultats convenable en terme de réalisme au prix d'une faible complexité computationnelle.
 
 \newpage
 \section{Annexe}
 \appendix
 
-
-\subsection{Graphique ACP}
+\subsection{Graphiques ACP}
 \begin{figure}[H]
 <<graph biplot chaillou, fig.height = 4.5>>=
 graph_biplot_normale(chaillou, metadata_chaillou$EnvType, 1, "Chaillou", "EnvType", ellipse=FALSE)[[1]]

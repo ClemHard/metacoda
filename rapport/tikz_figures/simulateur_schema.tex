@@ -9,20 +9,20 @@
      \node[cloud, below of=apprentissage] (Z_tilde) {\(\tilde{Z}\)};
      \node[cloud, below of=Z_tilde] (Y_tilde) {\(\tilde{Y}\)};
      \node[cloud, below of=Y_tilde] (S_tilde) {\(\tilde{S}\)};
-     \node[block, below of=S_tilde](ZIB) {Zero inflated};
+     \node[block, below of=S_tilde](ZIB) {Zero inflation};
      \node[cloud, below of=ZIB] (X_tilde) {\(\tilde{X}\)};
-     
+
      \node[right of=Z_tilde, node distance=1.7cm] (N) {\(\sim \mathbb{N}\left(\mu_k, \Sigma_k \right)\)};
-     \node[right of=Y_tilde, node distance=3cm] (N1) {\(\sim \mathbb{N}\left(W\mu_k, W\Sigma_k W^T+\sigma^2I \right)\)};
-     
-     
+     \node[right of=Y_tilde, node distance=3cm] (N1) {\(\sim \mathbb{N}\left(W\tilde{Z}, \sigma^2I \right)\)};
+
+
      \node[left of=apprentissage] (temp1_simulation) {};
      \node[left of=X_tilde] (temp2_simulation) {};
      \node[left of=X] (X_temp) {};
      \node[left of=Z] (Z_temp) {};
   %\draw[tuborg, decoration={brace}] let %\p1=(Y.north), \p2=(Y_tilde.south) in
 %    ($(2, \y1)$) -- ($(2, \y2)$) node[tubnode] {Pro};
-    
+
   \path[line] (X) -- (apprent_ZIB);
   \path[line] (apprent_ZIB) --  node[midway, right] {MAP} (S);
   \path[line] (S) --  node[midway, right] {\(ilr\)} (Y);
@@ -33,8 +33,8 @@
   \path[line] (S_tilde) --  node[midway, right] {multinomiale} (ZIB);
   \path[line] (ZIB) --  node[midway, right] {} (X_tilde);
   \path[line] (Y) -- node[midway, right] {réduction de dimension} (Z);
-  
-  
+
+
 \draw[decorate,decoration={brace,mirror}] (temp1_simulation.north west) -- node[midway, left] {Simulation} (temp2_simulation.south west);
 \draw[decorate,decoration={brace,mirror}] (X_temp.north west) -- node[midway, left] {Transformation} (Z_temp.south west);
   \end{tikzpicture}
