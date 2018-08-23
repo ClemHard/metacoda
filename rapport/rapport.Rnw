@@ -897,10 +897,10 @@ Les jeux de données contiennent un nombre important de zéros (comme vu précé
 Commençons par estimer la proportion de zéros pour chaque OTU de chaque gaussienne que nous notons \(\pi_{jk}\) (j désignant l'OTU et k la gaussienne d'appartenance de l'échantillon). Cette estimation est faite via le MAP comme pour la proportion d'un OTU dans un échantillon mais cette fois ci en prenant un pseudo comptage plus faible.\\
 Par la suite, nous modélisons les zéros par une loi de Bernoulli,
 
-\[P\left(Z=x\right)=\left\{
+\[P\left(Z_{jk}=x\right)=\left\{
     \begin{array}{ll}
-         \pi_{ik} & \text{ si } x=0 \\
-         1 - \pi_{ik} & \text{ si } x=1 \\
+         \pi_{jk} & \text{ si } x=0 \\
+         1 - \pi_{jk} & \text{ si } x=1 \\
     \end{array}
 \right.
 \]
@@ -909,7 +909,7 @@ Ce qui permet d'exprimer \(\tilde{X_{i}}\) comme
 \[
 \tilde{X}_{i}=\left(Z_{1k},Z_{jk},...,Z_{Dk}\right)*T_i
 \]
-où \(Z_{ik}\sim Bern\left(\pi_{jk}\right)\) et \(T_i\sim \mathbb{M}\left(N; \tilde{S}_i\right)\) avec \\
+où \(Z_{jk}\sim Bern\left(\pi_{jk}\right)\) et \(T_i\sim \mathbb{M}\left(N; \tilde{S}_i\right)\) avec \\
  \(\tilde{S}_i\) qui est le résultat de \(ilr^{-1}\left(\mathbb{N}\left(W\mu_k, W\Sigma_k W^T+\sigma^2I \right)\right)\)
 \\
 \\
@@ -945,6 +945,14 @@ Il simule un nouveau jeu de données (tableau de gauche), 3 données appartienne
 \end{tabular}
  \end{tabular}
  \end{center}
+ 
+\subsection{Multinomiale}
+La zéro inflation rajoute des zéros dans les jeux de données simulées, la profondeur de séquencage (le nombre de lecture par échantillon) va en conséquence diminuer. Pour remédier à ce problème et éviter que la profondeur de séquencage final soit largement inférieur à celle souhaité, il est nécessaire au préalable de la zéro inflation d'augmenter cette profondeur (dans le simulateur la profondeur de séquencage est choisie avec le N de la multinomiale).
+Un estimateur de la proportion de zéro rajouté dans un échantillon i par la zéro inflation est:
+\[
+\hat{p_i}=\sum_{j=1}^D \pi_{jk}*\tilde{S_i}
+\]
+La profondeur de séquencage (N de la multinomiale) a prendre dans le simulateur pour échantillon i est donc \(\hat{N_i}=N_i/\hat{p_i}\).
 \newpage
 
 \section{Performance simulateur}
