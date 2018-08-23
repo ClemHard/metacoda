@@ -1,0 +1,40 @@
+\begin{center}
+\begin{tikzpicture}[node distance=2cm, auto]
+     \node[cloud] (X1) {\(X_1\)};
+     \node[cloud, right of=X1] (X2)      {\(X_2\)};
+     \node[right of=X2, node distance=1cm] (temp) {};
+     \node[cloud, right of=temp, node distance=1cm] (point1) {...};
+     \node[cloud, right of=point1] (Xk) {\(X_k\)};
+     \node[cloud, below of=X2] (X2_tilde)   {\(\tilde{X}_2\)};
+     \node[cloud, below of=X1] (X1_tilde)   {\(\tilde{X}_1\)};
+     \node[below of=temp] (temp2) {};
+     \node[cloud, below of=point1] (point2)   {...};
+     \node[cloud, below of=Xk] (Xk_tilde)   {\(\tilde{X}_k\)};
+     
+     \node[cloud, below of=temp2](XU_tilde) {\(\tilde{X}_U\)};
+     
+     \node[below of=XU_tilde] (temp3) {};
+     \node[cloud, left of=temp3, node distance=1cm] (Y2_tilde) {\(\tilde{Y}_2\)};
+     \node[cloud, left of=Y2_tilde] (Y1_tilde) {\(\tilde{Y}_1\)};
+     \node[cloud, right of=temp3, node distance=1cm] (point3) {...};
+	 \node[cloud, right of=point3] (Yk_tilde) {\(\tilde{Y}_k\)};     
+     
+     
+    % \draw[tuborg, decoration={brace}] let \p1=(X2.south), %\p2=(X2_tilde.north) in
+  %  ($(2, \y1)$) -- ($(2, \y2)$) node[tubnode] {Pro};
+     
+   	\path[line] (X1) --  node[midway, left] {Apprentissage, simulation} (X1_tilde);
+   	\path[line] (X2) --  (X2_tilde);
+   	\path[line] (point1) -- (point2);
+  	\path[line] (Xk) --  (Xk_tilde);
+ 	\path[line] (X1_tilde) --  node[midway, left] {Union} (XU_tilde);
+ 	\path[line] (X2_tilde) --  (XU_tilde);
+ 	\path[line] (point2) --  (XU_tilde);
+ 	\path[line] (Xk_tilde) -- (XU_tilde);
+ 	\path[line] (XU_tilde) -- node[midway, left] {Classification} (Y1_tilde);
+ 	\path[line] (XU_tilde) --  (Y2_tilde);
+ 	\path[line] (XU_tilde) --  (point3);
+ 	\path[line] (XU_tilde) --  (Yk_tilde);
+ 	
+  \end{tikzpicture}
+\end{center}

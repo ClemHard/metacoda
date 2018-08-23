@@ -1,0 +1,58 @@
+\begin{center}
+\begin{tikzpicture}[node distance=2cm, auto]
+
+\node[cloud] (X1) {\(X_1\)};
+     \node[cloud, right of=X1] (X2)      {\(X_2\)};
+     \node[right of=X2, node distance=1cm] (temp) {};
+     \node[cloud, right of=temp, node distance=1cm] (point1) {...};
+     \node[cloud, right of=point1] (Xk) {\(X_k\)};
+     \node[cloud, below of=X2] (X2_tilde)   {\(\tilde{X}_2\)};
+     \node[cloud, below of=X1] (X1_tilde)   {\(\tilde{X}_1\)};
+     \node[below of=temp] (temp2) {};
+     \node[cloud, below of=point1] (point2)   {...};
+     \node[cloud, below of=Xk] (Xk_tilde)   {\(\tilde{X}_k\)};
+     
+     \node[cloud, below of=temp2](XU_tilde) {\(\tilde{X}_U\)};
+     \node[below of=XU_tilde, node distance=1cm] (temp_real) {};
+     \node[cloud, below of=temp_real, node distance=1cm] (X_real_tilde) {\(\tilde{X}_{real}\)};
+     \node[below of=X_real_tilde] (temp3) {};
+     \node[cloud, left of=temp3, node distance=1cm] (Y2_tilde) {\(\tilde{Y}_2\)};
+     \node[cloud, left of=Y2_tilde] (Y1_tilde) {\(\tilde{Y}_1\)};
+     \node[cloud, right of=temp3, node distance=1cm] (point3) {...};
+	 \node[cloud, right of=point3] (Yk_tilde) {\(\tilde{Y}_k\)};     
+     
+     
+    % \draw[tuborg, decoration={brace}] let \p1=(X2.south), %\p2=(X2_tilde.north) in
+  %  ($(2, \y1)$) -- ($(2, \y2)$) node[tubnode] {Pro};
+     
+   	\path[line] (X1) --  node[midway, left] {Apprentissage, simulation} (X1_tilde);
+   	\path[line] (X2) --  (X2_tilde);
+   	\path[line] (point1) -- (point2);
+  	\path[line] (Xk) --  (Xk_tilde);
+ 	\path[line] (X1_tilde) --  node[midway, left] {Union} (XU_tilde);
+ 	\path[line] (X2_tilde) --  (XU_tilde);
+ 	\path[line] (point2) --  (XU_tilde);
+ 	\path[line] (Xk_tilde) -- (XU_tilde);
+ 	\path[line] (XU_tilde) -- node[midway, left] {Classification real/simu} (X_real_tilde);
+ 	\path[line] (X_real_tilde) -- node[midway, left] {Classification} (Y1_tilde);
+ 	\path[line] (X_real_tilde) --  (Y2_tilde);
+ 	\path[line] (X_real_tilde) --  (point3);
+ 	\path[line] (X_real_tilde) --  (Yk_tilde);
+ 	
+     
+     
+     
+     \node[block, right of=XU_tilde, node distance=6cm, text width=3cm] (Apprentissage classificateur) {Apprentissage classificateur real/simu};
+     \node[cloud, above of=Apprentissage classificateur] (X_tilde) {\(\tilde{X}\)}; 
+     \node[cloud, above of=X_tilde] (X) {X};
+     
+     
+     
+     
+
+ 	\path[line] (Apprentissage classificateur) |- (temp_real);
+ 	\path[line] (X) -- (X_tilde);
+ 	\path[line] (X_tilde) -- (Apprentissage classificateur);
+ 	
+  \end{tikzpicture}
+\end{center}
