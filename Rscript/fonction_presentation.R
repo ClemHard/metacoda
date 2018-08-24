@@ -1,7 +1,6 @@
 library(MASS)
 library(randomForest)
 
-source("Rscript/read_metagenomic_data.R")
 source("Rscript/coda.R")
 source("Rscript/graph.R")
 source("Rscript/comparaison_clustering.R")
@@ -111,6 +110,27 @@ ternary_diagram1 <- function(data ,colour, style, add_line, colour_line,
   lines(coord_line[1, ], coord_line[2, ], col=colour_line, lwd=2)
 }
 
+ternary_diagram_vide <- function(){
+  
+  u0=0.2;
+  v0=0.2;
+  A=c(u0+0.5,v0+sqrt(3)/2)
+  B=c(u0,v0)
+  C=c(u0+1,v0)
+  par(mar=c(rep(0,4)))
+  plot(NULL, xlim=c(0.1,1.3), ylim=c(v0-0.03,v0+sqrt(3)/2+0.11), xlab="", ylab="", asp=1, , axes=FALSE)
+  segments(B[1],B[2],A[1],A[2])
+  segments(C[1],C[2],A[1],A[2])
+  segments(B[1],B[2],C[1],C[2])
+  text(A[1], A[2], "A", pos=3)
+  text(B[1], B[2], "B", pos=2)
+  text(C[1], C[2], "C", pos=4)
+  
+  par(mar=c(rep(4,4)))
+  
+  
+}
+
 
 
 coord_ternary_diagram <- function(data){
@@ -124,7 +144,7 @@ coord_ternary_diagram <- function(data){
   
   k=sum(data[1,])
   coord=(1./k)*(sapply(data[,1],mult,t=A)+sapply(data[,2],mult,t=B)+sapply(data[,3],mult,t=C))
-  coord
+  coord %>% t()
 }
 
 
@@ -149,4 +169,76 @@ density_melange <- function(x, y, pro, moy, sigma){
     z <- z + pro[i]*apply(d,1,function(x){density_gaussienne(x[1],x[2],moy[[i]],sigma[[i]])}) %>% matrix(nrow = length(x))
   }
   z
+}
+
+
+
+
+
+
+bootstrap_presentation <- function(data, nb_axe=NULL, nb_cluster=NULL, nb_sample=nrow(data), type="comptage", zero_inflated=TRUE, base_binaire=Base_binary_matrix(ncol(data))){
+  
+  apprent <- apprentissage(data, nb_axe = nb_axe, nb_cluster = nb_cluster, base_binaire = base_binaire)
+  if(type=="comptage"){
+    new.sample <- simulation_presentation(apprent, nb_sample = nb_sample, zero_inflated = zero_inflated)
+  } else if(type=="MAP"){
+    new.sample <- simulation_MAP(apprent, nb_sample = nb_sample)$data
+  } else if(type=="ilr"){
+    new.sample <- simulation_ilr(apprent, nb_sample = nb_sample)$data
+  }
+  new.sample <- list(data=new.sample, d=apprent$d, nb_cluster=apprent$nb_cluster, apprent=apprent)
+  new.sample
+}
+
+
+
+
+simulation_presentation <- function(result, nb_sample=nrow(result$data), type="comptage", zero_inflated=TRUE){
+  
+  if(type=="ilr"){
+    simu_ilr <- simulation_ilr(result, nb_sample = nb_sample)
+    rownames(simu_ilr$data) <- paste("sample", 1:nrow(simu_ilr$data))
+    colnames(simu_ilr$data) <- paste("coord", 1:ncol(simu_ilr$data))
+    return(simu_ilr$data)
+  }
+  
+  simu_MAP <- simulation_MAP(result, nb_sample)
+  
+  if(type=="MAP"){
+    rownames(simu_MAP$data) <- paste("sample", 1:nrow(simu_MAP$data))
+    colnames(simu_MAP$data) <- colnames(result$data)
+    return(simu_MAP$data)
+  }
+  
+  
+  deep <- apply(result$data, 1, sum)
+  zero_inflated_comptage <- result$zero_inflated_comptage
+  
+  result_sample <- sapply(1:nrow(simu_MAP$data), function(x){
+    
+    deep_simu <- sample(deep, 1)
+    
+    
+    if(any(x>0)){
+      r <- rmultinom(1, round(deep_simu), simu_MAP$data[x, ])
+    }
+    else rep(0, length(simu_MAP[x, ]))
+  }) %>% t()
+  
+  
+  
+  if(!is.null(result$zero_inflated_comptage)){
+    for(i in 1:nrow(zero_inflated_comptage)){
+      if(zero_inflated_comptage$value[i]==0) {
+        e <- rbinom(length(which(simu_MAP$metadata==zero_inflated_comptage$cluster[i])), 1, 1-zero_inflated_comptage$zero[i])
+        result_sample[which(simu_MAP$metadata==zero_inflated_comptage$cluster[i]), zero_inflated_comptage$OTU[i]] <- result_sample[which(simu_MAP$metadata==zero_inflated_comptage$cluster[i]), zero_inflated_comptage$OTU[i]] * e
+      }
+    }
+  }
+  
+  
+  rownames(result_sample) <- paste("sample", 1:nrow(simu_MAP$data))
+  colnames(result_sample) <- colnames(result$data)
+  
+  result_sample
 }

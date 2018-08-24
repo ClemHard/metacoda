@@ -7,6 +7,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{tikz}
+\usepackage{colortbl}
 \usepackage{amsfonts,amsmath,amssymb}
 \usepackage{enumerate}
 \usepackage{enumitem}
@@ -101,6 +102,7 @@ knitr::opts_knit$set(root.dir = "..")
 \begin{document}
 
 <<chargement_source, echo=FALSE,  include=FALSE>>=
+library(ellipse)
 source("Rscript/read_metagenomic_data.R")
 source("Rscript/coda.R")
 source("Rscript/comparaison_clustering.R")
@@ -151,15 +153,12 @@ Métagénomique: méthode d'étude du contenu génétique d'échantillons issus 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Présentation des données}
-
 \input{../rapport/tikz_figures/otu_table}
-
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Problématique et Objectifs du stage}
 
-\MM{Mettre la problématique et les objectifs du stage}
 
 \end{frame}
 
@@ -180,7 +179,7 @@ Métagénomique: méthode d'étude du contenu génétique d'échantillons issus 
     \]
 \end{frame}
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Closure}
 \[
 C(x)=\left[\frac{\kappa \times x_1}{\sum_{i=1}^Dx_i},\frac{\kappa \times x_2}{\sum_{i=1}^Dx_i},...,\frac{\kappa \times x_D}{\sum_{i=1}^Dx_i}     \right]
@@ -261,6 +260,34 @@ Plusieurs transformations permettent de passer de \(S^D\) à \(\R^D\) ou \(\R^{D
 \end{itemize}
 \end{frame}
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Transformation ilr}
+Matrice utilisé pour coder la base:\\
+
+\[
+\begin{blockarray}{cccc}
+x1 & x2 & x3 & x4  \\
+\begin{block}{(cccc)}
+  1 & 1 & 1 & -1 \\
+1 & 1 & -1 & 0 \\
+1 & -1 & 0 & 0 \\
+\end{block}
+\end{blockarray}
+\]
+
+
+L'image \(clr\) de la base
+\[
+\Psi =\begin{pmatrix}
+\frac{1}{\sqrt{12}} & \frac{1}{\sqrt{12}} & \frac{1}{\sqrt{12}} & -\frac{3}{\sqrt{12}} \\
+\frac{1}{\sqrt{6}} & \frac{1}{\sqrt{6}} & -\frac{2}{\sqrt{6}} & 0 \\
+\frac{1}{\sqrt{2}} & -\frac{1}{\sqrt{2}} & 0 & 0
+\end{pmatrix}
+\]
+
+\end{frame}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Au sujet des transformations xlr}
 \MM{Préciser que ce sont des morphismes et que c'est pour ça qu'on veut les utiliser}
@@ -331,11 +358,15 @@ lines(circl, col=14, lwd=2)
 \begin{frame}{Transformations inverses}
 \begin{itemize}
 \item \(
+alr^{-1}\left(\xi\right)=C\left( \frac{\exp\left(\xi_1\right)}{\sum_{i=1}^{d-1} \exp\left(y_i\right) + 1},\ ...,\  \frac{1}{\sum_{i=1}^{d-1} \exp\left(y_i\right) + 1} \right)
+\)
+
+\item \(
 clr^{-1}\left(\xi\right)=C\left( \exp\left(\xi_1\right),\ ...,\  \exp\left(\xi_D\right)\ \right)
 \)
 
 \item \(
-alr^{-1}\left(\xi\right)=C\left( \frac{\exp\left(\xi_1\right)}{\sum_{i=1}^{d-1} \exp\left(y_i\right) + 1},\ ...,\  \frac{1}{\sum_{i=1}^{d-1} \exp\left(y_i\right) + 1} \right)
+ilr^{-1}\left(\xi\right)=C\left(\exp{\xi\Psi}\right)
 \)
 \end{itemize}
 
@@ -343,7 +374,7 @@ alr^{-1}\left(\xi\right)=C\left( \frac{\exp\left(\xi_1\right)}{\sum_{i=1}^{d-1} 
 
 \end{frame}
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
 La transformation ilr permet de repasser dans un espace usuel.
 \\
@@ -358,6 +389,66 @@ La transformation ilr permet de repasser dans un espace usuel.
 \MM{Développer (au moins à l'oral)}
 
 \end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+
+<<>>=
+mat1 <- matrix(c(0.3,0,0,0.3), nrow=2) *0.1
+mat2 <- matrix(c(0.4,-0.5,-0.5,2), nrow=2)*0.1
+mat3 <- matrix(c(0.8,0.9,0.9,1.5), nrow=2)*0.1
+u1 <- c(0,0)*0.5
+u2 <- c(3,-2)*0.5
+u3 <- c(-1.8,-0.5)*0.5
+col1="red"
+col2="green"
+col3="gray"
+@
+
+\begin{minipage}{\linewidth}
+      \centering
+      \begin{minipage}{0.45\linewidth}
+          <<fig.height=6.5>>=
+          		
+ellipse(mat2, centre = u2) %>% plot(type="l", asp=1, xlim=c(-2,2), ylim=c(-2,1), col=col2)
+ellipse(mat2, centre = u2, level=0.8) %>% lines(col=col2)
+ellipse(mat2, centre = u2, level=0.4) %>% lines(col=col2)
+
+ellipse(mat1, centre =u1) %>% lines(col=col1)
+ellipse(mat1, centre =u1, level=0.8) %>% lines(col=col1)
+ellipse(mat1, centre =u1, level=0.4) %>% lines(col=col1)
+
+ellipse(mat3, centre =u3) %>% lines(col=col3)
+ellipse(mat3, centre =u3, level=0.8) %>% lines(col=col3)
+ellipse(mat3, centre =u3, level=0.4) %>% lines(col=col3)
+
+              @
+      \end{minipage}
+      \hspace{0.05\linewidth}
+      \begin{minipage}{0.45\linewidth}
+          <<fig.height=6.5>>=
+          ternary_diagram_vide()
+ellipse(mat2, centre = u2) %>% ilr_inverse %>% coord_ternary_diagram() %>% lines(col=col2)
+ellipse(mat2, centre = u2, level=0.8) %>% ilr_inverse %>% coord_ternary_diagram() %>% lines(col=col2)
+ellipse(mat2, centre = u2, level=0.4) %>% ilr_inverse %>% coord_ternary_diagram() %>% lines(col=col2)
+
+
+ellipse(mat1, centre = u1) %>% ilr_inverse %>% coord_ternary_diagram() %>% lines(col=col1)
+ellipse(mat1, centre = u1, level=0.8) %>% ilr_inverse %>% coord_ternary_diagram() %>% lines(col=col1)
+ellipse(mat1, centre = u1, level=0.4) %>% ilr_inverse %>% coord_ternary_diagram() %>% lines(col=col1)
+
+
+ellipse(mat3, centre = u3) %>% ilr_inverse %>% coord_ternary_diagram() %>% lines(col=col3)
+ellipse(mat3, centre = u3, level=0.8) %>% ilr_inverse %>% coord_ternary_diagram() %>% lines(col=col3)
+ellipse(mat3, centre = u3, level=0.4) %>% ilr_inverse %>% coord_ternary_diagram() %>% lines(col=col3)
+
+              @
+      \end{minipage}
+  \end{minipage}
+
+\end{frame}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section[Application]{Application en métagéomique}
@@ -375,6 +466,8 @@ MAP(p)=\underset{p}{argmax}\left(p|x\right)=\frac{x_i+1}{\sum_{i=1}^D\left(x_i+1
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \end{frame}
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Différence entre MAP et maximun de vraisemblance}
 
 \begin{center}
@@ -446,6 +539,7 @@ graph_biplot_normale(ravel, metadata_ravel$CST, 1, "Ravel", "CST", ellipse=FALSE
 Utiliser le jeu de données pour en simuler un nouveau qui lui ressemble.
 \end{frame}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Méthodes de simulation}
 \[
 X \overset{MAP}{\rightarrow} \left(S^p\right)^n \overset{ilr}{\rightarrow}    \left(\mathbb{R}^{p-1}\right)^n \overset{apprentissage}{\rightarrow} \left(\mathbb{R}^{p-1}\right)^n \overset{ilr^{-1}}{\rightarrow}\left(S^{p-1}\right)^n  \overset{multinomiale}{\rightarrow} \tilde{X}
@@ -464,6 +558,19 @@ Y_i=Wx_i+\epsilon_i, \ x_i\sim \mathcal{N}\left(0,\mathbb{I}_d\right), \ \epsilo
 Choix de la dimension faite en regardant l'erreur quadratique.
 \end{frame}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Choix de la dimension}
+<<fig.height=4.5>>=
+y <- matrix(0, ncol=10, nrow=1000)
+y[,1:3] <- mvrnorm(n=1000, rep(0, 3), matrix(c(1,0,0,0,1,0,0,0,1),nrow=3)) 
+y <- y + mvrnorm(1000, rep(0, 10), seq(2,0.1,length=10)^7*diag(10))
+z <- cov(y) %>% eigen()
+plot(z$values, ylab="y", xlab="Index", pch=16)
+abline(v=4, col='red')
+@
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
 \resizebox{\linewidth}{!}{%
 <<>>=
@@ -506,9 +613,9 @@ simulés & \pointcol{blue}
 \hline
 & réels & simulés \\
 \hline
-1 & 100 & 3 \\
+1 & \Sexpr{t_ravel_sans$all$random_forest[1,1]} & \Sexpr{t_ravel_sans$all$random_forest[1,2]} \\
 \hline
-0 & 0   & 97 \\
+0 & \Sexpr{t_ravel_sans$all$random_forest[2,1]}   & \Sexpr{t_ravel_sans$all$random_forest[2,2]}\\
 \hline
 \end{tabular}
 \end{tabular}
@@ -531,30 +638,40 @@ ggplot(d) + geom_histogram(aes(OTU_163, fill=metadata), position="dodge", binwid
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Zero inflated}
-Zero inflated: mettre des zeros aléatoirement dans le jeu de donnée simulé.
- \[
-  \begin{array}{c|c|c|c|}
- \multicolumn{4}{c}{\quad \quad \quad \quad \ \ Cluster} \\
- \multicolumn{4}{c}{\quad \quad \quad \quad \ \ $\downbracefill$} \\
-  \cline{2-4}
-  \ldelim \{{6}{*}[OTUS]&
-  1/3 & 1/2 & 1/5 \\
-  \cline{2-4}
-   &2/3 & 3/4 & 1/4 \\
-   \cline{2-4}
-   & . & . & . \\
-   \cline{2-4}
-   & . & . & . \\
-   \cline{2-4}
-   & . & . & . \\
-   \cline{2-4}
-   & . & . & . \\
-   \cline{2-4}
+
+\begin{frame}{Zero inflation}
+Zero inflation: mettre des zeros aléatoirement dans le jeu de donnée simulé.
+  \[
+  \begin{array}{c|>{\columncolor{red}}c|>{\columncolor{green}}c|}
+ \multicolumn{3}{c}{\quad \quad \quad \quad \ \ Gaussienne} \\ 
+ \multicolumn{3}{c}{\quad \quad \quad \quad \ \ $\downbracefill$} \\
+  \cline{2-3}
+  \ldelim \{{2}{*}[OTUS]& 
+  1/3 & 1/2  \\
+  \cline{2-3}
+   & 2/3 & 3/4 \\
+   \cline{2-3}
   \end{array}
 \]
-\end{frame}
 
+\begin{center}
+\begin{tabular}{cc}
+\begin{tabular}{|>{\columncolor{red}}c|>{\columncolor{red}}c|>{\columncolor{red}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|}
+\multicolumn{8}{c}{Avant zero inflation}\\
+1 & 2 & 18 & 5 & 9 & 7 & 0 & 21 \\
+32 & 2 & 3 & 6 & 2 & 1 & 2 & 14
+\end{tabular}
+ 
+ &
+ 
+ \begin{tabular}{|>{\columncolor{red}}c|>{\columncolor{red}}c|>{\columncolor{red}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|}
+ \multicolumn{8}{c}{Après zero inflation}\\
+1 & 0 & 18 & 0 & 9 & 0 & 0 & 21 \\
+0 & 0 & 3 & 0 & 0 & 1 & 0 & 14
+\end{tabular}
+ \end{tabular}
+ \end{center}
+\end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
@@ -570,21 +687,55 @@ ggplot(d) + geom_histogram(aes(OTU_163, fill=metadata), position="dodge", binwid
 
 \end{frame}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Problématique profondeur de séquencage}
+
+<<fig.height=4.5>>=
+ravel_boot <- bootstrap_presentation(ravel, nb_cluster = 12, nb_axe = 12, type="comptage")
+data <- data.frame(data=c(ravel_boot$data %>% apply(1, sum), ravel %>% apply(1, sum)), metadata=c(rep("simu",nrow(ravel)),rep("real", nrow(ravel))))
+ggplot(data, aes(x=data, color=metadata, fill=metadata)) + geom_histogram(position="dodge", bins=30)
+@
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Ajustement profondeur de séquencage}
+estimation nombre de zéro ajouté:
+\[
+\hat{p_i}=\sum_{j=1}^D \pi_{jk}*\tilde{S_i}
+\]
+avec \(\pi_{jk}\) la probabilité de mettre un zéro\\
+\(\tilde{S_i}\) une composition simulée
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Problématique profondeur de séquencage}
+
+<<fig.height=4.5, cache=TRUE>>=
+ravel_boot <- bootstrap(ravel, nb_cluster = 12, nb_axe = 12, type="comptage")
+data <- data.frame(data=c(ravel_boot$data %>% apply(1, sum), ravel %>% apply(1, sum)), metadata=c(rep("simu",nrow(ravel)),rep("real", nrow(ravel))))
+ggplot(data, aes(x=data, color=metadata, fill=metadata)) + geom_histogram(position="dodge", bins=30)
+@
+
+\end{frame}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Résultat après zero inflated}
-\[
+\begin{center}
 \begin{tabular}{|c|c|c|}
 \hline
 & réels & simulés \\
 \hline
-1 & 87 & 30 \\
+1 & \Sexpr{t_ravel$all$random_forest[1,1]} & \Sexpr{t_ravel$all$random_forest[1,2]} \\
 \hline
-0 & 13   & 70 \\
+0 & \Sexpr{t_ravel$all$random_forest[2,1]}   & \Sexpr{t_ravel$all$random_forest[2,2]} \\
 \hline
 \end{tabular}
-\]
-\vspace{1cm} \\
+\end{center}
+\vspace{1cm}
 Amélioration possible: \begin{itemize}
 \item zero inflated multivariée
 \item choix du coefficient de zero inflated
@@ -692,34 +843,7 @@ simplexe & alr & clr,ilr \\
 
 \end{frame}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Annexe}{Transformation ilr}
-Matrice utilisé pour coder la base:\\
 
-\[
-\begin{blockarray}{cccc}
-x1 & x2 & x3 & x4  \\
-\begin{block}{(cccc)}
-  1 & 1 & 1 & -1 \\
-1 & 1 & -1 & 0 \\
-1 & -1 & 0 & 0 \\
-\end{block}
-\end{blockarray}
-\]
-
-
-L'image \(clr\) de la base
-\[
-\Psi =\begin{pmatrix}
-\frac{1}{\sqrt{12}} & \frac{1}{\sqrt{12}} & \frac{1}{\sqrt{12}} & -\frac{3}{\sqrt{12}} \\
-\frac{1}{\sqrt{6}} & \frac{1}{\sqrt{6}} & -\frac{2}{\sqrt{6}} & 0 \\
-\frac{1}{\sqrt{2}} & -\frac{1}{\sqrt{2}} & 0 & 0
-\end{pmatrix}
-\]
-
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Annexe}{Transformation ilr}
 Systeme générateur: \(e_i=C(1,1,....e,...,1)\) \\
 On omet le dernier vecteur puis on orthogonalise avec gram-schmidt.
