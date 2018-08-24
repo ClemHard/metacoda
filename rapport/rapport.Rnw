@@ -61,6 +61,7 @@ knitr::opts_knit$set(root.dir = "..")
 \date{27 Août 2018}
 
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 
 <<chargement_source, echo=FALSE,  include=FALSE>>=
 source("Rscript/read_metagenomic_data.R")
