@@ -7,6 +7,18 @@ library(doParallel)
 source("Rscript/bootstrap.R")
 source("Rscript/test_bootstrap.R")
 
+
+#'  fit a gaussian mixture on each group of a dataset (OTU in column, sample in line)
+#'  
+#' @param data a dataset (count data)
+#' @param nb_cluster the number of gaussian in the gaussian mixture
+#' @param  base_binaire binary sequential matrix use for the ilr transformation (default the basis sequence)
+#'
+#' @return an object of class "apprentissage supervise"
+#' 
+#' @author Clement Hardy
+#' @export
+
 apprentissage_supervise <- function(data, metadata){
   
   name_group <- unique(metadata)
@@ -21,6 +33,22 @@ apprentissage_supervise <- function(data, metadata){
 }
 
 
+#' produce news sample (compositionnal data) using an object of class "apprentissage supervise"
+#' after simulated compositionnal data of each group, the method use a zero inflated to force zero.
+#' the proportion of zero in news samples is determine by the zero inflated function
+#' 
+#'
+#' @param apprent an object of class "apprentissage supervise"
+#' @param nb_sample a numerice vector containing the number of sample of each group to simulate
+#' 
+#' @return the news samples
+#' @return the group of each sample
+#'
+#' @author Clement Hardy
+#' @export
+#' @import stats
+
+
 simulation_supervise <- function(apprent, nb_sample=NULL){
   
   data <- NULL
@@ -31,16 +59,32 @@ simulation_supervise <- function(apprent, nb_sample=NULL){
   for(i in 1:length(apprent)){
     if(is.null(nb_sample)){
       data <- rbind(data, simulation(apprent[[i]]))
-      metadata <- c(metadata, rep(i, nrow(apprent[[i]]$data)))
+      metadata <- c(metadata, rep(apprent[[i]]$metadata, nrow(apprent[[i]]$data)) %>% as.character())
     }else{
       data <- rbind(data, simulation(apprent[[i]], nb_sample = nb_sample[i]))
-      metadata <- c(metadata, rep(i, nb_sample[i]))
+      metadata <- c(metadata, rep(apprent[[i]]$metadata, nb_sample[i]) %>% as.character())
     }
     
   }
   
   list(data=data, metadata=metadata)
 }
+
+#' produces news samples (with different group) from a dataset of OTU table,
+#' for each group of the dataset the following method is apply
+#' the method is a base on compositional data with isometric log ratio transformation 
+#' a dimension reduction and a gaussian mixture is used to produce the news samples
+#' the dimension of the latent space could be given in argument or by default find with the heuristic slope.
+#' the number of gaussian in the gaussian mixture could be given in argument or default find with the bic criteria
+#'
+#' @param data the dataset to simulate
+#' @param metadata a numeric vector containing the name of the group 
+#' @param nb_sample a numeric vector containing the number of sample to produce for each group
+#'
+#' @return a list containing a matrix with the produce sample, an object of class "apprentissage", the dimension of the latent space, the number of gaussian
+#' 
+#' @author Clement Hardy
+#' @export
 
 
 bootstrap_supervise <- function(data, metadata, nb_sample=NULL){
@@ -103,7 +147,7 @@ find_group <- function(train, test, metadata_test){
  # nn <- nnet(metadata~., train, size=5, MaxNWts=1000000, maxit=500)
  # pred_nn <- predict(nn, test, type="class")
   
-  list(random_forest=table(pred_forest, metadata_test), kNN=table(kNN, metadata_test), Svm=table(pred_svm, metadata_test))
+  list(random_forest=table(pred_forest, metadata_test) %>% change_name_table(), kNN=table(kNN, metadata_test) %>% change_name_table(), Svm=table(pred_svm, metadata_test) %>% change_name_table())
 }
 
 
@@ -129,10 +173,9 @@ validation_croise <- function(data, metadata, n=nrow(data)){
     Svm <- svm(metadata~., train[x!=iid,])
     pred_Svm <-  predict(Svm, train[x==iid,-ncol(train)])
     
-    table1 <- table(metadata[x==iid], pred_kNN)
-    table2 <- table(metadata[x==iid], pred_Svm)
-    colnames(table1) <- 1:length(name_group)
-    colnames(table2) <- 1:length(name_group)
+    table1 <- table(pred_kNN, metadata[x==iid])
+    table2 <- table(pred_Svm, metadata[x==iid])
+
     
     list(table1, table2)
   })
@@ -142,7 +185,7 @@ validation_croise <- function(data, metadata, n=nrow(data)){
   all <- list_table_sum(l)
   names(all) <- c("kNN", "Svm")
   all$confusion_random_Forest <- randomForest(metadata~., create_data_frame_train(data, metadata))$confusion[,-(length(unique(metadata))+1)]
-  colnames(all$confusion_random_Forest) <- 1:(length(unique(metadata)))
+  all <- lapply(all, change_name_table)
   all
 }
 

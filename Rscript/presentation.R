@@ -103,16 +103,17 @@ legend("topright", lty=c(1,1,1), col=c("red", "blue", "green", "black"), legend=
 
 
 
-n <- 100000
-r <- rnorm(n*0.4, -1.8)
-r1 <- rnorm(n*0.6, 1.6, 1.4)
+n <- 1000000
+r1 <- rnorm(n*0.3, -1.8)
+r2 <- rnorm(n*0.5, 1.6, 1.4)
+r3 <- rnorm(n*0.2, -3, 0.4)
 
-hist(c(r1, r), proba=TRUE, breaks = 50, main="mélange gaussien", xlab = "x")
-lines(x, y1, col="green")
-lines(x, y2, col="blue")
-lines(x, y1+y2, col='red')
-
-legend("topright", lty=c(1,1,1), col=c("green", "blue", "red"), legend=c("G1","G2","G1+G2"))
+hist(c(r1, r2, r3), proba=TRUE, breaks = 50, main="melange gaussien", xlab = "x")
+lines(x, y1, col="red")
+lines(x, y2, col='blue')
+lines(x,y3, col="green")
+lines(x, y1+y2+y3)
+legend("topright", lty=c(1,1,1), col=c("red", "blue", "green", "black"), legend=c("G1","G2", "G3","G1+G2+G3"))
 
 
 
@@ -138,7 +139,72 @@ plot_ly(x=x, y=y, z=z, type="surface") %>% hide_colorbar()  %>%
 # %>% layout(scene=list(camera = list(eye = list(x = 1,y =1.4, z=0),
                                     # center = list(x = 0, y = 0, z = 1)
 
-# t <- biplot(ravel %>% MAP())
-# y <- mvrnorm(n=394, rep(0, 3), matrix(c(1,0,0,0,1,0,0,0,1),nrow=3)) %*% t(t$vector[1:10,1:3])
-# y <- y + mvrnorm(394, rep(0, 10), diag(10))
+y <- matrix(0, ncol=10, nrow=1000)
+y[,1:3] <- mvrnorm(n=1000, rep(0, 3), matrix(c(1,0,0,0,1,0,0,0,1),nrow=3)) 
+y <- y + mvrnorm(1000, rep(0, 10), seq(2,0.1,length=10)^7*diag(10))
+z <- cov(y) %>% eigen()
+RMSE <- sapply(1:D, function(x){mean((new_data$coord[,x]^2))}) %>% sort() %>% cumsum() %>% sort(decreasing = TRUE) 
+RMSE <- RMSE/sum(RMSE)
+plot(z$values, ylab="y", xlab="Index", pch=16)
+abline(v=4, col='red')
+
+
+
+x <- matrix(c(0.1,0.4,0.5,0.2,0.3,0.5,0.4,0.4,0.2,0.5,0.3,0.2),byrow=TRUE, nrow=4)
+x1 <- coord_ternary_diagram(x)
+cat("euclidienne:",dist(x[1:2,]), "simplexe:", dist_simplex(x[1:2,]))
+cat("euclidienne:",dist(x[3:4,]), "simplexe:", dist_simplex(x[3:4,]))
+ternary_diagram(x, type=16, colour = 1:4, cex=1.3)
+lines(x1[1:2,1],x1[1:2,2])
+lines(x1[3:4,1],x1[3:4,2])
+x2 <- x %>% ilr()
+plot(x2, col=1:4, pch=16, xlim=c(-0.5,1), asp=1, xlab="x", ylab="y", cex=1.3)
+lines(x2[1:2,1],x2[1:2,2])
+lines(x2[3:4,1],x2[3:4,2])
+
+
+
+ravel_boot <- bootstrap_presentation(ravel, nb_cluster = 4, nb_axe = 4, type="comptage")
+data <- data.frame(data=c(ravel_boot$data %>% apply(1, sum), ravel %>% apply(1, sum)), metadata=c(rep("simu",nrow(ravel)),rep("real", nrow(ravel))))
+ggplot(data, aes(x=data, color=metadata, fill=metadata)) + geom_histogram(position="dodge", bins=30)
+
+
+#####courbe loi normale
+mat1 <- matrix(c(0.3,0,0,0.3), nrow=2) *0.1
+mat2 <- matrix(c(0.4,-0.5,-0.5,2), nrow=2)*0.1
+mat3 <- matrix(c(0.8,0.9,0.9,1.5), nrow=2)*0.1
+u1 <- c(0,0)*0.5
+u2 <- c(3,-2)*0.5
+u3 <- c(-1.8,-0.5)*0.5
+col1="red"
+col2="green"
+col3="gray"
+
+ellipse(mat2, centre = u2) %>% plot(type="l", asp=1, xlim=c(-2,2), ylim=c(-2,1), col=col2)
+ellipse(mat2, centre = u2, level=0.8) %>% lines(col=col2)
+ellipse(mat2, centre = u2, level=0.4) %>% lines(col=col2)
+
+ellipse(mat1, centre =u1) %>% lines(col=col1)
+ellipse(mat1, centre =u1, level=0.8) %>% lines(col=col1)
+ellipse(mat1, centre =u1, level=0.4) %>% lines(col=col1)
+
+ellipse(mat3, centre =u3) %>% lines(col=col3)
+ellipse(mat3, centre =u3, level=0.8) %>% lines(col=col3)
+ellipse(mat3, centre =u3, level=0.4) %>% lines(col=col3)
+
+
+ternary_diagram_vide()
+ellipse(mat2, centre = u2) %>% ilr_inverse %>% coord_ternary_diagram() %>% lines(col=col2)
+ellipse(mat2, centre = u2, level=0.8) %>% ilr_inverse %>% coord_ternary_diagram() %>% lines(col=col2)
+ellipse(mat2, centre = u2, level=0.4) %>% ilr_inverse %>% coord_ternary_diagram() %>% lines(col=col2)
+
+
+ellipse(mat1, centre = u1) %>% ilr_inverse %>% coord_ternary_diagram() %>% lines(col=col1)
+ellipse(mat1, centre = u1, level=0.8) %>% ilr_inverse %>% coord_ternary_diagram() %>% lines(col=col1)
+ellipse(mat1, centre = u1, level=0.4) %>% ilr_inverse %>% coord_ternary_diagram() %>% lines(col=col1)
+
+
+ellipse(mat3, centre = u3) %>% ilr_inverse %>% coord_ternary_diagram() %>% lines(col=col3)
+ellipse(mat3, centre = u3, level=0.8) %>% ilr_inverse %>% coord_ternary_diagram() %>% lines(col=col3)
+ellipse(mat3, centre = u3, level=0.4) %>% ilr_inverse %>% coord_ternary_diagram() %>% lines(col=col3)
 

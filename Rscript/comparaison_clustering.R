@@ -10,8 +10,8 @@ comparaison_k_means <- function(data, metadata, nb_cluster=2, nb_graph=1, nb_sta
   k_data_ilr <- kmeans(data_ilr, nb_cluster, nstart=nb_start)
   k_data <- kmeans(data, nb_cluster, nstart=nb_start)
   
-  table1 <- table(metadata, k_data$cluster)
-  table2 <- table(metadata, k_data_ilr$cluster)
+  table1 <- table(k_data$cluster, metadata) %>% change_name_table()
+  table2 <- table(k_data_ilr$cluster, metadata) %>% change_name_table()
   
   
   grob <- NULL
@@ -31,8 +31,8 @@ comparaison_hclust <- function(data, metadata, nb_cluster, nb_graph, base_binair
   hclust_data <- data %>% dist() %>% as.dist() %>% hclust(method="ward.D") %>% cutree(k=nb_cluster)
   hclust_data_ilr <- data_ilr %>% dist() %>% as.dist() %>% hclust(method="ward.D") %>% cutree(k=nb_cluster)
   
-  table1 <- table(metadata, hclust_data)
-  table2 <- table(metadata, hclust_data_ilr)
+  table1 <- table(hclust_data, metadata)  %>% change_name_table()
+  table2 <- table(hclust_data_ilr, metadata)  %>% change_name_table()
   
   grob <- NULL
   if(nb_graph>0){
@@ -52,8 +52,8 @@ comparaison_Mclust <- function(data, metadata, nb_cluster, nb_graph, base_binair
   Mclust_data <- data %>% Mclust(G=nb_cluster)
   Mclust_data_ilr <- data_ilr %>% Mclust(G=nb_cluster)
   
-  table1 <- table(metadata, Mclust_data$classification)
-  table2 <- table(metadata, Mclust_data_ilr$classification)
+  table1 <- table(Mclust_data$classification, metadata) %>% change_name_table()
+  table2 <- table(Mclust_data_ilr$classification, metadata) %>% change_name_table()
   
   grob <- NULL
   if(nb_graph>0){

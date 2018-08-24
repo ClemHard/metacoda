@@ -1,10 +1,10 @@
 library(rARPACK)
 
-#' verifie si les donnees sont compatibles, les transforme le cas echeant
+#' check if the data has NA, transform data to matrix
 #'
-#' @param data les donnees à verifier
+#' @param data data to check
 #'
-#' @return les donnee verifie
+#' @return the data transform
 #'
 #' @author Clement Hardy
 #' @export
@@ -28,15 +28,14 @@ check_data <- function(data) {
   data
 }
 
-#' verifie que les donnees ne contiennent pas de zero
+#' check if the data has NA, zero, transform data to matrix
 #'
-#' @param data les donnees a verifier
+#' @param data data to check
 #'
-#' @return les donnees verifiees
+#' @return the data transform
 #'
 #' @author Clement Hardy
 #' @export
-#' 
 norm_data <- function(data) {
   data <- check_data(data)
   ## check presence of 0s or negative values
@@ -46,12 +45,11 @@ norm_data <- function(data) {
   data
 }
 
-#' calcul l'Inner product (donnees compositionnelle)
+#' compute the Inner product of the compositional data
 #'
-#' @param data1 les donnees à simuler
-#' @param x,y deux donnee compositionnelle
+#' @param x,y two compositional data
 #'
-#' @return l'inner product
+#' @return the Inner product of the data
 #'
 #' @author Clement Hardy
 #' @export
@@ -67,11 +65,12 @@ Inner_product<-function(x,y){
 }
 
 
-#' calcul la norme donnees compositionnelles 
+#' compute the norm of a compositionnal data
 #'
-#' @param data les donnees
+#' @param data the compositionnal data
 #' 
-#' @return la norme du simplexe
+#' @return a single number giving the norm of the compositionnal data, 
+#' or a numeric vector giving the norm of each line if data is a matrix
 #'
 #' @author Clement Hardy
 #' @export
@@ -82,11 +81,11 @@ norm_simplex<-function(data){
 }
 
 
-#' calcul la distance dans le simplexe
+#' compute the distance in the simplex
 #'
-#' @param data les donnees
+#' @param a numeric matrix containing compositionnal data
 #' 
-#' @return la distance
+#' @return an object of class "dist"
 #'
 #' @author Clement Hardy
 #' @export
@@ -96,11 +95,11 @@ dist_simplex <- function(data) {
 }
 
 
-#' calcul la closure 
+#' close compositional data for a sum equal to one
 #'
-#' @param data les donnees
-#' 
-#' @return les donnees (closure faite)
+#' @param data a matrix containing compositional data
+#' @param k the sum of the closure (the default is 1)
+#' @return compositionnal data (closure done)
 #'
 #' @author Clement Hardy
 #' @export
@@ -111,18 +110,54 @@ closure <- function(data, k=1){
   k * data / c
 }
 
+
+#' compute the perturbation between compositionnal data 
+#'
+#' @param data a matrix containing compositional data
+#' @param multiple a compositional data use to perturbe data
+#' 
+#' @return the results of the perturbation 
+#'
+#' @author Clement Hardy
+#' @export
+#' 
+
 perturbation <- function(data, multiple){
+  
   data <- norm_data(data)
+  multiple <- norm_data(multiple)
   ## multiply each row in data by values in multiple
   new.data <- sweep(data, 2, multiple, "*")
   closure(new.data)
 }
+
+#' compute the power between compositionnal data and a constant
+#'
+#' @param data a matrix containing compositional data
+#' @param alpha a numeric to power with
+#' 
+#' @return the results of the power  
+#'
+#' @author Clement Hardy
+#' @export
+#' 
 
 power <- function(data, alpha){
   data <- norm_data(data)
   new.data <- data^alpha
   closure(new.data)
 }
+
+
+#' compute the clr transformation
+#'
+#' @param data a matrix containing compositional data
+#' 
+#' @return the centerd log ration coordinates of the data
+#'
+#' @author Clement Hardy
+#' @export
+#' 
 
 clr <- function(data){
   data <- norm_data(data)
@@ -170,9 +205,29 @@ simu_simplexe<-function(D, k = 1, N) {
   closure(simplexe, k)
 }
 
+#' compute the inverse transformation of the centred log ratio transformation
+#'
+#' @param data a matrix containing compositional data
+#' 
+#' @return a mtrix containing the coordinate of data in the simplex
+#' 
+#' @author Clement Hardy
+#' @export
+
 clr_inverse<-function(data, k = 1){
   exp(data) %>% closure(k)
 }
+
+
+#' compute the SIGMA matrix of the basis (for the isometric log ration transformation)
+#'
+#' @param data D the size of compositional data
+#' 
+#' @return the  Sigma matrix of the basis
+#'
+#' @author Clement Hardy
+#' @export
+
 
 Base_SIGMA_matrix <- function(D) {
   build_row <- function(i) {
@@ -185,6 +240,17 @@ Base_SIGMA_matrix <- function(D) {
   sapply(1:(D-1), build_row) %>% t()
 }
 
+
+#' compute the SIGMA matrix of a particular basis (for the isometric log ration transformation)
+#'
+#' @param sequential_binary a matrix of the sequence of the a particular basis
+#' 
+#' @param data D the size of compositional data
+#' 
+#' @return the  binary matrix of the basis
+#' 
+#' @author Clement Hardy
+#' @export
 
 SIGMA_matrix <- function(sequential_binary){
   
@@ -207,6 +273,16 @@ SIGMA_matrix <- function(sequential_binary){
   mat
 }
 
+
+#' compute the binary matrix of the basis (for the isometric log ratio transformation)
+#'
+#' @param D a matrix of the sequence of the a particular basis
+#' 
+#' @return the matrix of the particular basis
+#'
+#' @author Clement Hardy
+#' @export
+
 Base_binary_matrix<-function(D){
   
   build_row <- function(i) {
@@ -217,12 +293,33 @@ Base_binary_matrix<-function(D){
   
 }
 
+#' compute the isometrice log ratio (ilr transformation)
+#'
+#' @param data a matrix containing compositional data
+#' 
+#' @return the isometric log ratio  coordinates of the data
+#'
+#' @author Clement Hardy
+#' @export
+#' 
+
+
 ilr<-function(data, base_binaire=Base_binary_matrix(ncol(data))){
   SIGMA=SIGMA_matrix(base_binaire)
   data <- norm_data(data)
   clr(data) %*% t(SIGMA)
   
 }
+
+
+#' compute the inverse transformation of the isometric log ratio transformation
+#'
+#' @param data a matrix containing compositional data
+#' 
+#' @return a mtrix containing the coordinate of data in the simplex
+#' 
+#' @author Clement Hardy
+#' @export
 
 ilr_inverse<-function(data, k=1, base_binaire=Base_binary_matrix(ncol(data)+1)){
   
@@ -232,6 +329,14 @@ ilr_inverse<-function(data, k=1, base_binaire=Base_binary_matrix(ncol(data)+1)){
   
 }
 
+#' compute the additive log ratio (alr transformation)
+#'
+#' @param data a matrix containing compositional data
+#' 
+#' @return the additive log ratio  coordinates of the data
+#'
+#' @author Clement Hardy
+#' @export
 
 alr <- function(data){
   data <- norm_data(data)
@@ -239,9 +344,31 @@ alr <- function(data){
   data
 }
 
+
+#' compute the  inverse transformation of the additive log ratio transformation
+#'
+#' @param data a matrix containing compositional data
+#' 
+#' @return a mtrix containing the coordinate of data in the simplex
+#' 
+#' @author Clement Hardy
+#' @export
+
 alr_inverse <- function(data){
   ((1/sum(exp(data)) * cbind(exp(data),1))) %>% closure()
 }
+
+
+#' compute the covariance matrix of compositional data
+#'
+#' @param data a matrix containing compositional data
+#' @param norm a boolean, TRUE for normalized covariance matrix, FALSE otherwise
+#' 
+#' @return the covariance matrix
+#'
+#' @author Clement Hardy
+#' @export
+#' 
 
 variation_matrix<-function(data, norm = FALSE) {
   log.data <- log(norm_data(data))
@@ -270,15 +397,49 @@ normalised_variation_matrix <- function(data){
 }
 
 
+#' compute the center of the compositional data
+#'
+#' @param data a matrix containing compositional data
+#' 
+#' @return a composition (center of the data)
+#'
+#' @author Clement Hardy
+#' @export
+#' 
+
 center_data<-function(data) {
   
   ## geometric mean = exponential of mean in log scale
   data %>% norm_data() %>% log() %>% colMeans() %>% exp() %>% closure()
 }
 
+
+#' compute the total variance of a dataset of compositions
+#'
+#' @param data a matrix containing compositions data
+#' 
+#' @return a numeric (total variance of the dataset)
+#'
+#' @author Clement Hardy
+#' @export
+#' 
+
 totvar<-function(data){
+  data <- norm_data(data)
   data %>% variation_matrix(norm = TRUE) %>% rowSums() %>% mean()
 }
+
+#' center and scale a dataset of compositional data
+#'
+#' @param data a matrix containing compositions data
+#' @param center a boolean, center the dataset if TRUE
+#' @param scale a boolean, scale the dataset if TRUE
+#' 
+#' @return the data center (if TRUE), scale (if TRUE)
+#'
+#' @author Clement Hardy
+#' @export
+#' 
 
 center_scale<-function(data, center = TRUE, scale = TRUE) {
   data <- norm_data(data)
@@ -328,6 +489,17 @@ biplot<-function(data, base_binaire=Base_binary_matrix(ncol(data))){
 }
 
 
+#' divide each line of a positive or null dataset set (no composante less than 0) by the sum of the line
+#'
+#' @param data a matrix containing the dataset
+#' 
+#' @return a matrix containing the proportion of each componant (for each line)
+#'
+#' @author Clement Hardy
+#' @export
+#' 
+
+
 count_to_proportion<-function(data){
   
   data <- check_data(data)
@@ -335,6 +507,15 @@ count_to_proportion<-function(data){
   new.data
 }
 
+#' compute the maximun a posteriori estimator of a dataset of compositional data
+#'
+#' @param data a matrix containing compositional data
+#' @param alpha the regularization parameterr (default is one)
+#' 
+#' @return the maximun a posteriori
+#'
+#' @author Clement Hardy
+#' @export
 
 MAP <- function(data, alpha=1){
   

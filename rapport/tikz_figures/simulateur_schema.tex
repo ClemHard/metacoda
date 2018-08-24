@@ -1,0 +1,41 @@
+\begin{center}
+\begin{tikzpicture}[node distance=2cm, auto]
+     \node[cloud] (X) {X};
+     \node[block, below of=X, text width=3cm] (apprent_ZIB) {apprentissage zero inflated};
+     \node[cloud, below of=apprent_ZIB] (S)      {S};
+     \node[cloud, below of=S] (Y)      {Y};
+     \node[cloud, below of=Y] (Z) {Z};
+     \node[block, below of=Z, text width=3cm](apprentissage) {apprentissage de la densité};
+     \node[cloud, below of=apprentissage] (Z_tilde) {\(\tilde{Z}\)};
+     \node[cloud, below of=Z_tilde] (Y_tilde) {\(\tilde{Y}\)};
+     \node[cloud, below of=Y_tilde] (S_tilde) {\(\tilde{S}\)};
+     \node[block, below of=S_tilde](ZIB) {Zero inflation};
+     \node[cloud, below of=ZIB] (X_tilde) {\(\tilde{X}\)};
+
+     \node[right of=Z_tilde, node distance=1.7cm] (N) {\(\sim \mathbb{N}\left(\mu_k, \Sigma_k \right)\)};
+     \node[right of=Y_tilde, node distance=3cm] (N1) {\(\sim \mathbb{N}\left(W\tilde{Z}, \sigma^2I \right)\)};
+
+
+     \node[left of=apprentissage] (temp1_simulation) {};
+     \node[left of=X_tilde] (temp2_simulation) {};
+     \node[left of=X] (X_temp) {};
+     \node[left of=Z] (Z_temp) {};
+  %\draw[tuborg, decoration={brace}] let %\p1=(Y.north), \p2=(Y_tilde.south) in
+%    ($(2, \y1)$) -- ($(2, \y2)$) node[tubnode] {Pro};
+
+  \path[line] (X) -- (apprent_ZIB);
+  \path[line] (apprent_ZIB) --  node[midway, right] {MAP} (S);
+  \path[line] (S) --  node[midway, right] {\(ilr\)} (Y);
+  \path[line] (Z) --  node[midway, right] {} (apprentissage);
+  \path[line] (apprentissage) -- node[midway, right] {simulation gaussienne} (Z_tilde);
+  \path[line] (Z_tilde) --  node[midway, right] {} (Y_tilde);
+  \path[line] (Y_tilde) --  node[midway, right] {\(ilr^{-1}\)} (S_tilde);
+  \path[line] (S_tilde) --  node[midway, right] {multinomiale} (ZIB);
+  \path[line] (ZIB) --  node[midway, right] {} (X_tilde);
+  \path[line] (Y) -- node[midway, right] {réduction de dimension} (Z);
+
+
+\draw[decorate,decoration={brace,mirror}] (temp1_simulation.north west) -- node[midway, left] {Simulation} (temp2_simulation.south west);
+\draw[decorate,decoration={brace,mirror}] (X_temp.north west) -- node[midway, left] {Transformation} (Z_temp.south west);
+  \end{tikzpicture}
+\end{center}
