@@ -176,7 +176,7 @@ Le résultat typique d'une expérience de métagénomique est une table de compt
 \caption{\label{fig:table_otu}Table comptage des OTU}
 \end{figure}
 
-L'une des particularité de la table des OTU pour la métagénomique est qu'elle contient énormément de zéro. En effet, un OTU qui est présent dans un seul échantillon apparaîtra avec un comptage nul dans les autres échantillons. Les OTUs présents dans chaque échantillon pouvant être très différents, il y a ainsi énormément de zéro (de quelque dizaine à centaines de milliers de zéro). \MM{}{Donner une fourchette pour la fraction de 0 dans la matrice, plus parlant que le nombre}.
+L'une des particularité de la table des OTU pour la métagénomique est qu'elle contient énormément de zéro. En effet, un OTU qui est présent dans un seul échantillon apparaîtra avec un comptage nul dans les autres échantillons. Les OTUs présents dans chaque échantillon pouvant être très différents, il y a ainsi énormément de zéro (sur les jeux de données utilisés durant mon stage la proportion de zéro dans la table des OTU variée de \(35\%\) à \(95\%\)).
 
 \subsection{Problématique des données de comptage}
 
@@ -484,8 +484,8 @@ Si nous reprenons l'exemple du début de cette partie (avec les quatre compositi
 x <- matrix(c(0.1,0.4,0.5,0.2,0.3,0.5,0.4,0.4,0.2,0.5,0.3,0.2),byrow=TRUE, nrow=4)
 x1 <- coord_ternary_diagram(x)
 ternary_diagram(x, type=16, colour = 1:4, cex=2)
-lines(x1[1,1:2],x1[2,1:2])
-lines(x1[1,3:4],x1[2,3:4])
+lines(x1[1:2,1],x1[1:2,2])
+lines(x1[3:4,1],x1[3:4,2])
  @
 \end{minipage}
 &
@@ -795,7 +795,7 @@ Les jeux données réelles présentant un grand nombre de $0$, une gestion spéc
 
 \subsection{Réduction de dimension}
 
-Les jeux de données utilisés dans le cadre du simulateur ont un grand nombre de variables, largement supérieur au nombre d'échantillons disponibles (grande dimension): une réduction de dimension s'impose donc avant d'apprendre la densité des observations. Dans notre cas, nous cherchons à construire un modèle probabiliste pour simuler nos données. L'ACP dans sa définition la plus commune n'est pas associé à un modèle probabiliste et ne permet pas de construire un tel modèle. Nous allons donc lui substituer une variante de l'ACP, l'ACP probabiliste qui est définie comme:
+Les jeux de données utilisés dans le cadre du simulateur ont un grand nombre de variables, largement supérieur au nombre d'échantillons disponibles (grande dimension): une réduction de dimension s'impose donc avant d'apprendre la densité des observations. Dans notre cas, nous cherchons à construire un modèle probabiliste pour simuler nos données. L'ACP dans sa définition la plus commune n'est pas associé à un modèle probabiliste et ne permet pas de construire un tel modèle. Nous allons donc lui substituer une variante de l'ACP, l'ACP probabiliste\cite{PPCA} qui est définie comme:
 \[
 X_i=Wy_i + \mu + \epsilon_i
 \]
@@ -809,9 +809,8 @@ De même, l'estimateur du maximun de vraisemblance de \(\sigma^2\)
 \[
 \sigma^2_{ML}=\frac{1}{d-q}\sum_{j=q+1}^d \lambda_j
 \]
-Cet estimateur peut être perçu comme la variance perdue lors de la projection. Le choix de $d$, la dimension de l'espace latent, est toujours une question délicate dans les modèles à variables latentes. Nous avons utilisé ici l'heuristique de pente (du package capushe) pour choisir $d$.
+Cet estimateur peut être perçu comme la variance perdue lors de la projection. Le choix de $d$, la dimension de l'espace latent, est toujours une question délicate dans les modèles à variables latentes. Nous avons utilisé ici l'heuristique de pente (du package capushe\cite{Capushe}) pour choisir $d$.
 
-\MM{}{REF capushe, REF ACP probabiliste}
 
 \subsection{Mélange Gaussien}
 
@@ -858,13 +857,12 @@ Pour le simulateur, le nombre de gaussiennes nécessaires à l'estimation de la 
 
 Les jeux de données contiennent un nombre important de zéros (comme vu précédemment), la modélisation faite par le mélange gaussien ne parvient pas à bien prendre en compte cette surreprésentation. Pour résoudre ce problème, nous allons modéliser cette particularité indépendamment comme suit.
 
-MM{}{Le calcul des $\pi_{jk}$ est confus, essaie de le clarifier, par exemple en mettant les formules.}
 
 Commençons par estimer la proportion de zéros pour chaque OTU $j$ dans chaque composante gaussienne $k$, notée \(\pi_{jk}\). Cette estimation est faite en attribuant chaque échantillon à son composante gaussienne la plus probable puis en calculant au sein de chaque composante $k$, le nombre total $N_k$ d'échantillons et le nombre $N_{jk}$ d'échantillons dans lesquels l'OTU $j$ est absent. $\pi_{jk}$ est estimée par
 \[
 \pi_{jk} = \frac{N_{jk} + \alpha}{N_k + \alpha}
 \]
-avec $\alpha = ??$ un pseudo-comptage faible pour lisser les probabilités et éviter d'avoir des valeurs à $0$ ou $1$ \MM{}{A vérifier}. La régularisation adoptée revient à mettre un à priori $\mathcal{D}(\alpha, \alpha)$ sur la probabilité de $0$-inflation. Par la suite, nous modélisons les zéros à l'aide d'une loi de Bernoulli,
+avec $\alpha = 0.1$ un pseudo-comptage faible pour lisser les probabilités et éviter d'avoir des valeurs à $1$. La régularisation adoptée revient à mettre un à priori $\mathcal{D}(\alpha, \alpha)$ sur la probabilité de $0$-inflation. Par la suite, nous modélisons les zéros à l'aide d'une loi de Bernoulli,
 
 \[P\left(Z_{jk}=x\right)=\left\{
     \begin{array}{ll}
@@ -922,7 +920,7 @@ Un estimateur de la proportion de zéro rajoutés dans un échantillon $i$ par l
 \[
 \hat{p_i}=\sum_{j=1}^D \pi_{jk}\tilde{S}_{ij}
 \]
-La profondeur de séquencage ($N$ de la multinomiale) à utiliser dans le simulateur est donc \(\hat{N_i}=N_i/\hat{p_i}\).
+La profondeur de séquencage ($N$ de la multinomiale) à utiliser dans le simulateur est donc \(\hat{N_i}=N_i/\left(1-\hat{p_i}\right)\).
 \newpage
 
 \section{Performances du simulateur}
