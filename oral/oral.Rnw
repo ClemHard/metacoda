@@ -41,6 +41,9 @@
 \tikzstyle{line} = [draw, -latex']
 \tikzstyle{cloud} = [draw, circle, minimum height=3em]
 
+%% Symboles
+\newcommand{\R}{\mathbb{R}}
+
 %% Commentaires
 \newcommand{\MM}[1]{\textcolor{red}{#1}}
 
@@ -180,7 +183,7 @@ Métagénomique: méthode d'étude du contenu génétique d'échantillons issus 
 
 \begin{frame}{Closure}
 \[
-C(x)=\left[\frac{\kappa*x_1}{\sum_{i=1}^Dx_i},\frac{\kappa*x_2}{\sum_{i=1}^Dx_i},...,\frac{\kappa*x_D}{\sum_{i=1}^Dx_i}     \right]
+C(x)=\left[\frac{\kappa \times x_1}{\sum_{i=1}^Dx_i},\frac{\kappa \times x_2}{\sum_{i=1}^Dx_i},...,\frac{\kappa \times x_D}{\sum_{i=1}^Dx_i}     \right]
 \]
 La closure met à l'échelle les composantes d'une composition (ici à l'échelle de \(\kappa\)).\\
 
@@ -223,7 +226,7 @@ ternary_diagram1(c, colour=c(11, 2, 4, 1), style=c(16, 16, 16, 3),add_line = l, 
         \[
         x,y\in S^D,\ x\oplus y=C\left[x_1y_1,x_2y_2,...,x_Dy_D\right]
         \]
-        Power transformation(\(\sim*\)) :
+        Power transformation(\(\sim \times\)) :
         \[
         x\in S^D,\ \alpha\in \mathbb{R},\ \alpha\odot  x=C\left[x_1^{\alpha},x_2^{\alpha},...,x_D^{\alpha}\right]
         \]
@@ -236,13 +239,13 @@ ternary_diagram1(c, colour=c(11, 2, 4, 1), style=c(16, 16, 16, 3),add_line = l, 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Transformations}
-Plusieurs transformations permettent de passer de \(S^D\) à \(R^D\) ou \(R^{D-1}\)
+Plusieurs transformations permettent de passer de \(S^D\) à \(\R^D\) ou \(\R^{D-1}\)
 \begin{itemize}
 	\item\(
-	alr:S^D\rightarrow R^{D-1},\ alr\left(x\right)=\left[ln\left(\frac{x_1}{x_D}\right), ln\left(\frac{x_2}{x_D}\right),...,ln\left(\frac{x_{D-1}}{x_D}\right)\right]
+	alr:S^D\rightarrow \R^{D-1},\ alr\left(x\right)=\left[ln\left(\frac{x_1}{x_D}\right), ln\left(\frac{x_2}{x_D}\right),...,ln\left(\frac{x_{D-1}}{x_D}\right)\right]
 	\)
 	\item\(
-    clr:S^D\rightarrow R^{D},\ clr\left(x\right)=\left[ln\frac{x_1}{g(x)},...,ln\frac{x_D}{g(x)}\right]
+    clr:S^D\rightarrow \R^{D},\ clr\left(x\right)=\left[ln\frac{x_1}{g(x)},...,ln\frac{x_D}{g(x)}\right]
     \)\\
     avec \(g(x)\) le centre de la composition défini par:
     \[
@@ -250,12 +253,17 @@ Plusieurs transformations permettent de passer de \(S^D\) à \(R^D\) ou \(R^{D-1
     \]
 
     \item  \(
-    ilr:S^D\rightarrow R^{D-1},\ ilr\left(x\right)=clr\left(x\right)\Psi^{'}\)
+    ilr:S^D\rightarrow \R^{D-1},\ ilr\left(x\right)=clr\left(x\right)\Psi^{'}\)
 
     \[
     \text{ avec }\Psi  \text{ l'image(clr) des vecteurs de la base.}
     \]
 \end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Au sujet des transformations xlr}
+\MM{Préciser que ce sont des morphismes et que c'est pour ça qu'on veut les utiliser}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -330,6 +338,9 @@ clr^{-1}\left(\xi\right)=C\left( \exp\left(\xi_1\right),\ ...,\  \exp\left(\xi_D
 alr^{-1}\left(\xi\right)=C\left( \frac{\exp\left(\xi_1\right)}{\sum_{i=1}^{d-1} \exp\left(y_i\right) + 1},\ ...,\  \frac{1}{\sum_{i=1}^{d-1} \exp\left(y_i\right) + 1} \right)
 \)
 \end{itemize}
+
+\MM{Il manque ilr}
+
 \end{frame}
 
 
@@ -343,6 +354,9 @@ La transformation ilr permet de repasser dans un espace usuel.
 \item estimation de densité
 \item ...
 \end{itemize}
+
+\MM{Développer (au moins à l'oral)}
+
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
