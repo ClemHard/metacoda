@@ -158,8 +158,16 @@ Métagénomique: méthode d'étude du contenu génétique d'échantillons issus 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Problématique et Objectifs du stage}
-
-
+\(
+\left.
+\begin{tabular}{l}
+ (1) Transformer les données \\
+ en données compositionnelles \\
+ (2) Analyse Multivariée \\
+ (3)  Apprentissage densité \\
+\end{tabular}
+\right\rbrace
+\Rightarrow \text{ Simulateur}\) 
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -623,6 +631,35 @@ simulés & \pointcol{blue}
 \end{frame}
 
 
+
+\begin{frame}{Classificateur}
+
+\begin{tikzpicture}[node distance=2cm, auto]
+\node[cloud] (Donne_reel) {réels};
+\node[below of=Donne_reel] (temp) {};
+\node[cloud, below of=temp] (Donne_simu) {simulées};
+\node[right of=temp, node distance=2cm] (classificateur) {Classificateur};
+\node[right of=classificateur] (temp2) {};
+\node[cloud, above of=temp2] (Donne_reel2) {réels};
+\node[cloud, below of=temp2] (Donne_simu2) {simulées};
+\node[right of=temp2] (eval)  {\begin{tabular}{|c|c|c|}
+\hline
+& réels & simulés \\
+\hline
+1 & \Sexpr{t_ravel_sans$all$random_forest[1,1]} & \Sexpr{t_ravel_sans$all$random_forest[1,2]} \\
+\hline
+0 & \Sexpr{t_ravel_sans$all$random_forest[2,1]}   & \Sexpr{t_ravel_sans$all$random_forest[2,2]}\\
+\hline
+\end{tabular}};
+
+\path[line] (Donne_reel) --  (classificateur);
+\path[line] (Donne_simu) --  (classificateur);
+\path[line] (classificateur) --  (eval);
+\path[line] (Donne_reel2) --  (eval);
+\path[line] (Donne_simu2) --  (eval);
+\end{tikzpicture}
+\end{frame}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
 
@@ -693,14 +730,15 @@ ggplot(d) + geom_histogram(aes(OTU_163, fill=metadata), position="dodge", binwid
 <<fig.height=4.5>>=
 ravel_boot <- bootstrap_presentation(ravel, nb_cluster = 12, nb_axe = 12, type="comptage")
 data <- data.frame(data=c(ravel_boot$data %>% apply(1, sum), ravel %>% apply(1, sum)), metadata=c(rep("simu",nrow(ravel)),rep("real", nrow(ravel))))
-ggplot(data, aes(x=data, color=metadata, fill=metadata)) + geom_histogram(position="dodge", bins=30)
+ggplot(data, aes(x=data, color=metadata, fill=metadata)) + geom_histogram(position="dodge", bins=30) +
+labs(y="nombre", x="profondeur")
 @
 
 \end{frame}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}[fragile]{Ajustement profondeur de séquencage}
+\begin{frame}[fragile]{Correction profondeur de séquencage}
 estimation nombre de zéro ajouté:
 \[
 \hat{p_i}=\sum_{j=1}^D \pi_{jk}*\tilde{S_i}
@@ -710,13 +748,43 @@ avec \(\pi_{jk}\) la probabilité de mettre un zéro\\
 
 \end{frame}
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+  \begin{center}
+  \(
+  \begin{array}{c|>{\columncolor{red}}c|>{\columncolor{green}}c|}
+ \multicolumn{3}{c}{\quad \quad \quad \quad \ \ Gaussienne} \\ 
+ \multicolumn{3}{c}{\quad \quad \quad \quad \ \ $\downbracefill$} \\
+  \cline{2-3}
+  \ldelim \{{2}{*}[OTUS]& 
+  1/3 & 1/2  \\
+  \cline{2-3}
+   & 2/3 & 3/4 \\
+   \cline{2-3}
+   & 1/5 & 4/5 \\
+   \cline{2-3}
+   & 2/9 & 2/5
+  \end{array}
+\)
+\end{center}
+
+\(
+\begin{tabular}{cccc}
+1/4 & 2/7 & 3/7 & 1/28 \\
+1/6 & 4/13  & 17/156 & 5/12 
+\end{tabular}
+\)
+\end{frame}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Problématique profondeur de séquencage}
 
 <<fig.height=4.5, cache=TRUE>>=
 ravel_boot <- bootstrap(ravel, nb_cluster = 12, nb_axe = 12, type="comptage")
 data <- data.frame(data=c(ravel_boot$data %>% apply(1, sum), ravel %>% apply(1, sum)), metadata=c(rep("simu",nrow(ravel)),rep("real", nrow(ravel))))
-ggplot(data, aes(x=data, color=metadata, fill=metadata)) + geom_histogram(position="dodge", bins=30)
+ggplot(data, aes(x=data, color=metadata, fill=metadata)) + geom_histogram(position="dodge", bins=30) +
+labs(y="nombre", x="profondeur")
 @
 
 \end{frame}
@@ -748,10 +816,20 @@ Amélioration possible: \begin{itemize}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Résultat après zero inflated}
-
-\MM{Mettre des conclusions générales et des des perspectives}
-
+\begin{frame}{Conclusion}
+\begin{itemize}
+\item \textbf{Résultats}
+\begin{itemize}
+\item Transformation log ratio accès à l'ensemble méthodes \\
+d'analyses multivariée.
+\item Le simulateur donne de bons résultats
+\end{itemize}
+\item \textbf{Améliorations}
+\begin{itemize}
+\item zero inflated multivariée
+\item choix du coefficient de régularisation zero inflated
+\end{itemize}
+\end{itemize}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
