@@ -1,6 +1,7 @@
 library(MASS)
 library(randomForest)
 library(plotly)
+library(ellipse)
 
 source("Rscript/read_metagenomic_data.R")
 source("Rscript/coda.R")
@@ -15,19 +16,27 @@ source("Rscript/fonction_presentation.R")
 c <- matrix(c(c(1,2,7)/10, ilr_inverse(c(-1.2,0)), c(1,8,1, 10/3, 10/3, 10/3)/10), byrow=TRUE, nrow=4)
 l <- ligne(1.2,c(0.2,1,3))
 y <- seq(0, 2*pi, length=1000)
-circl <- cbind(1*cos(y)-1.2, 1*sin(y))
+circl <- (cbind(1*cos(y)-1.2, 1*sin(y))) %>% ilr_inverse()
+
+ternary_diagram_vide()
+c[1:3,] %>% coord_ternary_diagram() %>% points(col=c(11,2,4), pch=16, cex=1.5)
+
+ternary_diagram_vide()
+l %>% coord_ternary_diagram() %>% lines(col=15, lwd=2)
+circl %>% coord_ternary_diagram() %>% lines(col=14, lwd=2)
 
 #png(filename = "ternary_diagram.png", res = 150, width = 10, height = 10, units = "in")
 ternary_diagram1(c, colour=c(11, 2, 4, 1), style=c(16, 16, 16, 3),add_line = l, colour_line = 15, 
-                add_circle = (circl%>% ilr_inverse()), colour_circle = 14, 
+                add_circle = (circl), colour_circle = 14, 
                 asp = 1, axes = FALSE)
 #dev.off()
 
 c_ilr <- ilr(c)
 l_ilr <- ilr(l)
+circl_ilr <- circl %>% ilr
 plot(c_ilr, col=c(11, 2, 4, 1), pch=c(16, 16, 16, 3), cex=1.5, xlim = c(-2.2,2), ylim=c(-1,1.5), asp=1, xlab = "", ylab="")
 lines(l_ilr, col=15, lwd=3)
-lines(circl, col=14, lwd=2)
+lines(circl_ilr, col=14, lwd=2)
 
 n <- 20
 data <- matrix(c(runif(n,1,7),runif(n,0.1,1),runif(n,1,7)),nrow=n)
