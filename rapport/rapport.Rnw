@@ -110,7 +110,7 @@ load("rapport/resultats.RData")
 \includegraphics[width=4cm]{logoINRA.jpg} \hfill
 \includegraphics[width=4cm]{logo_paris_sud.jpg}\\
 
-\vspace*{8cm}
+\vspace*{6cm}
 \mytitle
 \myauthor
 \mydate
@@ -126,6 +126,7 @@ load("rapport/resultats.RData")
 
 \newpage
 \tableofcontents
+
 \newpage
 \section{Présentation}
 J'ai réalisé mon stage à l'Inra de Jouy en Josas dans l'unité "Mathématiques et Informatique Appliquées du Génome à l'Environnement" (MaIAGE)\footnote{\url{http://maiage.jouy.inra.fr/}}.
@@ -840,12 +841,11 @@ Voici quelques exemples de mélange gaussien
 				legend("topright", lty=c(1,1,1), col=c("red", 							"blue", "green", "black"), legend=c("G1","G2", 							"G3","G1+G2+G3"))
 
               @
-              \caption{Mélange de trois gaussiennes \newline univariée}
+
       \end{minipage}
 &
 \begin{minipage}{0.45\linewidth}
              \includegraphics[width=\linewidth]{melangegaussien.png}
-              \caption{Mélange de trois gaussiennes \newline multivariée}
       \end{minipage}
 \end{tabular}
 \caption{\label{fig:melange}Exemple d'un mélange de trois gaussiennes univariés (gauche) et bivariés (droites)}
@@ -860,9 +860,10 @@ Les jeux de données contiennent un nombre important de zéros (comme vu précé
 
 Commençons par estimer la proportion de zéros pour chaque OTU $j$ dans chaque composante gaussienne $k$, notée \(\pi_{jk}\). Cette estimation est faite en attribuant chaque échantillon à son composante gaussienne la plus probable puis en calculant au sein de chaque composante $k$, le nombre total $N_k$ d'échantillons et le nombre $N_{jk}$ d'échantillons dans lesquels l'OTU $j$ est absent. $\pi_{jk}$ est estimée par
 \[
-\pi_{jk} = \frac{N_{jk} + \alpha}{N_k + \alpha}
+\pi_{jk} = \frac{N_{jk} + \alpha}{N_k + \alpha + \beta}
 \]
-avec $\alpha = 0.1$ un pseudo-comptage faible pour lisser les probabilités et éviter d'avoir des valeurs à $1$. La régularisation adoptée revient à mettre un à priori $\mathcal{D}(\alpha, \alpha)$ sur la probabilité de $0$-inflation. Par la suite, nous modélisons les zéros à l'aide d'une loi de Bernoulli,
+avec $\alpha = 0.09$ et $\beta=0.01$ pour lisser les probabilités et éviter d'avoir des valeurs à $1$ ou $0$. 
+Les valeurs de $\alpha$ et $\beta$ ont été choisis de sorte $E(\pi)=0.9$ la proportion moyenne de zéro dans les jeux de données. La régularisation adoptée revient à mettre un à priori $Beta(\alpha, \beta)$ sur la probabilité de $0$-inflation. Par la suite, nous modélisons les zéros à l'aide d'une loi de Bernoulli,
 
 \[P\left(Z_{jk}=x\right)=\left\{
     \begin{array}{ll}
@@ -1082,9 +1083,14 @@ Les résultats sont meilleurs même si comparables à ceux obtenus avec la méth
 \newpage
 \section{Conclusion}
 
-L'intérêt des données compositionnelles est de pouvoir s'affranchir de certaines contraintes techniques comme la profondeur de séquencage. De plus, les transformations log-ratio permettent de se ramener à l'espace euclidien usuel et ainsi d'accéder à l'ensemble des méthodes statistiques multivariée est possible. L'utilisation des transformations des données compositionnelles pour repasser dans un espace euclidien s'est révélée pertinente sur les jeux de données utilisés durant mon stage, les résultats des différentes classifications étant au moins aussi bons que sur les données initiales.
+L'intérêt des données compositionnelles est de pouvoir s'affranchir de certaines contraintes techniques comme la profondeur de séquencage. De plus, les transformations log-ratio permettent de se ramener à l'espace euclidien usuel et ainsi d'accéder à l'ensemble des méthodes statistiques multivariée. L'utilisation des transformations des données compositionnelles pour repasser dans un espace euclidien s'est révélée pertinente sur les jeux de données utilisés durant mon stage, les résultats des différentes classifications étant au moins aussi bons que sur les données initiales.
 
 De même, les résultats obtenus sur les données simulées sont encourageants. Les caractéristiques des différents groupes des jeux de données semblent relativement bien simulées et montrent que les grandes structures peuvent être apprises assez facilement. Cependant, les résultats sont très variables selon les jeux de données. Des tests sur un plus grand nombre de jeux de données seraient nécessaires pour étudier la robustesse du simulateur. L'intérêt d'un tel simulateur est qu'il permet d'obtenir des résultats convenable en terme de réalisme au prix d'une faible complexité computationnelle.
+
+
+\section{Remerciements}
+Merci infiniment à toute l'équipe de MaiAge pour leur accueil. Cette ambiance chaleureuse m'a permis de m'intégrer facilement et de travailler sereinement.
+Merci à Mahendra et Magali pour leur hospitalité dès les premiers échanges, leur aide durant tout le stage ainsi que les compétences qu'ils ont eu à cœur de me transmettre.
 
 \newpage
 \section{Annexe}
