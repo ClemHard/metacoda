@@ -161,17 +161,17 @@ Métagénomique: méthode d'étude du contenu génétique d'échantillons issus 
 \(
 \left.
 \begin{tabular}{l}
- (1) Transformer les données \\
- en données compositionnelles \\
- (2) Analyse Multivariée \\
- (3)  Apprentissage densité \\
+ (1) Comprendre les donneés compositionnelles \\
+ (2) Appliquer les méthodes compositionnelles \\
+ (3) Analyse multivariées \\
+ (4)  Apprentissage de densité \\
 \end{tabular}
 \right\rbrace
 \Rightarrow \text{ Simulateur}\) 
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section[Compositionnalité]{Données composotionnelles}
+\section[Compositionnalité]{Données compositionnelles}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -179,7 +179,7 @@ Métagénomique: méthode d'étude du contenu génétique d'échantillons issus 
 	Composition: \[
 	x=\left[ x_1,x_2,...,x_D\right],\ x_i>0
 	\]
-	ne contient que de l'information relative (ex: pourcentage d'une masse).\\
+	ne contient que de l'information \textbf{relative} (ex: pourcentage d'une masse).\\
 	\vspace{0.5cm}
 	Simplexe:
 	\[
@@ -319,7 +319,7 @@ L'image \(clr\) de la base
 <<fig.height=4>>=
 par(mar=c(rep(0,4)))
 ternary_diagram1(c, colour=c(11, 2, 4, 1), style=c(16, 16, 16, 3),add_line = l, colour_line = 15,
-                add_circle = (circl%>% ilr_inverse()), colour_circle = 14,
+                add_circle = circl, colour_circle = 14,
                 asp = 1, axes = FALSE)
 @
 \end{minipage}
@@ -347,9 +347,10 @@ ternary_diagram1(c, colour=c(11, 2, 4, 1), style=c(16, 16, 16, 3),add_line = l, 
 <<fig.height=4>>=
 c_ilr <- ilr(c)
 l_ilr <- ilr(l)
+circl_ilr <- ilr(circl)
 plot(c_ilr, col=c(11, 2, 4, 1), pch=c(16, 16, 16, 3), cex=1.5, xlim = c(-2.2,2), ylim=c(-1,1.5), asp=1, xlab = "", ylab="")
 lines(l_ilr, col=15, lwd=3)
-lines(circl, col=14, lwd=2)
+lines(circl_ilr, col=14, lwd=2)
 @
 \end{minipage}
 \hspace{0.05\linewidth}
@@ -468,14 +469,14 @@ ellipse(mat3, centre = u3, level=0.4) %>% ilr_inverse %>% coord_ternary_diagram(
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section[Application]{Application en métagéomique}
+\section[Application]{Application en métagénomique}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Jeux de données}
 Jeux de données de comptage \(\Rightarrow\) prétraitement nécessaire (présence de 0).\newline
 \\
-estimateur maximum a posteriori (MAP):
+estimateur maximum a posteriori (MAP) sous un a priori \(\mathcal{D}(1,1)\):
 \[
 MAP(p)=\underset{p}{argmax}\left(p|x\right)=\frac{x_i+1}{\sum_{i=1}^D\left(x_i+1\right)}
 \]
@@ -490,7 +491,7 @@ MAP(p)=\underset{p}{argmax}\left(p|x\right)=\frac{x_i+1}{\sum_{i=1}^D\left(x_i+1
 \begin{center}
 \begin{tabular}{|c|c|c|c|c|c|}
 \hline
-\multicolumn{6}{|c|}{Compositions} \\
+\multicolumn{6}{|c|}{Comptages} \\
 \hline
 2 & 5 & 12 & 0 & 1 & 0 \\
 \hline
@@ -504,7 +505,7 @@ MAP(p)=\underset{p}{argmax}\left(p|x\right)=\frac{x_i+1}{\sum_{i=1}^D\left(x_i+1
 \setlength{\extrarowheight}{4pt}
 \begin{tabular}{|c|c|c|c|c|c|}
 \hline
-\multicolumn{6}{|c|}{Max de vraisemblance} \\
+\multicolumn{6}{|c|}{Compositions(MV)} \\
 \hline
 \(\frac{2}{20}\) & \(\frac{5}{20}\) & \(\frac{12}{20}\) & 0 & \(\frac{1}{20}\) & 0 \\
 \hline
@@ -515,7 +516,7 @@ MAP(p)=\underset{p}{argmax}\left(p|x\right)=\frac{x_i+1}{\sum_{i=1}^D\left(x_i+1
 \setlength{\extrarowheight}{4pt}
 \begin{tabular}{|c|c|c|c|c|c|}
 \hline
-\multicolumn{6}{|c|}{MAP} \\
+\multicolumn{6}{|c|}{Compositions(MAP)} \\
 \hline
 \(\frac{3}{26}\) & \(\frac{3}{13}\) & \(\frac{1}{2}\) & \(\frac{1}{26}\) & \(\frac{1}{13}\) & \(\frac{1}{26}\) \\
 \hline
@@ -553,15 +554,23 @@ graph_biplot_normale(ravel, metadata_ravel$CST, 1, "Ravel", "CST", ellipse=FALSE
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Objectif}
-Utiliser le jeu de données pour en simuler un nouveau qui lui ressemble.
+Construire un simulateur qui génère des données réalistes(bootstrap paramétrique)\\
+
+\begin{itemize}
+\item Validation de méthode 
+\item Benchmark
+\end{itemize}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Méthodes de simulation}
 \[
-X \overset{MAP}{\rightarrow} \left(S^p\right)^n \overset{ilr}{\rightarrow}    \left(\mathbb{R}^{p-1}\right)^n \overset{apprentissage}{\rightarrow} \left(\mathbb{R}^{p-1}\right)^n \overset{ilr^{-1}}{\rightarrow}\left(S^{p-1}\right)^n  \overset{multinomiale}{\rightarrow} \tilde{X}
+X \overset{MAP}{\rightarrow} \left(S^p\right)^n \overset{ilr}{\rightarrow}    \left(\mathbb{R}^{p-1}\right)^n \overset{\overset{\text{réduction de}} {dimension}}{\rightarrow} \left(R^D\right)^n \rightarrow \text{Apprentissage densité}
 \]
-
+\[
+\text{densité} \overset{simulation}{\rightarrow} \left(R^D\right)^n \rightarrow
+\left(\mathbb{R}^{p-1}\right)^n \overset{ilr^{-1}}{\rightarrow}\left(S^{p-1}\right)^n  \overset{multinomiale/\overset{zero}{inflation}}{\rightarrow} \tilde{X}
+\]
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -572,7 +581,7 @@ ACP Probabiliste:
 Y_i=Wx_i+\epsilon_i, \ x_i\sim \mathcal{N}\left(0,\mathbb{I}_d\right), \ \epsilon_i \sim \mathcal{N}\left(0, \sigma^2\mathbb{I}_p\right)
 \]
 \newline
-Choix de la dimension faite en regardant l'erreur quadratique.
+Choix de la dimension fait en regardant l'heuristique de pente.
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -597,7 +606,7 @@ g[[1]] + geom_density2d(aes(X1, X2))
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Simulations de données ("bootstrap")}{Estimation loi}
+\begin{frame}{Simulations de données ("bootstrap paramétrique")}{Estimation loi}
 Mélange Gaussien:
 
 \[
@@ -608,7 +617,7 @@ avec \(f\) la fonction de densité de la loi normale multivariée.
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}[fragile]{Résultats actuels}
+\begin{frame}[fragile]{Première évaluation}
 
 \begin{center}
 <<boot6, fig.height=3.5, cache=TRUE>>=
@@ -679,6 +688,7 @@ set.seed(2)
 l1 <-((runif(7,1,10)*c(1,0,1,0,0,1,1)) %>% round(digits=0))
 l2 <- ((runif(7,1,10)*c(0,1,0,0,0,1,0)) %>% round(digits=0))
 @
+\vspace*{0.3cm}
 \begin{tabular}{cc}
 \begin{tikzpicture}
 \draw [fill=red,draw=none] (0,0) rectangle (0.3,0.3);
@@ -695,7 +705,7 @@ Gaussienne 2 \\
 
 \begin{tabular}{ccc}
 \begin{tabular}{|>{\columncolor{red}}c|>{\columncolor{red}}c|>{\columncolor{red}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|>{\columncolor{green}}c}
-\multicolumn{7}{c}{Compositions} \\
+\multicolumn{6}{c}{Compositions} \\
 \Sexpr{l1[1]} & \Sexpr{l1[2]} & \Sexpr{l1[3]} & \Sexpr{l1[4]} & \Sexpr{l1[5]} & \Sexpr{l1[6]} & \Sexpr{l1[7]} \\
 
 \Sexpr{l2[1]} & \Sexpr{l2[2]} & \Sexpr{l2[3]} & \Sexpr{l2[4]} & \Sexpr{l2[5]} & \Sexpr{l2[6]} & \Sexpr{l2[7]} \\
@@ -782,73 +792,9 @@ simulés & \pointcol{blue}
 \end{center}
 \end{frame}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Problématique profondeur de séquencage}
-
-<<boot4, fig.height=4.5,cache=TRUE>>=
-ravel_boot <- bootstrap_presentation(ravel, nb_cluster = 12, nb_axe = 12, type="comptage")
-data <- data.frame(data=c(ravel_boot$data %>% apply(1, sum), ravel %>% apply(1, sum)), metadata=c(rep("simu",nrow(ravel)),rep("real", nrow(ravel))))
-ggplot(data, aes(x=data, color=metadata, fill=metadata)) + geom_histogram(position="dodge", bins=30) +
-labs(y="nombre", x="profondeur")
-@
-
-\end{frame}
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}[fragile]{Correction profondeur de séquencage}
-estimation nombre de zéro ajouté:
-\[
-\hat{p_i}=\sum_{j=1}^D \pi_{jk}*\tilde{S_i}
-\]
-avec \(\pi_{jk}\) la probabilité de mettre un zéro\\
-\(\tilde{S_i}\) une composition simulée
-
-\end{frame}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}
-  \begin{center}
-  \(
-  \begin{array}{c|>{\columncolor{red}}c|>{\columncolor{green}}c|}
- \multicolumn{3}{c}{\quad \quad \quad \quad \ \ Gaussienne} \\ 
- \multicolumn{3}{c}{\quad \quad \quad \quad \ \ $\downbracefill$} \\
-  \cline{2-3}
-  \ldelim \{{2}{*}[OTUS]& 
-  1/3 & 1/2  \\
-  \cline{2-3}
-   & 2/3 & 3/4 \\
-   \cline{2-3}
-   & 1/5 & 4/5 \\
-   \cline{2-3}
-   & 2/9 & 2/5
-  \end{array}
-\)
-\end{center}
-
-\(
-\begin{tabular}{cccc}
-1/4 & 2/7 & 3/7 & 1/28 \\
-1/6 & 4/13  & 17/156 & 5/12 
-\end{tabular}
-\)
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Problématique profondeur de séquencage}
-
-<<boot5, fig.height=4.5, cache=TRUE>>=
-ravel_boot <- bootstrap(ravel, nb_cluster = 12, nb_axe = 12, type="comptage")
-data <- data.frame(data=c(ravel_boot$data %>% apply(1, sum), ravel %>% apply(1, sum)), metadata=c(rep("simu",nrow(ravel)),rep("real", nrow(ravel))))
-ggplot(data, aes(x=data, color=metadata, fill=metadata)) + geom_histogram(position="dodge", bins=30) +
-labs(y="nombre", x="profondeur")
-@
-
-\end{frame}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Résultat après zero inflated}
 \begin{center}
 \begin{tabular}{|c|c|c|}
@@ -862,11 +808,25 @@ labs(y="nombre", x="profondeur")
 \end{tabular}
 \end{center}
 \vspace{1cm}
-Amélioration possible: \begin{itemize}
-\item zero inflated multivariée
-\item choix du coefficient de zero inflated
-\end{itemize}
 \end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Problématique profondeur de séquencage}
+
+<<boot4, fig.height=4.5,cache=TRUE>>=
+ravel_boot <- bootstrap_presentation(ravel, nb_cluster = 12, nb_axe = 12, type="comptage")
+data <- data.frame(data=c(ravel_boot$data %>% apply(1, sum), ravel %>% apply(1, sum)), metadata=c(rep("simu",nrow(ravel)),rep("real", nrow(ravel))))
+ggplot(data, aes(x=data, color=metadata, fill=metadata)) + geom_histogram(position="dodge", bins=30) +
+labs(y="nombre", x="profondeur")
+@
+
+\end{frame}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -880,12 +840,13 @@ Amélioration possible: \begin{itemize}
 \begin{itemize}
 \item Transformation log ratio accès à l'ensemble méthodes \\
 d'analyses multivariée.
+\item gain au niveau de l'analyse des échantillons, perte au niveau des OTU (espèces)
 \item Le simulateur donne de bons résultats
 \end{itemize}
 \item \textbf{Améliorations}
 \begin{itemize}
-\item zero inflated multivariée
-\item choix du coefficient de régularisation zero inflated
+\item zero inflation multivariée
+\item méthode d'apprentissage de la densité plus sophistiqué.
 \end{itemize}
 \end{itemize}
 \end{frame}
@@ -981,11 +942,101 @@ simplexe & alr & clr,ilr \\
 
 
 \begin{frame}{Annexe}{Transformation ilr}
+Matrice utilisé pour coder la base:\\
+
+\[
+\begin{blockarray}{cccc}
+x1 & x2 & x3 & x4  \\
+\begin{block}{(cccc)}
+  1 & 1 & 1 & -1 \\
+1 & 1 & -1 & 0 \\
+1 & -1 & 0 & 0 \\
+\end{block}
+\end{blockarray}
+\]
+
+
+L'image \(clr\) de la base
+\[
+\Psi =\begin{pmatrix}
+\frac{1}{\sqrt{12}} & \frac{1}{\sqrt{12}} & \frac{1}{\sqrt{12}} & -\frac{3}{\sqrt{12}} \\
+\frac{1}{\sqrt{6}} & \frac{1}{\sqrt{6}} & -\frac{2}{\sqrt{6}} & 0 \\
+\frac{1}{\sqrt{2}} & -\frac{1}{\sqrt{2}} & 0 & 0
+\end{pmatrix}
+\]
+
+\end{frame}
+
+
+\begin{frame}{Annexe}{Transformation ilr}
 Systeme générateur: \(e_i=C(1,1,....e,...,1)\) \\
 On omet le dernier vecteur puis on orthogonalise avec gram-schmidt.
 \[
 wi=e_i-\sum_{k=1}^{i-1}\frac{\left\langle e_i, e_{k}\right\rangle}{||e_{k}||^2}e_{k}
 \]
+\end{frame}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Annexe}{Correction profondeur de séquencage}
+estimation nombre de zéro ajouté:
+\[
+\hat{p_i}=\sum_{j=1}^D \pi_{jk}*\tilde{S_i}
+\]
+avec \(\pi_{jk}\) la probabilité de mettre un zéro\\
+\(\tilde{S_i}\) une composition simulée
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Annexe}{Correction profondeur de séquencage}
+  \begin{tabular}{lr}
+  &
+  \(
+  \begin{array}{c|>{\columncolor{red}}c|>{\columncolor{green}}c|}
+ \multicolumn{3}{c}{\quad \quad \quad \quad \ \ Gaussienne} \\ 
+ \multicolumn{3}{c}{\quad \quad \quad \quad \ \ $\downbracefill$} \\
+  \cline{2-3}
+  \ldelim \{{4}{*}[OTUS]& 
+  1/3 & 1/2  \\
+  \cline{2-3}
+   & 2/3 & 3/4 \\
+   \cline{2-3}
+   & 1/5 & 4/5 \\
+   \cline{2-3}
+   & 2/9 & 2/5
+  \end{array}
+\)
+\\
+
+\begin{tabular}{>{\columncolor{red}}c|>{\columncolor{green}}c|}
+\multicolumn{2}{c}{Compositions}\\
+1/4 & 1/6 \\
+2/7 & 4/13 \\
+3/7 & 17/156 \\
+1/28 & 5/12 \\
+\end{tabular}
+&
+\begin{tabular}{>{\columncolor{red}}c|>{\columncolor{green}}c|}
+\Sexpr{((1/4)*(1/3)+(2/7)*(2/3)+(3/7)*(1/5)+(1/28)*(2/9)) %>% round(digits = 2)} & \Sexpr{((1/6)*(1/2)+(4/13)*(3/4)+(17/156)*(4/5)+(5/12)*(2/5)) %>% round(digits = 2)}
+\end{tabular}
+\end{tabular}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Annexe}{Problématique profondeur de séquencage}
+
+<<boot5, fig.height=4.5, cache=TRUE>>=
+ravel_boot <- bootstrap(ravel, nb_cluster = 12, nb_axe = 12, type="comptage")
+data <- data.frame(data=c(ravel_boot$data %>% apply(1, sum), ravel %>% apply(1, sum)), metadata=c(rep("simu",nrow(ravel)),rep("real", nrow(ravel))))
+ggplot(data, aes(x=data, color=metadata, fill=metadata)) + geom_histogram(position="dodge", bins=30) +
+labs(y="nombre", x="profondeur")
+@
+
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
