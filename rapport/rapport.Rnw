@@ -88,7 +88,6 @@ INRA, Domaine de Vilvert, Jouy-En-Josas
 \end{center}}
 
 \begin{document}
-\SweaveOpts{concordance=TRUE}
 
 <<chargement_source, echo=FALSE,  include=FALSE>>=
 source("Rscript/read_metagenomic_data.R")
@@ -562,9 +561,8 @@ L'objectif de l'étude d'où provienne les données était de trouver les intera
 
 \vspace*{0.3cm}
 
-Pour Liver et Mach, le nombre d'OTU étant très grand et la matrice de comptage extrêmement creuse, j'ai choisi d'en enlever une partie (ceux présents dans moins de \(5\%\) des échantillons). Les nouvelles dimensions des jeux de données sont ainsi: 155 échantillons sur 1084 OTU pour Mach, 237 échantillons et 533 MGS pour liver. Dans la suite du rapport, seuls les résultats obtenus sur les jeux de données Vacher et Liver seront présentés. Les résultats sur les autres jeux de données sont comparables et présentés en annexe.
-
-\MM{}{Dire deux mots sur le choix de ces 2 jeux de données}
+Pour Liver et Mach, le nombre d'OTU étant très grand et la matrice de comptage extrêmement creuse, j'ai choisi d'en enlever une partie (ceux présents dans moins de \(5\%\) des échantillons). Les nouvelles dimensions des jeux de données sont ainsi: 155 échantillons sur 1084 OTU pour Mach, 237 échantillons et 533 MGS pour liver. Dans la suite du rapport, seuls les résultats obtenus sur les jeux de données Vacher et Liver seront présentés. Les résultats sur les autres jeux de données sont comparables et présentés en annexe.\\
+J'ai choisi de présenter les résultats de ces deux jeux de données pour leurs caractéristiques, Liver est le jeu de donnée dans lequel la structure des données est la plus difficile a analyser tandis que Vacher a quant à lui des résultats similaires (les résultats visibles dans la suite du rapport) à Ravel et Mach sans pour autant avoir des caractéristiques trop différentes entre les différents groupes (type de nourriture) d'échantillons. Ces deux jeux de données proviennent de deux types de séquencage différents (shotgun pour Liver et amplicon pour Vacher).
 
 \subsection{Graphique ACP}
 Pour avoir un premier aperçu des jeux de données, faisons une ACP  sur les données compositionnelles et regardons la projection des échantillons sur les deux premiers axes.
@@ -1090,12 +1088,13 @@ De même, les résultats obtenus sur les données simulées sont encourageants. 
 
 
 \section{Remerciements}
-Merci infiniment à toute l'équipe de MaiAge pour leur accueil. Cette ambiance chaleureuse m'a permis de m'intégrer facilement et de travailler sereinement.
-Merci à Mahendra et Magali pour leur hospitalité dès les premiers échanges, leur aide durant tout le stage ainsi que les compétences qu'ils ont eu à cœur de me transmettre.
+Merci infiniment à toute l'équipe de MaIAGE pour leur accueil. Cette ambiance chaleureuse m'a permis de m'intégrer facilement et de travailler sereinement.
+Merci à Mahendra et Magali pour leur hospitalité dès les premiers échanges, leur aide durant tout le stage ainsi que les compétences qu'ils ont eues à cœur de me transmettre.
 
 \newpage
 \section{Annexe}
 \appendix
+Le code R programmé durant mon stage est disponible à l'adresse suivante: \url{https://github.com/ClemHard/metacoda}.
 
 \subsection{Graphiques ACP}
 \begin{figure}[H]
