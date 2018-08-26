@@ -108,7 +108,7 @@ load("rapport/resultats.RData")
 @
 
 \begin{titlepage}
-\includegraphics[width=4cm]{logoINRA.jpg} \hfill
+\includegraphics[width=4cm]{logoINRA2.jpg} \hfill
 \includegraphics[width=4cm]{logo_paris_sud.jpg}\\
 
 \vspace*{8cm}
