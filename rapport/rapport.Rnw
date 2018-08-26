@@ -1546,7 +1546,7 @@ kable(m_super$all$kNN)
 \end{center}
 
 Les bons résultats d'une classification supervisée se confirme sur ces jeux de données, le simulateur simule bien les différentes caractéristiques des groupes.
-\subsubsection*{Sur les données simulées considéré comme réels}\label{reels/simu}
+\subsubsection*{Sur les données simulées considéré comme réelles}\label{reels/simu}
 \begin{center}
 Chaillou
 
