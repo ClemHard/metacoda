@@ -77,7 +77,7 @@ Exploration des méthodes d'analyse de données compositionnelles pour l'étude 
 \def\myauthor{
 \begin{center}
  Clément Hardy\\
- encadré par Mahendra Mariadassou (MaIAGE), Magali Berland (MGP)\\
+ encadré par Mahendra Mariadassou (MaIAGE), Magali Berland (MetaGenoPolis)\\
  dans le cadre du stage de M1 du Master "Mathématiques Appliquées"
 \end{center}}
 
@@ -164,11 +164,11 @@ microbiens.
 
 La métagénomique désigne l'étude du contenu génomique d'un échantillon issu d'un milieu complexe, c’est à dire qui abrite de nombreuses espèces, tel que le microbiote intestinal, l'eau de mer, le sol, etc. La métagénomique, à l'inverse de la génomique, analyse simultanément le génome de l'ensemble des espèces présentes dans un échantillon et ne nécessite donc pas d'isoler une à une les espèces présentes. Cette évolution de l'étude d'une espèce à l'étude d'un ensemble d'espèces s'est faite grâce aux nouvelles méthodes de séquencage, dites à haut-débit, et aux progrés de la  bioinformatique pour le traitement des données de séquençage.
 
-Deux approches complémentaires existent: la métagénomique "shotgun" et la métagéniomique "amplicon". L'approche "shotgun" consiste à séquencer la totalité du génome des espèces présentes. Pour cela, une première étape de préparation des échantillons consistent à briser la paroi des cellules bactériennes pour en extraire l'ADN avant de découper ces séquences d'ADN en petit fragments de longueur prédéfinie (typiquement quelques centaines de paires de base). Les fragments ainsi obtenus sont ensuite séquencés individuellement pour obtenir des "lectures" (ou "reads"). L'étape qui permet de repasser des séquences courtes aux génomes complet est appelés assemblage et est réalisé à l'aide de logiciels spécialisés. Il est également possible d'assigner directement une espèce bactérienne à chaque lecture, sur la base de sa similarité avec des séquences d'espèces connues.
+Deux approches complémentaires existent: la métagénomique "shotgun" et la métagéniomique "amplicon". L'approche "shotgun" consiste à séquencer la totalité du génome des espèces présentes. Pour cela, une première étape de préparation des échantillons consistent à briser la paroi des cellules bactériennes pour en extraire l'ADN avant de découper ces séquences d'ADN en petit fragments de longueur prédéfinie (typiquement quelques centaines de paires de base). Les fragments ainsi obtenus sont ensuite séquencés individuellement pour obtenir des "lectures" (ou "reads"). L'étape qui permet de repasser des séquences courtes aux génomes complet est appelée assemblage et est réalisée à l'aide de logiciels spécialisés. Il est également possible d'assigner directement une espèce bactérienne à chaque lecture, sur la base de sa similarité avec des séquences d'espèces connues.
 
-L'approche "amplicon", également appelée "metabarcoding", est basée sur le séquençage un gène-marqueur, en général la sous unité 16S du ribosome (ou ARN 16S), qui va servir de "code-barre" pour identifier les espèces présentes. Le processus de séquençage n'est pas parfait et introduit des erreurs de lecture. Une première étape dans le traitement des données consiste donc à regrouper les lectures similaires enc clusters pour construire des organismes hypothétiques, les OTUs (Operational Taxonomic Units), qui sont considérées comme des pseudo-espèces bactériennes. Une assignation taxonomique est ensuite attribué à chaque OTU en comparant sa séquence consensus à des séquences de références dont la taxonomie est connue.
+L'approche "amplicon", également appelée "metabarcoding", est basée sur le séquençage un gène-marqueur, en général la sous unité 16S du ribosome (ou ARN 16S), qui va servir de "code-barre" pour identifier les espèces présentes. Le processus de séquençage n'est pas parfait et introduit des erreurs de lecture. Une première étape dans le traitement des données consiste donc à regrouper les lectures similaires en clusters pour construire des organismes hypothétiques, les OTU (Operational Taxonomic Units), qui sont considérées comme des pseudo-espèces bactériennes. Une assignation taxonomique est ensuite attribué à chaque OTU en comparant sa séquence consensus à des séquences de références dont la taxonomie est connue.
 
-Les deux approches varient dans leurs finalités: l'approche "shotgun" s'intéresse aux génomes complets et donc aux gènes et aux fontions présentes dans l'écosystème ("qui peut faire quoi?") tandis que l'approche "amplicon" permet de faire un inventaire taxonomique des espèce en présence ("qui est là?"). Les gènes de l'approche "shotgun" peuvent néanmoins être aggrégés sur la base de leur co-abondance pour construire des MetaGenomic Species (MGS)\cite{Nielsen2014} qui s'apparente à des OTUs. Dans la suite de ce rapport et par souci de simplicité, on utilisera le terme OTU dans tout les cas.
+Les deux approches varient dans leurs finalités: l'approche "shotgun" s'intéresse aux génomes complets et donc aux gènes et aux fontions présentes dans l'écosystème ("qui peut faire quoi?") tandis que l'approche "amplicon" permet de faire un inventaire taxonomique des espèce en présence ("qui est là?"). Les gènes de l'approche "shotgun" peuvent néanmoins être aggrégés sur la base de leur co-abondance pour construire des MetaGenomic Species (MGS)\cite{Nielsen2014} qui s'apparente à des OTU. Dans la suite de ce rapport et par souci de simplicité, on utilisera le terme OTU dans tout les cas.
 
 Le résultat typique d'une expérience de métagénomique est une table de comptage: un tableau contenant le nombre de séquences observés pour chaque OTU dans chaque échantillon (Fig.~\ref{fig:table_otu}).
 
@@ -177,7 +177,7 @@ Le résultat typique d'une expérience de métagénomique est une table de compt
 \caption{\label{fig:table_otu}Table comptage des OTU}
 \end{figure}
 
-L'une des particularité de la table des OTU pour la métagénomique est qu'elle contient énormément de zéro. En effet, un OTU qui est présent dans un seul échantillon apparaîtra avec un comptage nul dans les autres échantillons. Les OTUs présents dans chaque échantillon pouvant être très différents, il y a ainsi énormément de zéro (sur les jeux de données utilisés durant mon stage la proportion de zéro dans la table des OTU variée de \(35\%\) à \(95\%\)).
+L'une des particularité de la table des OTU pour la métagénomique est qu'elle contient énormément de zéro. En effet, un OTU qui est présent dans un seul échantillon apparaîtra avec un comptage nul dans les autres échantillons. Les OTU présents dans chaque échantillon pouvant être très différents, il y a ainsi énormément de zéro (sur les jeux de données utilisés durant mon stage la proportion de zéro dans la table des OTU variait de \(35\%\) à \(95\%\)).
 
 \subsection{Problématique des données de comptage}
 
@@ -192,7 +192,7 @@ Le but de ce stage a été de transformer ces données de comptage en données c
 
 Commençons par expliquer ce que sont les données compositionnelles.
 \subsection{Simplexe}
-Un vecteur \(x=\left[x_1,x_2,...x_D\right]\) est défini comme une D-composition lorsque toutes ses composantes sont strictement positives et ne contiennent que de \emph{l'information relative}, par exemple un pourcentage, une proportion, ou des parties par million (en géologie)\\
+Un vecteur \(x=\left[x_1,x_2,...x_D\right]\) est défini comme une D-composition lorsque toutes ses composantes sont strictement positives et ne contiennent que de \emph{l'information relative}, par exemple un pourcentage, une proportion, ou des parties par million (notamment en géologie).\\
 \vspace*{0.3cm}
 \\
 Le simplexe est l'espace de probabilité des données compositionnelles  et est défini par:
@@ -200,7 +200,7 @@ Le simplexe est l'espace de probabilité des données compositionnelles  et est 
     S^D=\lbrace x=\left[x_1, x_2,...,x_D\right]|x_i>0,i=1,2,...,D;\sum_{i=1}^Dx_i=\kappa\rbrace
 \]
 
- L'opération permettant de modifier la somme des composantes (ex:passer d'une proportion à un pourcentage) d'une composition (le \(\kappa\)) se nomme la closure. En notant \(\kappa\) la somme des composantes souhaité, la closure est définie par:
+ L'opération permettant de modifier la somme des composantes d'une composition (ex : passer d'une proportion à un pourcentage) se nomme la closure. En notant \(\kappa\) la somme des composantes souhaité, la closure est définie par:
  \[
 C(\kappa,x)=\left(\left[\frac{\kappa*x_1}{\sum_{i=1}^Dx_i},\frac{\kappa \times x_2}{\sum_{i=1}^Dx_i},...,\frac{\kappa\times x_D}{\sum_{i=1}^Dx_i}     \right]\right)
 \]
@@ -228,7 +228,7 @@ Dans le simplexe, nous ne pouvons pas utiliser la géométrie euclidienne pour c
 x_1=\left[0.1,0.4,0.5\right],\ x_2=\left[0.2,0.3,0.5\right],\ x_3=\left[0.4,0.4,0.2\right],\ x_4=\left[0.5,0.3,0.2\right]
 \]
 
-La distance \textbf{euclidienne} entre les compositions \(x_1\) et \(x_2\) est la même que celle entre \(x_3\) et \(x_4\), pourtant la proportion de la première composante a doublé dans le premier cas tandis qu'elle n'a augmenté que 25\% dans le second. De même, la multiplication et l'addition usuelles ne sont inappropriées dans le simplexe: la multiplication d'une composition par un scalaire ne permet pas de rester dans le simplexe (elle change la valeur de \(\kappa\)) et la somme de deux compositions multiplie elle aussi $\kappa$ par deux. Pour toute ces raisons, nous avons besoin de définir une nouvelle géométrie dans le simplexe\footnote{Des raisons supplémentaires, telles que la construction de régions de confiance pour les compositions aléatoires, sont évoquées dans \cite{Lecture}}.
+La distance \textbf{euclidienne} entre les compositions \(x_1\) et \(x_2\) est la même que celle entre \(x_3\) et \(x_4\), pourtant la proportion de la première composante a doublé dans le premier cas tandis qu'elle n'a augmenté que 25\% dans le second. De même, la multiplication et l'addition usuelles ne sont pas appropriées dans le simplexe: la multiplication d'une composition par un scalaire ne permet pas de rester dans le simplexe (elle change la valeur de \(\kappa\)) et la somme de deux compositions multiplie elle aussi $\kappa$ par deux. Pour toute ces raisons, nous avons besoin de définir une nouvelle géométrie dans le simplexe\footnote{Des raisons supplémentaires, telles que la construction de régions de confiance pour les compositions aléatoires, sont évoquées dans \cite{Lecture}}.
 
 \vspace*{0.3cm}
 
@@ -273,7 +273,7 @@ ternary_diagram3()
 \end{center}
 \end{figure}
 
-Les mesures statistiques telles que la moyenne et la variance doivent être elles aussi redéfinies dans ce simplexe pour prendre en compte sa géométrie. Pour un échantillon de taille \(n\) de $D$-compositions, la moyenne est définie comme:
+Les mesures statistiques telles que la moyenne et la variance doivent être elles aussi redéfinies dans ce simplexe pour prendre en compte sa géométrie. Pour un échantillon de taille \(n\) de $D$-compositions, la moyenne est définie comme :
 \[
 \bar{g}=C\left[g_1,g_2,...,g_D\right]
 \]
@@ -288,7 +288,8 @@ t_{D1} & t_{D2} & ... & t_{DD}
 \end{pmatrix}
 ,\quad t_{ij}=var\left(ln\frac{x_i}{x_j}\right),
 \]
-ce qui permet de définir la variance totale \[ totvar\left[X\right]=\frac{1}{2D}\sum_{i=1}^D\sum_{j=1}^Dt_{ij} \]. Pour centrer des données, il est alors nécessaire de leur retrancher \(\bar{g}\), c'est à dire de considérer $(g_1 \oplus (-1)\odot \bar{g}, \dots, g_n \oplus (-1)\odot \bar{g})$. Pour les réduire, il faut ensuite les diviser par  \(totvar\left[X\right]^{-1/2}\).
+ce qui permet de définir la variance totale : \[ totvar\left[X\right]=\frac{1}{2D}\sum_{i=1}^D\sum_{j=1}^Dt_{ij} \]
+Pour centrer des données, il est alors nécessaire de leur retrancher \(\bar{g}\), c'est à dire de considérer $(g_1 \oplus (-1)\odot \bar{g}, \dots, g_n \oplus (-1)\odot \bar{g})$. Pour les réduire, il faut ensuite les diviser par  \(totvar\left[X\right]^{-1/2}\).
 
 
 <<>>=
@@ -547,20 +548,20 @@ de comptage d’OTU accompagnés de quelques variables descriptives d’intérê
 Il s'agit d'un jeu de données issue de matrices alimentaires, qui s'intéresse aux flores liées à l'altération des aliments après la date de péremption. Pour cela, quatre types de viande : boeuf hache, veau hache, lardons, saucisses de volaille et quatre types de produits de la mer: saumon fumé, crevettes, filet de saumon et filet de cabillaud ont été échantillonnés. Pour chaque type de nourriture, huit échantillons de lots différents (réplicats biologiques) ont été étudiés et 508 OTU ont été conservés lors de l'étude. Durant mon stage, la variable qualitative d'intérêt était la matrice alimentaire d'origine.
 
 \subsubsection*{Mach\cite{Mach}}
-L'évolution du microbiote intestinal de porcelet au cours des premiers mois (avant et après le sevrage) ainsi que son impact sur le métabolisme était le sujet de l'étude contenant ce jeu de données. Les féces de 31 porcelets ont été séquencés à cinq périodes de leur vie (14, 36, 48, 60 et 70 jours, le sevrage intervenant entre les jours 14 et 36). Le jeu de données contient ainsi 155 échantillons et le nombre d'OTUs s'élève à 4031.
+L'évolution du microbiote intestinal de porcelet au cours des premiers mois (avant et après le sevrage) ainsi que son impact sur le métabolisme était le sujet de l'étude contenant ce jeu de données. Les féces de 31 porcelets ont été séquencés à cinq périodes de leur vie (14, 36, 48, 60 et 70 jours, le sevrage intervenant entre les jours 14 et 36). Le jeu de données contient ainsi 155 échantillons et le nombre d'OTU s'élève à 4031.
 
 \subsubsection*{Liver\cite{Liver}}
 L'objectif de cette étude était de caractériser le microbiote intestinal lié à la cirrhose du foie, pour cela le microbiote de 114 patients sains et 123 patients atteint de cirrhose ont été séquencés. Pour chaque patient, plusieurs caractéristiques cliniques ont également été relevées: indice de masse corporel, indice de coagulation du sang, tests du bon fonctionnement des reins, etc. Le jeu de données contient ainsi 237 échantillons et le nombre de MGS s'élève à 1529.
 
 \subsubsection*{Ravel\cite{Ravel}}
-Dans cette étude, les chercheurs s'intéressent au lien entre le microbiote vaginal et les maladies urogenitales. Pour étudier ce lien, ils ont séquencé le microbiote vaginal de 394 femmes provenant de quatre catégories ethniques différentes (asiatiques, blanches, noires et hispanique). 247 OTUs ont été gardés pour réaliser cette étude. Sur chaque échantillon (un pour chaque femme), les chercheurs ont également mesuré le \emph{nugent score}, un indice de vaginose bactérienne, qui a été discrétisé en 3 catégories (low, intermediate, high). En parallèle de ce paramètre clinique, ils ont défini 5 archétypes de communautés: les Community State Type (CST) que j'ai étudiés durant mon stage.
+Dans cette étude, les chercheurs s'intéressent au lien entre le microbiote vaginal et les maladies urogenitales. Pour étudier ce lien, ils ont séquencé le microbiote vaginal de 394 femmes provenant de quatre catégories ethniques différentes (asiatiques, blanches, noires et hispanique). 247 OTU ont été gardés pour réaliser cette étude. Sur chaque échantillon (un pour chaque femme), les chercheurs ont également mesuré le \emph{nugent score}, un indice de vaginose bactérienne, qui a été discrétisé en 3 catégories (low, intermediate, high). En parallèle de ce paramètre clinique, ils ont défini 5 archétypes de communautés: les Community State Type (CST) que j'ai étudiés durant mon stage.
 
 \subsubsection*{Vacher\cite{Vacher}}
 L'objectif de l'étude d'où provienne les données était de trouver les interactions les plus probables entre un champignon responsable de l'oidium du chêne (\emph{Erysiphe alphitoides}) et les autres espèces de microorganisme présentes sur les feuilles de chêne. Pour ce faire, les feuilles de trois chênes ont été prélevées et séquencées (40 sur chaque arbre). Pour chaque arbre, les feuilles proviennent de quatre branches différentes (10 pour chaque branche) et plusieurs caractéristiques ont été relevées pour chaque feuille: sa distance à la base de l'arbre, sa distance au tronc de l'arbre et sa distance par rapport au sol ainsi que son orientation (South west, North East) et son niveau d'infection. Cependant dans le jeu de données, seuls 116 échantillons de feuilles sont présents (il en manque quatre) et 114 OTU ont été mesurés sur chaque feuille. L'objectif durant mon stage était d'étudier le lien entre l'arbre de prélèvement et la communauté microbienne de chaque feuille.
 
 \vspace*{0.3cm}
 
-Pour Liver et Mach, le nombre d'OTUs étant très grand et la matrice de comptage extrêmement creuse, j'ai choisi d'en enlever une partie (ceux présents dans moins de \(5\%\) des échantillons). Les nouvelles dimensions des jeux de données sont ainsi: 155 échantillons sur 1084 OTUs pour Mach, 237 échantillons et 533 OTUs pour liver. Dans la suite du rapport, seuls les résultats obtenus sur les jeux de données Vacher et Liver seront présentés. Les résultats sur les autres jeux de données sont comparables et présentés en annexe.
+Pour Liver et Mach, le nombre d'OTU étant très grand et la matrice de comptage extrêmement creuse, j'ai choisi d'en enlever une partie (ceux présents dans moins de \(5\%\) des échantillons). Les nouvelles dimensions des jeux de données sont ainsi: 155 échantillons sur 1084 OTU pour Mach, 237 échantillons et 533 OTU pour liver. Dans la suite du rapport, seuls les résultats obtenus sur les jeux de données Vacher et Liver seront présentés. Les résultats sur les autres jeux de données sont comparables et présentés en annexe.
 
 \MM{}{Dire deux mots sur le choix de ces 2 jeux de données}
 
@@ -879,7 +880,7 @@ Ce qui permet d'exprimer \(\tilde{X_{i}}\) comme
 où \(Z_{jk}\sim Bern\left(\pi_{jk}\right)\) et \(T_i\sim \mathbb{M}\left(N; \tilde{S}_i\right)\) et \(\tilde{S}_i\) qui est le résultat de \(ilr^{-1}\left(\mathbb{N}\left(W\mu_k, W\Sigma_k W^T+\sigma^2I \right)\right)\)
 
 
-Illustrons ce mécanisme à l'aide d'un jeu de données à 2 OTUs. Lors de l'apprentissage, le simulateur a trouvé que le nombre de gaussiennes optimal est de 2 et il a calculé les estimateurs de zero inflation suivant:
+Illustrons ce mécanisme à l'aide d'un jeu de données à 2 OTU. Lors de l'apprentissage, le simulateur a trouvé que le nombre de gaussiennes optimal est de 2 et il a calculé les estimateurs de zero inflation suivant:
 \begin{table}[H]
 \centering
   \[
@@ -887,7 +888,7 @@ Illustrons ce mécanisme à l'aide d'un jeu de données à 2 OTUs. Lors de l'app
  \multicolumn{3}{c}{\quad \quad \quad \quad \ \ Gaussiennes} \\
  \multicolumn{3}{c}{\quad \quad \quad \quad \ \ $\downbracefill$} \\
   \cline{2-3}
-  \ldelim \{{2}{*}[OTUs]&
+  \ldelim \{{2}{*}[OTU]&
   1/3 & 1/2  \\
   \cline{2-3}
    & 2/3 & 3/4 \\
@@ -954,7 +955,7 @@ graph_biplot_normale(data, metadata, 1, 'Liver', 'data', ellipse=FALSE)[[1]]
 
 Globalement, les données simulées se mélangent bien avec les données réelles. La première impression sur les performances du simulateur est donc positive.
 
-Cependant cette méthode, bien que très utilisée dans la littérature, n'est pas forcément rigoureuse. En effet, certains OTUs peuvent être très mal simulés sans pour autant que nous ne puissions faire la différence visuellement. Par exemple, un OTU absent de tous les échantillons réels mais présent en très faibles quantité dans les échantillons simulés n'aura quasiment aucune incidence sur une ACP (et n'induira donc aucune différence graphique). Cet OTU n'est pas pour autant bien simulé; une bonne simulation donnerait des échantillons dans lesquels cet OTU est absent la plupart du temps.
+Cependant cette méthode, bien que très utilisée dans la littérature, n'est pas forcément rigoureuse. En effet, certains OTU peuvent être très mal simulés sans pour autant que nous ne puissions faire la différence visuellement. Par exemple, un OTU absent de tous les échantillons réels mais présent en très faibles quantité dans les échantillons simulés n'aura quasiment aucune incidence sur une ACP (et n'induira donc aucune différence graphique). Cet OTU n'est pas pour autant bien simulé; une bonne simulation donnerait des échantillons dans lesquels cet OTU est absent la plupart du temps.
 
 Pour avoir des résultats plus fiables, l'étude de l'efficacité du simulateur est confiée à des classificateurs. L'objectif est de regarder si un classificateur parvient à faire la différence entre les données réelles et les données simulée. Une bonne simulation mènerait le classificateur à se tromper à de nombreuses reprises (l'objectif théorique est que le classificateur se trompe dans \(50\%\) des cas). Dans ce but, deux nouveaux jeux de données sont simulés, l'un d'entre eux servira de jeu d'entrainement (avec les données réelles) à un classificateur, l'autre jeu de données servira quant à lui de test. Une petite partie des données réelles n'est pas incluse dans le jeu d'entrainement, elle servira elle aussi de jeu de données test.
 
@@ -996,7 +997,7 @@ Les performances du simulateur sont grandement variables selon le jeu de donnée
 
 \subsection{Classification}
 
-Un autre aspect de la performance du simulateur est sa capacité à capturer et simuler les caractéristiques (les OTUs présents et leurs abondances) de chaque groupe (exemple: les différents arbres dans le cas de Vacher; le status maladeou sain des patients pour Liver) d'un jeu de données; une donnée simulée ne devrait pas présenter les caractéristiques de plusieurs groupes. Pour étudier cet aspect, la simulation ne se fera plus sur l'ensemble du jeux de données mais séparément sur chaque groupe du jeu de données (par exemple sain puis malade). Les groupes des données simulées seront alors connus et nous pourrons vérifier si un classificateur \emph{entrainé sur les données réelles} retrouve bien ces groupes.\footnote{Ou plus prosaïquement atteint les mêmes taux de bonne et mauvaise classification que sur les données réelles.}
+Un autre aspect de la performance du simulateur est sa capacité à capturer et simuler les caractéristiques (les OTU présents et leurs abondances) de chaque groupe (exemple: les différents arbres dans le cas de Vacher; le status maladeou sain des patients pour Liver) d'un jeu de données; une donnée simulée ne devrait pas présenter les caractéristiques de plusieurs groupes. Pour étudier cet aspect, la simulation ne se fera plus sur l'ensemble du jeux de données mais séparément sur chaque groupe du jeu de données (par exemple sain puis malade). Les groupes des données simulées seront alors connus et nous pourrons vérifier si un classificateur \emph{entrainé sur les données réelles} retrouve bien ces groupes.\footnote{Ou plus prosaïquement atteint les mêmes taux de bonne et mauvaise classification que sur les données réelles.}
 
 La figure Fig.~\ref{fig:classif_all} présente un schéma illustratif de la méthode: soit \(1,2,...,k\) les groupes du jeu de données (ex: pour Liver k=2, malade, non malade)
 
