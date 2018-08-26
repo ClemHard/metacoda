@@ -103,11 +103,11 @@ grid.arrange(grobs=graph_biplot_normale(data, metadata, 4, "chaillou", "data"), 
 
 #ravel
 
-ravel_boot <- bootstrap(ravel, nb_cluster = 4, nb_axe = 4, type="comptage")
+ravel_boot <- bootstrap(ravel, nb_cluster = 12, nb_axe = 12, type="comptage")
 data <- rbind(ravel, ravel_boot$data)
 # metadata <- c(as.character(metadata_ravel$CST), as.character(ravel_boot$metadata)) %>% as.factor()
 metadata <- c(rep("real", nrow(ravel)), rep("simu", nrow(ravel_boot$data))) %>% as.factor()
-grid.arrange(grobs=graph_biplot_normale(data, metadata, 4, "ravel", "data"), ncol=2)
+grid.arrange(grobs=graph_biplot_normale(data, metadata, 4, title = "ravel", legend=FALSE, legend_title = "data"), ncol=2)
 
 
 
@@ -117,7 +117,7 @@ mach_boot <- bootstrap(mach_500, type="comptage", nb_cluster = 6, nb_axe = 10)
 data <- rbind(mach_500, mach_boot$data)
 #metadata <- c(as.character(metadata_mach$Weaned), as.character(mach_boot$metadata)) %>% as.factor()
 metadata <- c(rep("real", nrow(mach_500)), rep("simu", nrow(mach_boot$data))) %>% as.factor()
-grid.arrange(grobs=graph_biplot_normale(data, metadata, 4, "mach 500", "data"), ncol=2)
+grid.arrange(grobs=graph_biplot_normale(data = data, metadata_group = metadata, nb_graph= 4, title = "mach 500", legend_title = "data"), ncol=2)
 
 
 
@@ -146,86 +146,117 @@ grid.arrange(grobs=graph_biplot_normale(data, metadata, 4, "liver", "data"), nco
 ##donne comptage
 
 #chaillou
-t_chaillou <- test_bootstrap_all(chaillou, nb_cluster = 15, nb_axe = 16, nb_train=1)
+t_chaillou <- test_bootstrap_all(chaillou, nb_cluster = 15, nb_axe = 16, nb_train=10)
 t_chaillou$all
 
 
 #mach_500
-t_mach_500 <- test_bootstrap_all(mach_500, nb_cluster = 6, nb_axe = 10, nb_train=50)
+t_mach_500 <- test_bootstrap_all(mach_500, nb_cluster = 6, nb_axe = 10, nb_train=10)
 t_mach_500$all
 
 
 #vacher
-t_vacher <- test_bootstrap_all(vacher, nb_cluster = 4, nb_axe = 11, nb_train=50)
+t_vacher <- test_bootstrap_all(vacher, nb_cluster = 4, nb_axe = 11, nb_train=10)
 t_vacher$all
 
 
 #liver 500
-t_liver_500 <- test_bootstrap_all(liver_500, nb_cluster = 13, nb_axe = 17, nb_train=50)
+t_liver_500 <- test_bootstrap_all(liver_500, nb_cluster = 13, nb_axe = 17, nb_train=10)
 t_liver_500$all
 
 
 
 #ravel
-t_ravel <- test_bootstrap_all(ravel, nb_cluster = 12, nb_axe = 12, nb_train=50)
+t_ravel <- test_bootstrap_all(ravel, nb_cluster = 12, nb_axe = 12, nb_train=10)
 t_ravel$all
+
+
+############################
+############################ test bootstrap sans zero inflated
+
+#chaillou
+t_chaillou_sans <- test_bootstrap_all(chaillou, nb_cluster = 15, nb_axe = 16, nb_train=10, zero_inflated = FALSE)
+t_chaillou_sans$all
+
+
+#mach_500
+t_mach_500_sans <- test_bootstrap_all(mach_500, nb_cluster = 6, nb_axe = 10, nb_train=10, zero_inflated = FALSE)
+t_mach_500_sans$all
+
+
+#vacher
+t_vacher_sans <- test_bootstrap_all(vacher, nb_cluster = 4, nb_axe = 11, nb_train=10, zero_inflated = FALSE)
+t_vacher_sans$all
+
+
+#liver 500
+t_liver_500_sans <- test_bootstrap_all(liver_500, nb_cluster = 13, nb_axe = 17, nb_train=10, zero_inflated = FALSE)
+t_liver_500_sans$all
+
+
+
+#ravel
+t_ravel_sans <- test_bootstrap_all(ravel, nb_cluster = 12, nb_axe = 12, nb_train=10, zero_inflated = FALSE)
+t_ravel_sans$all
+
+
 
 
 
 
 ##donne ilr
 #chaillou
-t_chaillou_ilr <- test_bootstrap_all(chaillou, nb_cluster = 15, nb_axe = 16, nb_train=59, type="ilr")
+t_chaillou_ilr <- test_bootstrap_all(chaillou, nb_cluster = 15, nb_axe = 16, nb_train=10, type="ilr")
 t_chaillou_ilr$all
 
 
 #mach_500
-t_mach_500_ilr <- test_bootstrap_all(mach_500, nb_cluster = 6, nb_axe = 10, nb_train=50, type="ilr")
+t_mach_500_ilr <- test_bootstrap_all(mach_500, nb_cluster = 6, nb_axe = 10, nb_train=10, type="ilr")
 t_mach_500_ilr$all
 
 
 #vacher
-t_vacher_ilr <- test_bootstrap_all(vacher, nb_cluster = 4, nb_axe = 11,nb_train=50, type="ilr")
+t_vacher_ilr <- test_bootstrap_all(vacher, nb_cluster = 4, nb_axe = 11,nb_train=10, type="ilr")
 t_vacher_ilr$all
 
 
 #liver 500
-t_liver_500_ilr <- test_bootstrap_all(liver_500, nb_cluster = 13, nb_axe = 17, nb_train=50, type="ilr")
+t_liver_500_ilr <- test_bootstrap_all(liver_500, nb_cluster = 13, nb_axe = 17, nb_train=10, type="ilr")
 t_liver_500_ilr$all
 
 
 
 #ravel
-t_ravel_ilr <- test_bootstrap_all(ravel, nb_cluster = 12, nb_axe = 12, nb_train=50, type="ilr")
+t_ravel_ilr <- test_bootstrap_all(ravel, nb_cluster = 12, nb_axe = 12, nb_train=10, type="ilr")
 t_ravel_ilr$all
 
 
 ##### bootstrap supervise
 
 ## donne comptage
-c_super <- test_bootstrap_supervise(chaillou, metadata_chaillou$EnvType, type="comptage", nb_train = 50)
+c_super <- test_bootstrap_supervise(chaillou, metadata_chaillou$EnvType, type="comptage", nb_train=10)
 c_super$all
-r_super <- test_bootstrap_supervise(ravel, metadata_ravel$CST, type="comptage", nb_train = 50)
+r_super <- test_bootstrap_supervise(ravel, metadata_ravel$CST, type="comptage", nb_train=10)
 r_super$all
-l_super <- test_bootstrap_supervise(liver_500, metadata_liver$status, type="comptage", nb_train = 1)
+l_super <- test_bootstrap_supervise(liver_500, metadata_liver$status, type="comptage", nb_train=10)
 l_super$all
-m_super <- test_bootstrap_supervise(mach_500, metadata_mach$Weaned, type="comptage", nb_train = 50)
+m_super <- test_bootstrap_supervise(mach_500, metadata_mach$Weaned, type="comptage", nb_train=10)
 m_super$all
-v_super <- test_bootstrap_supervise(vacher, metadata_vacher$tree, type="comptage", nb_train = 50)
+v_super <- test_bootstrap_supervise(vacher, metadata_vacher$tree, type="comptage", nb_train=10)
 v_super$all
 
 
 
 ## donne ilr
-c_super_ilr <- test_bootstrap_supervise(chaillou, metadata_chaillou$EnvType, type="ilr", nb_train = 50)
+c_super_ilr <- test_bootstrap_supervise(chaillou, metadata_chaillou$EnvType, type="ilr", nb_train=10)
 c_super_ilr$all
-r_super_ilr <- test_bootstrap_supervise(ravel, metadata_ravel$CST, type="ilr", nb_train = 50)
+r_super_ilr <- test_bootstrap_supervise(ravel, metadata_ravel$CST, type="ilr", nb_train=10)
 r_super_ilr$all
-l_super_ilr <- test_bootstrap_supervise(liver_500, metadata_liver$status, type="ilr", nb_train = 50)
+l_super_ilr <- test_bootstrap_supervise(liver_500, metadata_liver$status, type="ilr", nb_train=10)
 l_super_ilr$all
-m_super_ilr <- test_bootstrap_supervise(mach_500, metadata_mach$Weaned, type="ilr", nb_train = 50)
+m_super_ilr <- test_bootstrap_supervise(mach_500, metadata_mach$Weaned, type="ilr", nb_train=10)
 m_super_ilr$all
-v_super_ilr <- test_bootstrap_supervise(vacher, metadata_vacher$tree, type="ilr", nb_train = 50)
+v_super_ilr <- test_bootstrap_supervise(vacher, metadata_vacher$tree, type="ilr", nb_train=10)
 v_super_ilr$all
 
 ### validation croise
@@ -265,38 +296,38 @@ v_vacher_ilr
 #### classificateur supervise apres classificateur real/simu
 
 # donne comptage
-c_chaillou <- classificateur_group_real_simu(chaillou, metadata_chaillou$EnvType, nb_train = 50)
+c_chaillou <- classificateur_group_real_simu(chaillou, metadata_chaillou$EnvType, nb_train=10)
 c_chaillou$all
 
-c_ravel <- classificateur_group_real_simu(ravel, metadata_ravel$CST, nb_train = 50)
+c_ravel <- classificateur_group_real_simu(ravel, metadata_ravel$CST, nb_train=10)
 c_ravel$all
 
-c_liver <- classificateur_group_real_simu(liver_500, metadata_liver$status, nb_train = 1)
+c_liver <- classificateur_group_real_simu(liver_500, metadata_liver$status, nb_train=10)
 c_liver$all
 
-c_mach <- classificateur_group_real_simu(mach_500, metadata_mach$Weaned, nb_train = 50)
+c_mach <- classificateur_group_real_simu(mach_500, metadata_mach$Weaned, nb_train=10)
 c_mach$all
 
-c_vacher <- classificateur_group_real_simu(vacher, metadata_vacher$tree, nb_train = 50)
+c_vacher <- classificateur_group_real_simu(vacher, metadata_vacher$tree, nb_train=10)
 c_vacher$all
 
 
 
 
 # donne ilr
-c_chaillou_ilr <- classificateur_group_real_simu(chaillou, metadata_chaillou$EnvType, type="ilr", nb_train = 50)
+c_chaillou_ilr <- classificateur_group_real_simu(chaillou, metadata_chaillou$EnvType, type="ilr", nb_train=10)
 c_chaillou_ilr$all
 
-c_ravel_ilr <- classificateur_group_real_simu(ravel, metadata_ravel$CST, type="ilr", nb_train = 50)
+c_ravel_ilr <- classificateur_group_real_simu(ravel, metadata_ravel$CST, type="ilr", nb_train=10)
 c_ravel_ilr$all
 
-c_liver_ilr <- classificateur_group_real_simu(liver_500, metadata_liver$status, type="ilr", nb_train = 50)
+c_liver_ilr <- classificateur_group_real_simu(liver_500, metadata_liver$status, type="ilr", nb_train=10)
 c_liver_ilr$all
 
-c_mach_ilr <- classificateur_group_real_simu(mach_500, metadata_mach$Weaned, type="ilr", nb_train = 50)
+c_mach_ilr <- classificateur_group_real_simu(mach_500, metadata_mach$Weaned, type="ilr", nb_train=10)
 c_mach_ilr$all
 
-c_vacher_ilr <- classificateur_group_real_simu(vacher, metadata_vacher$tree, type="ilr", nb_train = 50)
+c_vacher_ilr <- classificateur_group_real_simu(vacher, metadata_vacher$tree, type="ilr", nb_train=10)
 c_vacher_ilr$all
 
 
@@ -307,6 +338,7 @@ save(k_chaillou, k_mach_500, k_vacher, k_ravel, k_liver,
      Mclust_chaillou, Mclust_mach_500, Mclust_vacher, Mclust_ravel, Mclust_liver,
      chaillou_boot, mach_boot, vacher_boot, ravel_boot, liver_boot,
      t_chaillou, t_mach_500, t_vacher, t_ravel, t_liver_500,
+     t_chaillou_sans, t_mach_500_sans, t_vacher_sans, t_ravel_sans, t_liver_500_sans,
      t_chaillou_ilr, t_mach_500_ilr, t_vacher_ilr, t_ravel_ilr, t_liver_500_ilr,
      c_super, r_super, l_super, m_super, v_super,
      c_super_ilr, r_super_ilr, m_super_ilr, l_super_ilr, v_super_ilr,
@@ -336,13 +368,13 @@ save(k_chaillou, k_mach_500, k_vacher, k_ravel, k_liver,
 # 
 # aleatoire_vacher <- lapply(1:20, function(x){
 #                 r <- random_binary_base(ncol(vacher))
-#                 t_vacher <- test_bootstrap_all(vacher, nb_cluster = 4, nb_axe = 11, nb_train=20, type="comptage", base_binaire = r)
+#                 t_vacher <- test_bootstrap_all(vacher, nb_cluster = 4, nb_axe = 11, nb_train=100, type="comptage", base_binaire = r)
 #                 t_vacher$all
 #               })
 # 
 # aleatoire_chaillou <- lapply(1:20, function(x){
 #   r <- random_binary_base(ncol(chaillou))
-#   t_chaillou <- test_bootstrap_all(chaillou, nb_cluster = 15, nb_axe = 16, nb_train=20, type="comptage", base_binaire = r)
+#   t_chaillou <- test_bootstrap_all(chaillou, nb_cluster = 15, nb_axe = 16, nb_train=100, type="comptage", base_binaire = r)
 #   t_chaillou$all
 # })
 # 

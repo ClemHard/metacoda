@@ -153,13 +153,21 @@ Métagénomique: méthode d'étude du contenu génétique d'échantillons issus 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Présentation des données}
-\input{../rapport/tikz_figures/otu_table}
+\input{tikz_figures/otu_table}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Problématique et Objectifs du stage}
-
-
+\(
+\left.
+\begin{tabular}{l}
+ (1) Transformer les données \\
+ en données compositionnelles \\
+ (2) Analyse Multivariée \\
+ (3)  Apprentissage densité \\
+\end{tabular}
+\right\rbrace
+\Rightarrow \text{ Simulateur}\) 
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -180,36 +188,26 @@ Métagénomique: méthode d'étude du contenu génétique d'échantillons issus 
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Closure}
-\[
-C(x)=\left[\frac{\kappa \times x_1}{\sum_{i=1}^Dx_i},\frac{\kappa \times x_2}{\sum_{i=1}^Dx_i},...,\frac{\kappa \times x_D}{\sum_{i=1}^Dx_i}     \right]
-\]
-La closure met à l'échelle les composantes d'une composition (ici à l'échelle de \(\kappa\)).\\
-
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[fragile]{Espace des compositions}
 
 \begin{center}
 
 <<fig.height=3>>=
-par(mar=c(rep(0,4)))
 c <- matrix(c(c(1,2,7)/10, ilr_inverse(c(-1.2,0)), c(1,8,1, 10/3, 10/3, 10/3)/10), byrow=TRUE, nrow=4)
 l <- ligne(1.2,c(0.2,1,3))
 y <- seq(0, 2*pi, length=1000)
-circl <- cbind(1*cos(y)-1.2, 1*sin(y))
+circl <- (cbind(1*cos(y)-1.2, 1*sin(y))) %>% ilr_inverse()
 
-ternary_diagram1(c, colour=c(11, 2, 4, 1), style=c(16, 16, 16, 3),add_line = l, colour_line = 15,
-                add_circle = (circl%>% ilr_inverse()), colour_circle = 14,
-                asp = 1, axes = FALSE)
+ternary_diagram_vide()
+c[1:3,] %>% coord_ternary_diagram() %>% points(col=c(11,2,4), pch=16, cex=1.5)
+
 @
 
 \begin{tabular}{|c|c|c|c|}
 \hline
-& x1 & x2 & x3 \\
+& x1(A) & x2(B) & x3(C) \\
 \hline
-\pointcol{black} & \Sexpr{c[1,1] %>% round(2)} & \Sexpr{c[1,2] %>% round(2)} & \Sexpr{c[1,3]} \\
+\pointcol{green} & \Sexpr{c[1,1] %>% round(2)} & \Sexpr{c[1,2] %>% round(2)} & \Sexpr{c[1,3]} \\
 \hline
 \pointcol{red} & \Sexpr{c[2,1] %>% round(2)} & \Sexpr{c[2,2] %>% round(2)} & \Sexpr{c[2,3] %>% round(2)} \\
 \hline
@@ -221,20 +219,39 @@ ternary_diagram1(c, colour=c(11, 2, 4, 1), style=c(16, 16, 16, 3),add_line = l, 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Opérations de base}
+\begin{small}
+		Closure:
+		\[
+			C(x)=\left[\frac{\kappa \times x_1}{\sum_{i=1}^Dx_i},				\frac{\kappa \times x_2}{\sum_{i=1}^Dx_i},...,						\frac{\kappa \times x_D}{\sum_{i=1}^Dx_i}     \right]
+		\]
         Perturbation(\(\sim +\)) :
         \[
         x,y\in S^D,\ x\oplus y=C\left[x_1y_1,x_2y_2,...,x_Dy_D\right]
         \]
-        Power transformation(\(\sim \times\)) :
+        Puissance(\(\sim \times\)) :
         \[
         x\in S^D,\ \alpha\in \mathbb{R},\ \alpha\odot  x=C\left[x_1^{\alpha},x_2^{\alpha},...,x_D^{\alpha}\right]
         \]
-        Inner Product :
+        Produit scalaire :
         \[
         x,y\in S^D,\ \left\langle x,y\right\rangle_a=\frac{1}{2D}\sum_{i=1}^D\sum_{j=1}^Dln
         \frac{x_i}{x_j}ln\frac{y_i}{y_j}
         \]
+\end{small}
+
 \end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Objets géométrique}
+<<fig.height=3>>=
+ternary_diagram_vide()
+l %>% coord_ternary_diagram() %>% lines(col=15, lwd=2)
+circl %>% coord_ternary_diagram() %>% lines(col=14, lwd=2)
+@
+
+\end{frame}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Transformations}
@@ -572,12 +589,11 @@ abline(v=4, col='red')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
-\resizebox{\linewidth}{!}{%
-<<>>=
-g <- graph_biplot_normale(ravel, "data")
+<<fig.height=3.5>>=
+g <- graph_biplot_normale(ravel, "data", legend=FALSE)
 g[[1]] + geom_density2d(aes(X1, X2))
 @
-}
+
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -595,21 +611,34 @@ avec \(f\) la fonction de densité de la loi normale multivariée.
 \begin{frame}[fragile]{Résultats actuels}
 
 \begin{center}
-<<fig.height=3.5>>=
-ravel_boot <- bootstrap(ravel, nb_cluster = 4, nb_axe = 4, type="comptage", zero_inflated = FALSE)
+<<boot6, fig.height=3.5, cache=TRUE>>=
+ravel_boot <- bootstrap(ravel, nb_cluster = 12, nb_axe = 12, type="comptage", zero_inflated = FALSE)
 data <- rbind(ravel, ravel_boot$data)
 # metadata <- c(as.character(metadata_ravel$CST), as.character(ravel_boot$metadata)) %>% as.factor()
 metadata <- c(rep("real", nrow(ravel)), rep("simu", nrow(ravel_boot$data))) %>% as.factor()
-graph_biplot_normale(data, metadata, 4, title = "ravel", legend=FALSE, legend_title = "data")[[1]]
+graph_biplot_normale(data, metadata, 1, title = "ravel", legend=FALSE, legend_title = "data")[[1]]
 @
 
-\begin{tabular}{p{3cm}p{2cm}}
 \begin{tabular}{cc}
 réels & \pointcol{red} \\
 simulés & \pointcol{blue}
 \end{tabular}
-&
-\begin{tabular}{|c|c|c|}
+\end{center}
+\end{frame}
+
+
+
+\begin{frame}{Classificateur}
+
+\begin{tikzpicture}[node distance=2cm, auto]
+\node[cloud] (Donne_reel) {réels};
+\node[below of=Donne_reel] (temp) {};
+\node[cloud, below of=temp] (Donne_simu) {simu};
+\node[right of=temp, node distance=2cm] (classificateur) {Classificateur};
+\node[right of=classificateur] (temp2) {};
+\node[cloud, above of=temp2] (Donne_reel2) {réels};
+\node[cloud, below of=temp2] (Donne_simu2) {simu};
+\node[right of=temp2] (eval)  {\begin{tabular}{|c|c|c|}
 \hline
 & réels & simulés \\
 \hline
@@ -617,17 +646,21 @@ simulés & \pointcol{blue}
 \hline
 0 & \Sexpr{t_ravel_sans$all$random_forest[2,1]}   & \Sexpr{t_ravel_sans$all$random_forest[2,2]}\\
 \hline
-\end{tabular}
-\end{tabular}
-\end{center}
-\end{frame}
+\end{tabular}};
 
+\path[line] (Donne_reel) --  (classificateur);
+\path[line] (Donne_simu) --  (classificateur);
+\path[line] (classificateur) --  (eval);
+\path[line] (Donne_reel2) --  (eval);
+\path[line] (Donne_simu2) --  (eval);
+\end{tikzpicture}
+\end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
 
-<<fig.height=4>>=
-ravel_boot <- bootstrap(ravel, nb_cluster = 4, nb_axe = 4, type="comptage", zero_inflated = FALSE)
+<<boot1, fig.height=4, cache=TRUE>>=
+ravel_boot <- bootstrap(ravel, nb_cluster = 12, nb_axe = 12, type="comptage", zero_inflated = FALSE)
 data <- rbind(ravel, ravel_boot$data)
 # metadata <- c(as.character(metadata_ravel$CST), as.character(ravel_boot$metadata)) %>% as.factor()
 metadata <- c(rep("real", nrow(ravel)), rep("simu", nrow(ravel_boot$data))) %>% as.factor()
@@ -641,6 +674,49 @@ ggplot(d) + geom_histogram(aes(OTU_163, fill=metadata), position="dodge", binwid
 
 \begin{frame}{Zero inflation}
 Zero inflation: mettre des zeros aléatoirement dans le jeu de donnée simulé.
+<<>>=
+set.seed(2)
+l1 <-((runif(7,1,10)*c(1,0,1,0,0,1,1)) %>% round(digits=0))
+l2 <- ((runif(7,1,10)*c(0,1,0,0,0,1,0)) %>% round(digits=0))
+@
+\begin{tabular}{cc}
+\begin{tikzpicture}
+\draw [fill=red,draw=none] (0,0) rectangle (0.3,0.3);
+\end{tikzpicture}
+&
+Gaussienne 1 \\
+
+\begin{tikzpicture}
+\draw [fill=green,draw=none] (0,0) rectangle (0.3,0.3);
+\end{tikzpicture}
+&
+Gaussienne 2 \\
+\end{tabular}
+
+\begin{tabular}{ccc}
+\begin{tabular}{|>{\columncolor{red}}c|>{\columncolor{red}}c|>{\columncolor{red}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|>{\columncolor{green}}c}
+\multicolumn{7}{c}{Compositions} \\
+\Sexpr{l1[1]} & \Sexpr{l1[2]} & \Sexpr{l1[3]} & \Sexpr{l1[4]} & \Sexpr{l1[5]} & \Sexpr{l1[6]} & \Sexpr{l1[7]} \\
+
+\Sexpr{l2[1]} & \Sexpr{l2[2]} & \Sexpr{l2[3]} & \Sexpr{l2[4]} & \Sexpr{l2[5]} & \Sexpr{l2[6]} & \Sexpr{l2[7]} \\
+\end{tabular}
+
+&
+\(\rightarrow\)
+&
+\begin{tabular}{|>{\columncolor{red}}c|>{\columncolor{green}}c}
+\multicolumn{2}{c}{}\\
+  1/3 & 1/2 \\
+ 2/3 & 3/4
+\end{tabular}
+\end{tabular}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{frame}
   \[
   \begin{array}{c|>{\columncolor{red}}c|>{\columncolor{green}}c|}
  \multicolumn{3}{c}{\quad \quad \quad \quad \ \ Gaussienne} \\ 
@@ -664,7 +740,7 @@ Zero inflation: mettre des zeros aléatoirement dans le jeu de donnée simulé.
  
  &
  
- \begin{tabular}{|>{\columncolor{red}}c|>{\columncolor{red}}c|>{\columncolor{red}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|}
+ \begin{tabular}{|>{\columncolor{red}}c|>{\columncolor{red}}c|>{\columncolor{red}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|>{\columncolor{green}}c<|>{\columncolor{green}}c|>{\columncolor{green}}c|}
  \multicolumn{8}{c}{Après zero inflation}\\
 1 & 0 & 18 & 0 & 9 & 0 & 0 & 21 \\
 0 & 0 & 3 & 0 & 0 & 1 & 0 & 14
@@ -676,8 +752,8 @@ Zero inflation: mettre des zeros aléatoirement dans le jeu de donnée simulé.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
 
-<<fig.height=4>>=
-ravel_boot <- bootstrap(ravel, nb_cluster = 4, nb_axe = 4, type="comptage", zero_inflated = TRUE)
+<<boot2, fig.height=4, cache=TRUE>>=
+ravel_boot <- bootstrap(ravel, nb_cluster = 12, nb_axe = 12, type="comptage", zero_inflated = TRUE)
 data <- rbind(ravel, ravel_boot$data)
 # metadata <- c(as.character(metadata_ravel$CST), as.character(ravel_boot$metadata)) %>% as.factor()
 metadata <- c(rep("real", nrow(ravel)), rep("simu", nrow(ravel_boot$data))) %>% as.factor()
@@ -687,20 +763,40 @@ ggplot(d) + geom_histogram(aes(OTU_163, fill=metadata), position="dodge", binwid
 
 \end{frame}
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\begin{center}
+<<boot3, fig.height=3.5,cache=TRUE>>=
+ravel_boot <- bootstrap(ravel, nb_cluster = 12, nb_axe = 12, type="comptage", zero_inflated = TRUE)
+data <- rbind(ravel, ravel_boot$data)
+# metadata <- c(as.character(metadata_ravel$CST), as.character(ravel_boot$metadata)) %>% as.factor()
+metadata <- c(rep("real", nrow(ravel)), rep("simu", nrow(ravel_boot$data))) %>% as.factor()
+graph_biplot_normale(data, metadata, 1, title = "ravel", legend=FALSE, legend_title = "data")[[1]]
+@
+
+\begin{tabular}{cc}
+réels & \pointcol{red} \\
+simulés & \pointcol{blue}
+\end{tabular}
+\end{center}
+\end{frame}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Problématique profondeur de séquencage}
 
-<<fig.height=4.5>>=
+<<boot4, fig.height=4.5,cache=TRUE>>=
 ravel_boot <- bootstrap_presentation(ravel, nb_cluster = 12, nb_axe = 12, type="comptage")
 data <- data.frame(data=c(ravel_boot$data %>% apply(1, sum), ravel %>% apply(1, sum)), metadata=c(rep("simu",nrow(ravel)),rep("real", nrow(ravel))))
-ggplot(data, aes(x=data, color=metadata, fill=metadata)) + geom_histogram(position="dodge", bins=30)
+ggplot(data, aes(x=data, color=metadata, fill=metadata)) + geom_histogram(position="dodge", bins=30) +
+labs(y="nombre", x="profondeur")
 @
 
 \end{frame}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}[fragile]{Ajustement profondeur de séquencage}
+\begin{frame}[fragile]{Correction profondeur de séquencage}
 estimation nombre de zéro ajouté:
 \[
 \hat{p_i}=\sum_{j=1}^D \pi_{jk}*\tilde{S_i}
@@ -710,13 +806,43 @@ avec \(\pi_{jk}\) la probabilité de mettre un zéro\\
 
 \end{frame}
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+  \begin{center}
+  \(
+  \begin{array}{c|>{\columncolor{red}}c|>{\columncolor{green}}c|}
+ \multicolumn{3}{c}{\quad \quad \quad \quad \ \ Gaussienne} \\ 
+ \multicolumn{3}{c}{\quad \quad \quad \quad \ \ $\downbracefill$} \\
+  \cline{2-3}
+  \ldelim \{{2}{*}[OTUS]& 
+  1/3 & 1/2  \\
+  \cline{2-3}
+   & 2/3 & 3/4 \\
+   \cline{2-3}
+   & 1/5 & 4/5 \\
+   \cline{2-3}
+   & 2/9 & 2/5
+  \end{array}
+\)
+\end{center}
+
+\(
+\begin{tabular}{cccc}
+1/4 & 2/7 & 3/7 & 1/28 \\
+1/6 & 4/13  & 17/156 & 5/12 
+\end{tabular}
+\)
+\end{frame}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Problématique profondeur de séquencage}
 
-<<fig.height=4.5, cache=TRUE>>=
+<<boot5, fig.height=4.5, cache=TRUE>>=
 ravel_boot <- bootstrap(ravel, nb_cluster = 12, nb_axe = 12, type="comptage")
 data <- data.frame(data=c(ravel_boot$data %>% apply(1, sum), ravel %>% apply(1, sum)), metadata=c(rep("simu",nrow(ravel)),rep("real", nrow(ravel))))
-ggplot(data, aes(x=data, color=metadata, fill=metadata)) + geom_histogram(position="dodge", bins=30)
+ggplot(data, aes(x=data, color=metadata, fill=metadata)) + geom_histogram(position="dodge", bins=30) +
+labs(y="nombre", x="profondeur")
 @
 
 \end{frame}
@@ -748,10 +874,20 @@ Amélioration possible: \begin{itemize}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Résultat après zero inflated}
-
-\MM{Mettre des conclusions générales et des des perspectives}
-
+\begin{frame}{Conclusion}
+\begin{itemize}
+\item \textbf{Résultats}
+\begin{itemize}
+\item Transformation log ratio accès à l'ensemble méthodes \\
+d'analyses multivariée.
+\item Le simulateur donne de bons résultats
+\end{itemize}
+\item \textbf{Améliorations}
+\begin{itemize}
+\item zero inflated multivariée
+\item choix du coefficient de régularisation zero inflated
+\end{itemize}
+\end{itemize}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -72,12 +72,13 @@ zero_inflated <- function(data, classification){
   
   
   if(!(iid %>% is.integer0())){
-    pseudo_comptage <- 0.1
+    alpha <- 0.09
+    beta <- 0.01
     iid_cluster <- data.frame(cluster=classification, data=as.vector(data[, iid]), OTU=iid2$iid, value=iid2$value ,row.names = NULL) %>%
       group_by(OTU, cluster, value) %>% summarise(zero=sum(data==value))
     
     iid_cluster$nb_sample_cluster <- nb_sample_cluster
-    iid_cluster$zero <- iid_cluster$zero/ (iid_cluster$nb_sample_cluster + pseudo_comptage)
+    iid_cluster$zero <- (iid_cluster$zero+alpha)/ (iid_cluster$nb_sample_cluster + alpha + beta)
     iid_cluster$zero_inflated_coeff <- rep(zero_inflated$zero_inflated[iid], rep(length(unique(classification)),length(iid) ))
     
   }
