@@ -72,7 +72,7 @@ knitr::opts_knit$set(root.dir = "..")
 @
 
 \def\mytitle{\begin{center}\Large{
-Exploration des méthodes d'analyse de données compositionnelles pour l'étude du lien entre microbiote intestinal et santé.}
+Exploration des méthodes d'analyse de données compositionnelles pour l'étude du microbiome}
 \end{center}}
 \def\myauthor{
 \begin{center}
@@ -82,7 +82,7 @@ Exploration des méthodes d'analyse de données compositionnelles pour l'étude 
 \end{center}}
 
 \def\mydate{\begin{center}
- 1er Mai 2018 - 31 Août 2018\end{center}}
+ 1er mai 2018 - 31 août 2018\end{center}}
 \def\mylieu{\begin{center}
 INRA, Domaine de Vilvert, Jouy-En-Josas
 \end{center}}
@@ -188,7 +188,7 @@ Le passage aux données compositionnelles est une méthode de résolution possib
 Le but de ce stage a été de transformer ces données de comptage en données compositionnelles avant de leur appliquer des méthodes d’analyses adéquates (notamment les transformations log-ratio). Ces transformations permettent de projeter les données dans un espace euclidien usuel et (i) d'y appliquer les méthodes d'analyse multivariée classique (réduction de dimension, clustering,...) pour identifier des structures biologiques d'intérêt et (ii) d'en apprendre la densité des données dans cet espace, à l’aide d’un modèle probabiliste, pour construire des simulateurs de données qui reproduisent les caractéristiques des données réelles.  \\
 
 \newpage
-\section{Données Compositionelles et Géométrie de Aitchison}
+\section{Données Compositionelles et Géométrie d'Aitchison}
 
 Commençons par expliquer ce que sont les données compositionnelles.
 \subsection{Simplexe}
@@ -202,7 +202,7 @@ Le simplexe est l'espace de probabilité des données compositionnelles  et est 
 
  L'opération permettant de modifier la somme des composantes d'une composition (ex : passer d'une proportion à un pourcentage) se nomme la closure. En notant \(\kappa\) la somme des composantes souhaité, la closure est définie par:
  \[
-C(\kappa,x)=\left(\left[\frac{\kappa*x_1}{\sum_{i=1}^Dx_i},\frac{\kappa \times x_2}{\sum_{i=1}^Dx_i},...,\frac{\kappa\times x_D}{\sum_{i=1}^Dx_i}     \right]\right)
+C(\kappa,x)=\left[\frac{\kappa*x_1}{\sum_{i=1}^Dx_i},\frac{\kappa \times x_2}{\sum_{i=1}^Dx_i},...,\frac{\kappa\times x_D}{\sum_{i=1}^Dx_i}     \right]
 \]
 Dans la suite du rapport, sauf mention explicite du contraire, la notation \(C(x)\) correspondra à \(C(1,x)\).
 \vspace*{0.3cm}
@@ -210,7 +210,7 @@ Deux vecteurs \(x,y\in\mathbb{R}^D_{+}\) tels que \(x_i,\ y_i>0,\ \forall i=1,..
 
 \vspace*{0.3cm}
 
-La représentation graphique d'une 3-composition se fait grâce à un diagramme ternaire. Ce dernier est formé d'un triangle équilatéral. La représentation graphique de la 3-composition \(X=\left[x_1, x_2, x_3\right]\) est situé au point $X$ tel que la distance entre $X$ et le côté opposé au sommet $i$ est exactement $x_i$ (Fig.~\ref{fig:ternary}). De façon équivalenten, $X$ est le barycentre des sommets du triangle, pondérés par les poids  $x_1, x_2, x_3$.
+La représentation graphique d'une 3-composition se fait grâce à un diagramme ternaire. Ce dernier est formé d'un triangle équilatéral. La représentation graphique de la 3-composition \(X=\left[x_1, x_2, x_3\right]\) est telle que la distance entre $X$ et le côté opposé au sommet $i$ est exactement $x_i$ (Fig.~\ref{fig:ternary}). De façon équivalent en, $X$ est le barycentre des sommets du triangle, pondérés par les poids  $x_1, x_2, x_3$.
 
 \begin{figure}[H]
 \begin{center}
@@ -223,12 +223,12 @@ ternary_diagram2()
 \end{figure}
 
 \subsection{Opérations dans le simplexe}
-Dans le simplexe, nous ne pouvons pas utiliser la géométrie euclidienne pour comparer des compositions. Remarquons cela en prenant en exemple les 4 3-compositions suivantes:
+Dans le simplexe, nous ne pouvons pas utiliser la géométrie euclidienne pour comparer des compositions. Remarquons cela en prenant en exemple les quatre 3-compositions suivantes:
 \[
 x_1=\left[0.1,0.4,0.5\right],\ x_2=\left[0.2,0.3,0.5\right],\ x_3=\left[0.4,0.4,0.2\right],\ x_4=\left[0.5,0.3,0.2\right]
 \]
 
-La distance \textbf{euclidienne} entre les compositions \(x_1\) et \(x_2\) est la même que celle entre \(x_3\) et \(x_4\), pourtant la proportion de la première composante a doublé dans le premier cas tandis qu'elle n'a augmenté que 25\% dans le second. De même, la multiplication et l'addition usuelles ne sont pas appropriées dans le simplexe: la multiplication d'une composition par un scalaire ne permet pas de rester dans le simplexe (elle change la valeur de \(\kappa\)) et la somme de deux compositions multiplie elle aussi $\kappa$ par deux. Pour toute ces raisons, nous avons besoin de définir une nouvelle géométrie dans le simplexe\footnote{Des raisons supplémentaires, telles que la construction de régions de confiance pour les compositions aléatoires, sont évoquées dans \cite{Lecture}}.
+La distance \textbf{euclidienne} entre les compositions \(x_1\) et \(x_2\) est la même que celle entre \(x_3\) et \(x_4\), pourtant la proportion de la première composante a doublé dans le premier cas tandis qu'elle n'a augmenté que 25\% dans le second. De même, la multiplication et l'addition usuelles ne sont pas appropriées dans le simplexe: la multiplication d'une composition par un scalaire ne permet pas de rester dans le simplexe (elle change la valeur de \(\kappa\)) et la somme de deux compositions multiplie elle aussi $\kappa$ par deux. Pour ces raisons, nous avons besoin de définir une nouvelle géométrie dans le simplexe\footnote{Des raisons supplémentaires, telles que la construction de régions de confiance pour les compositions aléatoires, sont évoquées dans \cite{Lecture}}.
 
 \vspace*{0.3cm}
 
@@ -243,7 +243,7 @@ $\odot$: Puissance d'une composition \(x\in S^D\) par une constante \(\alpha\in 
 \[
 x\in S^D,\ \alpha\in \mathbb{R},\ \alpha\odot x =C\left(\left[x_1^{\alpha},x_2^{\alpha},...,x_D^{\alpha}\right]\right)
 \]
-Les deux opérations ci dessus permettent au simplexe de devenir un espace vectoriel (la perturbation $\oplus$ en tant que loi de composition interne, la puissance $\odot$ en tant que loi de composition externe). À ces deux opérations, on ajoute un produit scalaire ainsi que la distance et la norme associée à ce produit scalaire:
+Les deux opérations ci-dessus permettent au simplexe de devenir un espace vectoriel (la perturbation $\oplus$ en tant que loi de composition interne, la puissance $\odot$ en tant que loi de composition externe). À ces deux opérations, on ajoute un produit scalaire ainsi que la distance et la norme associées à ce produit scalaire :
 
 Produit scalaire de deux composition \(x,y\in S^D\),
 \[
@@ -269,13 +269,13 @@ Il devient ainsi possible de définir des objets géométriques telles que les l
 par(mar=c(rep(0,4)))
 ternary_diagram3()
 @
-\caption{Example de droites compositionnelles dans le simplexe}
+\caption{Exemple de droites compositionnelles dans le simplexe}
 \end{center}
 \end{figure}
 
 Les mesures statistiques telles que la moyenne et la variance doivent être elles aussi redéfinies dans ce simplexe pour prendre en compte sa géométrie. Pour un échantillon de taille \(n\) de $D$-compositions, la moyenne est définie comme :
 \[
-\bar{g}=C\left[g_1,g_2,...,g_D\right]
+\bar{g}=C\left(\left[g_1,g_2,...,g_D\right]\right)
 \]
 avec \(\bar{g}_i=\left(\prod_{j=1}^n x_{ij}\right)^{1/n},\ i=1,2,..,D\)
 \\
@@ -318,17 +318,17 @@ data <- matrix(c(runif(n,1,7),runif(n,0.1,1),runif(n,1,7)),nrow=n)
 \end{figure}
 
 \subsection{Transformation}
-Comme nous avons pu le voir, l'espace du simplexe nécessite une redéfinition des opérations de base et impose sa propre géométrie, ce qui le rend difficile à manipuler. Nous allons voir ici des transformations permettant de repasser du simplexe à un espace euclidien en transformant la géométrie de Aitchinson en la géométrie usuelle. Remarquons tout d'abord que la valeur de \(\kappa\) (somme des composantes) d'une composition n'a pas fondamentalement une grande importance. En effet, l'étude de données ne change pas selon qu'elles soient exprimées en pourcentages ou en proportions. Les rapports relatifs des composantes les unes par rapport aux autres sont au contraire très informatifs. Il n'est donc pas étonnant que les transformations reposent sur des log-ratios de composantes.
+Comme nous avons pu le voir, l'espace du simplexe nécessite une redéfinition des opérations de base et impose sa propre géométrie, ce qui le rend difficile à manipuler. Nous allons voir ici des transformations permettant de repasser du simplexe à un espace euclidien en transformant la géométrie d'Aitchinson en la géométrie usuelle. Remarquons tout d'abord que la valeur de \(\kappa\) (somme des composantes) d'une composition n'a pas fondamentalement une grande importance. En effet, l'étude de données ne change pas selon qu'elles soient exprimées en pourcentages ou en proportions. Les rapports relatifs des composantes les unes par rapport aux autres sont au contraire très informatifs. Il n'est donc pas étonnant que les transformations reposent sur des log-ratios de composantes.
 
 Commençons par l'\emph{additive log-ratio} transformation (alr).
 \[
 alr:S^D\rightarrow \R^{D-1},\ alr\left(x\right)=\left[ln\left(\frac{x_1}{x_D}\right), ln\left(\frac{x_2}{x_D}\right),...,ln\left(\frac{x_{D-1}}{x_D}\right)\right]
 \]
-La dernière composante d'une composition pouvant s'exprimer comme
+La dernière composante d'une composition pouvant s'exprimer comme :
 \[
 x_D=\kappa -\sum_{i=1}^{D-1}x_i
 \]
-les $D$ composantes d'une $D$-composition sont liées et vivent réellement dans un espace de dimension $D-1$. L'alr résout ce problème en prenant une composante comme composante de référence et en comparant toutes les composantes à cette référence. La $D$-ième cordonnée $\ln(x_D/x_D)$ étant identiquement nulle, elle n'est pas reprise dans la transformation alr. La transformation alr permet de se débarasser du lien linéaire entre les composantes mais est grandement dépendante de la composante choisie comme référence. De plus, cette transformation ne préserve pas les distances, au sens où
+Les $D$ composantes d'une $D$-composition sont liées et vivent réellement dans un espace de dimension $D-1$. L'alr résout ce problème en prenant une composante comme composante de référence et en comparant toutes les composantes à cette référence. La $D$-ième cordonnée $\ln(x_D/x_D)$ étant identiquement nulle, elle n'est pas reprise dans la transformation alr. La transformation alr permet de se débarasser du lien linéaire entre les composantes mais est grandement dépendante de la composante choisie comme référence. De plus, cette transformation ne préserve pas les distances, au sens où
 \[
 d_a\left(x,y\right)\neq \|alr\left(x\right)-alr\left(y\right)\|_2
 \]
@@ -338,7 +338,7 @@ Cet aspect est facilement observable en reprenant les quatre compositions préc�
 \(
 x_1=\left[0.1,0.4,0.5\right],\ x_2=\left[0.2,0.3,0.5\right],\ x_3=\left[0.4,0.4,0.2\right],\ x_4=\left[0.5,0.3,0.2\right]
 \)
-et en calculant les distances de Aitchison entre elles dans le simplexe et les distances euclidiennes entre leurs images par la transformation alr,
+et en calculant les distances d'Aitchison entre elles dans le simplexe et les distances euclidiennes entre leurs images par la transformation alr :
 
 <<>>=
 x <- matrix(c(0.1,0.4,0.5,0.2,0.3,0.5,0.4,0.4,0.2,0.5,0.3,0.2),byrow=TRUE, nrow=4)
@@ -382,16 +382,16 @@ Voyons enfin la transformation \emph{isometric log-ratio} (ilr) définie par:
 \[
 ilr:S^D\rightarrow \R^{D-1},\ ilr\left(x\right)=clr\left(x\right)\Psi^{'}
 \]
-avec \(\Psi\) l'image \(clr\) d'une base du simplexe $S^D$ (cf section suivante pour le choix de la base). La transformation ilr permet de résoudre les problématiques des autres transformations: elle préserve les distances et projette les composition dans un espace de bonne dimension. Pour cela, elle utilise un type de coordonnée particulier nommé "balance binaire".\\
+avec \(\Psi\) l'image \(clr\) d'une base du simplexe $S^D$ (cf. section suivante pour le choix de la base). La transformation ilr permet de résoudre les problématiques des autres transformations: elle préserve les distances et projette les composition dans un espace de bonne dimension. Pour cela, elle utilise un type de coordonnées particulier nommé "balance binaire".\\
 
 \textbf{Construction et interprétation de $\Psi$:}\\
 Prenons comme système générateur de \(\mathbb{R}^{D}\), les vecteurs canoniques
 \[
-e_i=(\underset{i-1}{\underbrace{0,...,0}},1,0,...,0),\quad i=1,...D
+e_i=(\underset{i-1}{\underbrace{0,...,0}},1,0,...,0),\quad i=1,...,D
 \]
 en appliquant \(clr^{-1}\) et la closure à ces vecteurs, on obtient un système générateur du simplexe $\S^D$,
 \[
-W_i=C([\underset{i-1}{\underbrace{1,...,1}},e,1,...1]),\quad i=1,...D
+W_i=C([\underset{i-1}{\underbrace{1,...,1}},e,1,...,1]),\quad i=1,...,D
 \]
 
 En prenant l'image \(clr\) des vecteurs $W_i$ (qui ne sont pas les vecteurs canoniques $e_i$ étant donnée que la closure a été appliqué entre les transformations \(clr^{-1}\) et \(clr\)), puis en utilisant le processus d'orthogonalisation Gram-Schmidt à la matrice $(clr(W_1)|\dots|clr(W_D))$, on obtient la matrice \(\Psi\). Comme la famille des $(clr(W_i))_i$ est de rang $D-1$ (à l'instar de la famille $(W_i)_i$), le processus de Gram-Schmidt conduit à une ligne nulle qui est supprimée de $\Psi$.
@@ -545,23 +545,23 @@ Cinq jeux de données, décrit ci-après, ont été mis à ma disposition. Ils s
 de comptage d’OTU accompagnés de quelques variables descriptives d’intérêt.
 
 \subsubsection*{Chaillou\cite{Chaillou}}
-Il s'agit d'un jeu de données issue de matrices alimentaires, qui s'intéresse aux flores liées à l'altération des aliments après la date de péremption. Pour cela, quatre types de viande : boeuf hache, veau hache, lardons, saucisses de volaille et quatre types de produits de la mer: saumon fumé, crevettes, filet de saumon et filet de cabillaud ont été échantillonnés. Pour chaque type de nourriture, huit échantillons de lots différents (réplicats biologiques) ont été étudiés et 508 OTU ont été conservés lors de l'étude. Durant mon stage, la variable qualitative d'intérêt était la matrice alimentaire d'origine.
+Il s'agit d'un jeu de données issue de matrices alimentaires, qui s'intéresse aux flores liées à l'altération des aliments après la date de péremption. Pour cela, quatre types de viande : boeuf haché, veau hache, lardons, saucisses de volaille et quatre types de produits de la mer: saumon fumé, crevettes, filet de saumon et filet de cabillaud ont été échantillonnés. Pour chaque type de nourriture, huit échantillons de lots différents (réplicats biologiques) ont été étudiés et 508 OTU ont été conservés lors de l'étude. Durant mon stage, la variable qualitative d'intérêt était la matrice alimentaire d'origine.
 
 \subsubsection*{Mach\cite{Mach}}
-L'évolution du microbiote intestinal de porcelet au cours des premiers mois (avant et après le sevrage) ainsi que son impact sur le métabolisme était le sujet de l'étude contenant ce jeu de données. Les féces de 31 porcelets ont été séquencés à cinq périodes de leur vie (14, 36, 48, 60 et 70 jours, le sevrage intervenant entre les jours 14 et 36). Le jeu de données contient ainsi 155 échantillons et le nombre d'OTU s'élève à 4031.
+L'évolution du microbiote intestinal de porcelet au cours des premiers mois (avant et après le sevrage) ainsi que son impact sur le métabolisme était le sujet de l'étude contenant ce jeu de données. Les fèces de 31 porcelets ont été séquencés à cinq périodes de leur vie (14, 36, 48, 60 et 70 jours, le sevrage intervenant entre les jours 14 et 36). Le jeu de données contient ainsi 155 échantillons et le nombre d'OTU s'élève à 4031.
 
 \subsubsection*{Liver\cite{Liver}}
-L'objectif de cette étude était de caractériser le microbiote intestinal lié à la cirrhose du foie, pour cela le microbiote de 114 patients sains et 123 patients atteint de cirrhose ont été séquencés. Pour chaque patient, plusieurs caractéristiques cliniques ont également été relevées: indice de masse corporel, indice de coagulation du sang, tests du bon fonctionnement des reins, etc. Le jeu de données contient ainsi 237 échantillons et le nombre de MGS s'élève à 1529.
+L'objectif de cette étude était de caractériser le microbiote intestinal lié à la cirrhose du foie, pour cela le microbiote de 114 patients sains et 123 patients atteint de cirrhose ont été séquencés. Pour chaque patient, plusieurs caractéristiques cliniques ont également été relevées: indice de masse corporelle, indice de coagulation du sang, tests du bon fonctionnement des reins, etc. Le jeu de données contient ainsi 237 échantillons et le nombre de MGS s'élève à 1529.
 
 \subsubsection*{Ravel\cite{Ravel}}
 Dans cette étude, les chercheurs s'intéressent au lien entre le microbiote vaginal et les maladies urogenitales. Pour étudier ce lien, ils ont séquencé le microbiote vaginal de 394 femmes provenant de quatre catégories ethniques différentes (asiatiques, blanches, noires et hispanique). 247 OTU ont été gardés pour réaliser cette étude. Sur chaque échantillon (un pour chaque femme), les chercheurs ont également mesuré le \emph{nugent score}, un indice de vaginose bactérienne, qui a été discrétisé en 3 catégories (low, intermediate, high). En parallèle de ce paramètre clinique, ils ont défini 5 archétypes de communautés: les Community State Type (CST) que j'ai étudiés durant mon stage.
 
 \subsubsection*{Vacher\cite{Vacher}}
-L'objectif de l'étude d'où provienne les données était de trouver les interactions les plus probables entre un champignon responsable de l'oidium du chêne (\emph{Erysiphe alphitoides}) et les autres espèces de microorganisme présentes sur les feuilles de chêne. Pour ce faire, les feuilles de trois chênes ont été prélevées et séquencées (40 sur chaque arbre). Pour chaque arbre, les feuilles proviennent de quatre branches différentes (10 pour chaque branche) et plusieurs caractéristiques ont été relevées pour chaque feuille: sa distance à la base de l'arbre, sa distance au tronc de l'arbre et sa distance par rapport au sol ainsi que son orientation (South west, North East) et son niveau d'infection. Cependant dans le jeu de données, seuls 116 échantillons de feuilles sont présents (il en manque quatre) et 114 OTU ont été mesurés sur chaque feuille. L'objectif durant mon stage était d'étudier le lien entre l'arbre de prélèvement et la communauté microbienne de chaque feuille.
+L'objectif de l'étude d'où provienne les données était de trouver les interactions les plus probables entre un champignon responsable de l'oidium du chêne (\emph{Erysiphe alphitoides}) et les autres espèces de microorganismes présentes sur les feuilles de chêne. Pour ce faire, les feuilles de trois chênes ont été prélevées et séquencées (40 sur chaque arbre). Pour chaque arbre, les feuilles proviennent de quatre branches différentes (10 pour chaque branche) et plusieurs caractéristiques ont été relevées pour chaque feuille: sa distance à la base de l'arbre, sa distance au tronc de l'arbre et sa distance par rapport au sol ainsi que son orientation (South west, North East) et son niveau d'infection. Cependant dans le jeu de données, seuls 116 échantillons de feuilles sont présents (il en manque quatre) et 114 OTU ont été mesurés sur chaque feuille. L'objectif durant mon stage était d'étudier le lien entre l'arbre de prélèvement et la communauté microbienne de chaque feuille.
 
 \vspace*{0.3cm}
 
-Pour Liver et Mach, le nombre d'OTU étant très grand et la matrice de comptage extrêmement creuse, j'ai choisi d'en enlever une partie (ceux présents dans moins de \(5\%\) des échantillons). Les nouvelles dimensions des jeux de données sont ainsi: 155 échantillons sur 1084 OTU pour Mach, 237 échantillons et 533 OTU pour liver. Dans la suite du rapport, seuls les résultats obtenus sur les jeux de données Vacher et Liver seront présentés. Les résultats sur les autres jeux de données sont comparables et présentés en annexe.
+Pour Liver et Mach, le nombre d'OTU étant très grand et la matrice de comptage extrêmement creuse, j'ai choisi d'en enlever une partie (ceux présents dans moins de \(5\%\) des échantillons). Les nouvelles dimensions des jeux de données sont ainsi: 155 échantillons sur 1084 OTU pour Mach, 237 échantillons et 533 MGS pour liver. Dans la suite du rapport, seuls les résultats obtenus sur les jeux de données Vacher et Liver seront présentés. Les résultats sur les autres jeux de données sont comparables et présentés en annexe.
 
 \MM{}{Dire deux mots sur le choix de ces 2 jeux de données}
 
@@ -591,7 +591,7 @@ graph_biplot_normale(data=liver_500, metadata_group=metadata_liver$status, nb_gr
 Pour Vacher la séparation des échantillons issus des différents arbres est très franche.\\
 Dans le cas des données de Liver, la séparation est moins franche, mais la densité le long du premier axe montre une différence entre les individus sains et les individus malades.
 
-\subsection{Classification non supervise}
+\subsection{Classification non supervisée}
 Dans chacun des jeux de données utilisés, les groupes semblent relativement bien séparés comme vu précédement (tout du moins sur les premiers axes d'une acp après transformation ilr). Une des questions que nous pouvons alors nous poser est: le passage aux données compositionnelles (et transformation ilr) permet-il de bien retrouver une structure de groupes connue?
 
 Une classification non supervisée répond bien à cette question et j'ai donc utilisé plusieurs algorithmes (k-means, mélange gaussien, classification hiérarchique) en fixant le nombre de groupes et regardé s'ils avaient tendance à retrouver les groupes connus. Pour montrer l'intérêt de passer par les données compositionnelles pour la classification, j'ai comparé les résultats d'une classification effectuée sur les données initiales (de comptage) et sur les données compositionnelles (après transformation \(ilr\)).\\
@@ -685,7 +685,7 @@ La transformation \(ilr\) semble améliorer sensiblement la classification non s
 
 
 \subsection{Classification supervisée}\label{Classification supervise}
-Regardons si des classificateurs supervisés permettent de mieux faire la différence entre les groupes (notamment sur les jeux de données où une classification non supervisée ne donne pas de bon résultats). Pour cela une classification supervisée a été réalisé par le biais de trois algorithmes qui sont, le randomForest (avec la matrice de confusion), le Support Vector Machine (SVM) et le k Nearest Neighbors (k-NN), en faisant pour les deux derniers une 10-fold cross validation.
+Regardons si des classificateurs supervisés permettent de mieux faire la différence entre les groupes (notamment sur les jeux de données où une classification non supervisée ne donne pas de bon résultats). Pour cela une classification supervisée a été réalisée par le biais de trois algorithmes qui sont, le randomForest (avec la matrice de confusion), le Support Vector Machine (SVM) et le k-Nearest Neighbors (k-NN), en faisant pour les deux derniers une 10-fold cross validation.
 
 \begin{center}
 Vacher
@@ -784,7 +784,7 @@ Que ce soit pour la classification supervisée ou non supervisée, les résultat
 \section{Simulateur}
 Passons maintenant à la partie simulation de jeux de données. L'objectif est de développer un simulateur polyvalent, basé sur un modèle probabiliste et capable de générer des jeux de données présentant les mêmes caractéristiques que les données réelles. Un tel simulateur a vocation à générer des données réalistes, dans un cadre contrôlé, pour comparer entre elles des méthodes statistiques concurrentes (par exemple de détection d'abondance différentielle ou de clustering) sans en favoriser une par rapport aux autres.
 
-Dans les grandes lignes, le simulateur apprend la densité des données réelles comme suit. Les données initiales (données de comptage) sont tout d'abord transformées en données compositionnelles (via le MAP), avant d'être envoyées dans $\R^{D-1}$ avec la transformation ilr. Une fois revenu dans un espace euclidien, le simulateur apprend la densité des données à l'aide d'une réduction de dimensions et d'un mélange gaussien dans l'espace réduit. La simulation de nouvelles données peut alors être réalisé en tirant des données suivant le mélange gaussien puis en appliquant les opérations inverses ("augmentation de dimension", \(ilr^{-1}\), etc) pour obtenir un nouveau jeu de données de comptage. Lors du calcul de l'estimateur MAP, un a priori de Dirichlet a été choisi, la transformation inverse consistant à passer d'un point du simplexe à un vecteur de comptages est un tirage suivant une loi multinomiale.
+Dans les grandes lignes, le simulateur apprend la densité des données réelles comme suit. Les données initiales (données de comptage) sont tout d'abord transformées en données compositionnelles (via le MAP), avant d'être envoyées dans $\R^{D-1}$ avec la transformation ilr. Une fois revenu dans un espace euclidien, le simulateur apprend la densité des données à l'aide d'une réduction de dimensions et d'un mélange gaussien dans l'espace réduit. La simulation de nouvelles données peut alors être réalisée en tirant des données suivant le mélange gaussien puis en appliquant les opérations inverses ("augmentation de dimension", \(ilr^{-1}\), etc.) pour obtenir un nouveau jeu de données de comptage. Lors du calcul de l'estimateur MAP, un a priori de Dirichlet a été choisi. La transformation inverse, qui consiste à passer d'un point du simplexe à un vecteur de comptages, est un tirage suivant une loi multinomiale.
 
 Les jeux données réelles présentant un grand nombre de $0$, une gestion spécifique de cette caractéristique est nécessaire et une zéro-inflation est effectuée en tout fin de processus, après le tirage multinomial, afin d'obtenir le jeu de données simulées final. Le schéma récapitulatif du simulateur est présenté Fig.~\ref{fig:simulateur}. Les étapes non décrites (réduction de dimension, estimation de densité), le sont en détails à la suite de ce schéma.
 
@@ -797,7 +797,7 @@ Les jeux données réelles présentant un grand nombre de $0$, une gestion spéc
 
 \subsection{Réduction de dimension}
 
-Les jeux de données utilisés dans le cadre du simulateur ont un grand nombre de variables, largement supérieur au nombre d'échantillons disponibles (grande dimension): une réduction de dimension s'impose donc avant d'apprendre la densité des observations. Dans notre cas, nous cherchons à construire un modèle probabiliste pour simuler nos données. L'ACP dans sa définition la plus commune n'est pas associé à un modèle probabiliste et ne permet pas de construire un tel modèle. Nous allons donc lui substituer une variante de l'ACP, l'ACP probabiliste\cite{PPCA} qui est définie comme:
+Les jeux de données utilisés dans le cadre du simulateur ont un grand nombre de variables, largement supérieur au nombre d'échantillons disponibles (grande dimension): une réduction de dimension s'impose donc avant d'apprendre la densité des observations. Dans notre cas, nous cherchons à construire un modèle probabiliste pour simuler nos données. L'ACP dans sa définition la plus commune n'est pas associée à un modèle probabiliste et ne permet pas de construire un tel modèle. Nous allons donc lui substituer une variante de l'ACP, l'ACP probabiliste\cite{PPCA} qui est définie comme:
 \[
 X_i=Wy_i + \mu + \epsilon_i
 \]
@@ -850,7 +850,6 @@ Voici quelques exemples de mélange gaussien
               \caption{Mélange de trois gaussiennes \newline multivariée}
       \end{minipage}
 \end{tabular}
-\caption{\label{fig:melange}Exemple d'un mélange de trois gaussiennes univariés (gauche) et bivariés (droites)}
 \end{figure}
 
 Pour le simulateur, le nombre de gaussiennes nécessaires à l'estimation de la densité est choisi à l'aide du critère BIC.
@@ -860,7 +859,7 @@ Pour le simulateur, le nombre de gaussiennes nécessaires à l'estimation de la 
 Les jeux de données contiennent un nombre important de zéros (comme vu précédemment), la modélisation faite par le mélange gaussien ne parvient pas à bien prendre en compte cette surreprésentation. Pour résoudre ce problème, nous allons modéliser cette particularité indépendamment comme suit.
 
 
-Commençons par estimer la proportion de zéros pour chaque OTU $j$ dans chaque composante gaussienne $k$, notée \(\pi_{jk}\). Cette estimation est faite en attribuant chaque échantillon à son composante gaussienne la plus probable puis en calculant au sein de chaque composante $k$, le nombre total $N_k$ d'échantillons et le nombre $N_{jk}$ d'échantillons dans lesquels l'OTU $j$ est absent. $\pi_{jk}$ est estimée par
+Commençons par estimer la proportion de zéros pour chaque OTU $j$ dans chaque composante gaussienne $k$, notée \(\pi_{jk}\). Cette estimation est faite en attribuant chaque échantillon à sa composante gaussienne la plus probable puis en calculant au sein de chaque composante $k$, le nombre total $N_k$ d'échantillons et le nombre $N_{jk}$ d'échantillons dans lesquels l'OTU $j$ est absent. $\pi_{jk}$ est estimée par
 \[
 \pi_{jk} = \frac{N_{jk} + \alpha}{N_k + \alpha}
 \]
@@ -877,7 +876,7 @@ Ce qui permet d'exprimer \(\tilde{X_{i}}\) comme
 \[
 \tilde{X}_{i}=\left(Z_{1k},Z_{jk},...,Z_{Dk}\right) \times T_i
 \]
-où \(Z_{jk}\sim Bern\left(\pi_{jk}\right)\) et \(T_i\sim \mathbb{M}\left(N; \tilde{S}_i\right)\) et \(\tilde{S}_i\) qui est le résultat de \(ilr^{-1}\left(\mathbb{N}\left(W\mu_k, W\Sigma_k W^T+\sigma^2I \right)\right)\)
+où \(Z_{jk}\sim Bern\left(\pi_{jk}\right)\) et \(T_i\sim \mathbb{M}\left(N; \tilde{S}_i\right)\) et \(\tilde{S}_i\) qui est le résultat de \(ilr^{-1}\left(\mathbb{N}\left(W\mu_k, W\Sigma_k W^T+\sigma^2I \right)\right)\)\\
 
 
 Illustrons ce mécanisme à l'aide d'un jeu de données à 2 OTU. Lors de l'apprentissage, le simulateur a trouvé que le nombre de gaussiennes optimal est de 2 et il a calculé les estimateurs de zero inflation suivant:
@@ -895,9 +894,9 @@ Illustrons ce mécanisme à l'aide d'un jeu de données à 2 OTU. Lors de l'appr
    \cline{2-3}
   \end{array}
 \]
-\caption{\label{tab:zeo_inflation} Exemple de matrice de zero-inflation.}
+\caption{\label{tab:zero_inflation} Exemple de matrice de zero-inflation.}
 \end{table}
-Il simule un nouveau jeu de données (tableau de gauche), 3 données appartiennent à la gaussienne rouge et 5 à la gaussienne verte. Lors de la zero inflation, le simulateur va multiplier chaque comptage d'OTU du nouveau jeu de donnée (chaque case du tableau) par une variable de bernoulli de probabilité défini dans la case correspondante (OTU et gaussienne identique) du tableau Tab.~\ref{tab:zero_inflation}. Le résultat final obtenu par le simulateur est alors le jeu de donnée de droite.
+Il simule un nouveau jeu de données (tableau de gauche), 3 données appartiennent à la gaussienne rouge et 5 à la gaussienne verte. Lors de la zero inflation, le simulateur va multiplier chaque comptage d'OTU du nouveau jeu de donnée (chaque case du tableau) par une variable de bernoulli de probabilité définie dans la case correspondante (OTU et gaussienne identique) du tableau Tab.~\ref{tab:zero_inflation}. Le résultat final obtenu par le simulateur est alors le jeu de donnée de droite.
 \begin{center}
 \begin{tabular}{cc}
 \begin{tabular}{|>{\columncolor{red}}c|>{\columncolor{red}}c|>{\columncolor{red}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|}
@@ -997,7 +996,7 @@ Les performances du simulateur sont grandement variables selon le jeu de donnée
 
 \subsection{Classification}
 
-Un autre aspect de la performance du simulateur est sa capacité à capturer et simuler les caractéristiques (les OTU présents et leurs abondances) de chaque groupe (exemple: les différents arbres dans le cas de Vacher; le status maladeou sain des patients pour Liver) d'un jeu de données; une donnée simulée ne devrait pas présenter les caractéristiques de plusieurs groupes. Pour étudier cet aspect, la simulation ne se fera plus sur l'ensemble du jeux de données mais séparément sur chaque groupe du jeu de données (par exemple sain puis malade). Les groupes des données simulées seront alors connus et nous pourrons vérifier si un classificateur \emph{entrainé sur les données réelles} retrouve bien ces groupes.\footnote{Ou plus prosaïquement atteint les mêmes taux de bonne et mauvaise classification que sur les données réelles.}
+Un autre aspect de la performance du simulateur est sa capacité à capturer et simuler les caractéristiques (les OTU présents et leurs abondances) de chaque groupe d'un jeu de données (exemple: les différents arbres dans le cas de Vacher ; le status malade ou sain des patients pour Liver) ; une donnée simulée ne devrait pas présenter les caractéristiques de plusieurs groupes. Pour étudier cet aspect, la simulation ne se fera plus sur l'ensemble du jeux de données mais séparément sur chaque groupe du jeu de données (par exemple sain puis malade). Les groupes des données simulées seront alors connus et nous pourrons vérifier si un classificateur \emph{entrainé sur les données réelles} retrouve bien ces groupes.\footnote{Ou plus prosaïquement atteint les mêmes taux de bonne et mauvaise classification que sur les données réelles.}
 
 La figure Fig.~\ref{fig:classif_all} présente un schéma illustratif de la méthode: soit \(1,2,...,k\) les groupes du jeu de données (ex: pour Liver k=2, malade, non malade)
 
@@ -1081,7 +1080,7 @@ kable(c_liver$all$kNN)
 
 Les résultats sont meilleurs même si comparables à ceux obtenus avec la méthode précédente. Les données considérées comme réelles (bien simulées) sont donc légèrement plus faciles que dans le cas précédent, sans pour autant atteindre les taux de bonne classification observées sur les données réelles. Les jeux de données où les résultats sur l'ensemble des données simulées étaient déjà très convaincants le sont toujours ; mais les jeux de données où la classification des données simulées était plus compliquée reste compliquée (le classificateur kNN pour liver). Cependant sur ces jeux de données, la validation croisée (Classification supervisée) sur les données réelles ne permet pas non plus d'obtenir de bons résultats, la problématique ne semble donc pas venir des données simulées.\\
 
-\newpage
+%\newpage
 \section{Conclusion}
 
 L'intérêt des données compositionnelles est de pouvoir s'affranchir de certaines contraintes techniques comme la profondeur de séquencage. De plus, les transformations log-ratio permettent de se ramener à l'espace euclidien usuel et ainsi d'accéder à l'ensemble des méthodes statistiques multivariée est possible. L'utilisation des transformations des données compositionnelles pour repasser dans un espace euclidien s'est révélée pertinente sur les jeux de données utilisés durant mon stage, les résultats des différentes classifications étant au moins aussi bons que sur les données initiales.
