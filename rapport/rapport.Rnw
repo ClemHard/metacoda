@@ -126,7 +126,8 @@ load("rapport/resultats.RData")
 
 \newpage
 \tableofcontents
-
+\newpage
+\listoffigures
 \newpage
 \section{Présentation}
 J'ai réalisé mon stage à l'Inra de Jouy en Josas dans l'unité "Mathématiques et Informatique Appliquées du Génome à l'Environnement" (MaIAGE)\footnote{\url{http://maiage.jouy.inra.fr/}}.
@@ -164,20 +165,20 @@ microbiens.
 
 La métagénomique désigne l'étude du contenu génomique d'un échantillon issu d'un milieu complexe, c’est à dire qui abrite de nombreuses espèces, tel que le microbiote intestinal, l'eau de mer, le sol, etc. La métagénomique, à l'inverse de la génomique, analyse simultanément le génome de l'ensemble des espèces présentes dans un échantillon et ne nécessite donc pas d'isoler une à une les espèces présentes. Cette évolution de l'étude d'une espèce à l'étude d'un ensemble d'espèces s'est faite grâce aux nouvelles méthodes de séquencage, dites à haut-débit, et aux progrés de la  bioinformatique pour le traitement des données de séquençage.
 
-Deux approches complémentaires existent: la métagénomique "shotgun" et la métagéniomique "amplicon". L'approche "shotgun" consiste à séquencer la totalité du génome des espèces présentes. Pour cela, une première étape de préparation des échantillons consistent à briser la paroi des cellules bactériennes pour en extraire l'ADN avant de découper ces séquences d'ADN en petit fragments de longueur prédéfinie (typiquement quelques centaines de paires de base). Les fragments ainsi obtenus sont ensuite séquencés individuellement pour obtenir des "lectures" (ou "reads"). L'étape qui permet de repasser des séquences courtes aux génomes complet est appelée assemblage et est réalisée à l'aide de logiciels spécialisés. Il est également possible d'assigner directement une espèce bactérienne à chaque lecture, sur la base de sa similarité avec des séquences d'espèces connues.
+Deux approches complémentaires existent: la métagénomique "shotgun" et la métagéniomique "amplicon". L'approche "shotgun" consiste à séquencer la totalité du génome des espèces présentes. Pour cela, une première étape de préparation des échantillons consiste à briser la paroi des cellules bactériennes pour en extraire l'ADN avant de découper ces séquences d'ADN en petit fragments de longueur prédéfinie (typiquement quelques centaines de paires de base). Les fragments ainsi obtenus sont ensuite séquencés individuellement pour obtenir des "lectures" (ou "reads"). L'étape qui permet de repasser des séquences courtes aux génomes complets est appelée assemblage et est réalisée à l'aide de logiciels spécialisés. Il est également possible d'assigner directement une espèce bactérienne à chaque lecture, sur la base de sa similarité avec des séquences d'espèces connues.
 
-L'approche "amplicon", également appelée "metabarcoding", est basée sur le séquençage un gène-marqueur, en général la sous unité 16S du ribosome (ou ARN 16S), qui va servir de "code-barre" pour identifier les espèces présentes. Le processus de séquençage n'est pas parfait et introduit des erreurs de lecture. Une première étape dans le traitement des données consiste donc à regrouper les lectures similaires en clusters pour construire des organismes hypothétiques, les OTU (Operational Taxonomic Units), qui sont considérées comme des pseudo-espèces bactériennes. Une assignation taxonomique est ensuite attribué à chaque OTU en comparant sa séquence consensus à des séquences de références dont la taxonomie est connue.
+L'approche "amplicon", également appelée "metabarcoding", est basée sur le séquençage un gène-marqueur, en général la sous unité 16S du ribosome (ou ARN 16S), qui va servir de "code-barre" pour identifier les espèces présentes. Le processus de séquençage n'est pas parfait et introduit des erreurs de lecture. Une première étape dans le traitement des données consiste donc à regrouper les lectures similaires en clusters pour construire des organismes hypothétiques, les OTU (Operational Taxonomic Units), qui sont considérées comme des pseudo-espèces bactériennes. Une assignation taxonomique est ensuite attribuée à chaque OTU en comparant sa séquence consensus à des séquences de références dont la taxonomie est connue.
 
-Les deux approches varient dans leurs finalités: l'approche "shotgun" s'intéresse aux génomes complets et donc aux gènes et aux fontions présentes dans l'écosystème ("qui peut faire quoi?") tandis que l'approche "amplicon" permet de faire un inventaire taxonomique des espèce en présence ("qui est là?"). Les gènes de l'approche "shotgun" peuvent néanmoins être aggrégés sur la base de leur co-abondance pour construire des MetaGenomic Species (MGS)\cite{Nielsen2014} qui s'apparente à des OTU. Dans la suite de ce rapport et par souci de simplicité, on utilisera le terme OTU dans tout les cas.
+Les deux approches varient dans leurs finalités: l'approche "shotgun" s'intéresse aux génomes complets et donc aux gènes et aux fontions présentes dans l'écosystème ("qui peut faire quoi?") tandis que l'approche "amplicon" permet de faire un inventaire taxonomique des espèces en présence ("qui est là?"). Les gènes de l'approche "shotgun" peuvent néanmoins être aggrégés sur la base de leur co-abondance pour construire des MetaGenomic Species (MGS)\cite{Nielsen2014} qui s'apparente à des OTU. Dans la suite de ce rapport et par souci de simplicité, on utilisera le terme OTU dans tout les cas.
 
-Le résultat typique d'une expérience de métagénomique est une table de comptage: un tableau contenant le nombre de séquences observés pour chaque OTU dans chaque échantillon (Fig.~\ref{fig:table_otu}).
+Le résultat typique d'une expérience de métagénomique est une table de comptage: un tableau contenant le nombre de séquences observées pour chaque OTU dans chaque échantillon (Fig.~\ref{fig:table_otu}).
 
 \begin{figure}[H]
 \input{tikz_figures/otu_table}
 \caption{\label{fig:table_otu}Table comptage des OTU}
 \end{figure}
 
-L'une des particularité de la table des OTU pour la métagénomique est qu'elle contient énormément de zéro. En effet, un OTU qui est présent dans un seul échantillon apparaîtra avec un comptage nul dans les autres échantillons. Les OTU présents dans chaque échantillon pouvant être très différents, il y a ainsi énormément de zéro (sur les jeux de données utilisés durant mon stage la proportion de zéro dans la table des OTU variait de \(35\%\) à \(95\%\)).
+L'une des particularités de la table des OTU pour la métagénomique est qu'elle contient énormément de zéros. En effet, un OTU qui est présent dans un seul échantillon apparaîtra avec un comptage nul dans les autres échantillons. Les OTU présents dans chaque échantillon pouvant être très différents, il y a ainsi énormément de zéros (sur les jeux de données utilisés durant mon stage la proportion de zéros dans la table des OTU variait de \(35\%\) à \(95\%\)).
 
 \subsection{Problématique des données de comptage}
 
@@ -200,7 +201,7 @@ Le simplexe est l'espace de probabilité des données compositionnelles  et est 
     S^D=\lbrace x=\left[x_1, x_2,...,x_D\right]|x_i>0,i=1,2,...,D;\sum_{i=1}^Dx_i=\kappa\rbrace
 \]
 
- L'opération permettant de modifier la somme des composantes d'une composition (ex : passer d'une proportion à un pourcentage) se nomme la closure. En notant \(\kappa\) la somme des composantes souhaité, la closure est définie par:
+ L'opération permettant de modifier la somme des composantes d'une composition (ex : passer d'une proportion à un pourcentage) se nomme la closure. En notant \(\kappa\) la somme des composantes souhaitée, la closure est définie par:
  \[
 C(\kappa,x)=\left[\frac{\kappa*x_1}{\sum_{i=1}^Dx_i},\frac{\kappa \times x_2}{\sum_{i=1}^Dx_i},...,\frac{\kappa\times x_D}{\sum_{i=1}^Dx_i}     \right]
 \]
@@ -228,7 +229,7 @@ Dans le simplexe, nous ne pouvons pas utiliser la géométrie euclidienne pour c
 x_1=\left[0.1,0.4,0.5\right],\ x_2=\left[0.2,0.3,0.5\right],\ x_3=\left[0.4,0.4,0.2\right],\ x_4=\left[0.5,0.3,0.2\right]
 \]
 
-La distance \textbf{euclidienne} entre les compositions \(x_1\) et \(x_2\) est la même que celle entre \(x_3\) et \(x_4\), pourtant la proportion de la première composante a doublé dans le premier cas tandis qu'elle n'a augmenté que 25\% dans le second. De même, la multiplication et l'addition usuelles ne sont pas appropriées dans le simplexe: la multiplication d'une composition par un scalaire ne permet pas de rester dans le simplexe (elle change la valeur de \(\kappa\)) et la somme de deux compositions multiplie elle aussi $\kappa$ par deux. Pour ces raisons, nous avons besoin de définir une nouvelle géométrie dans le simplexe\footnote{Des raisons supplémentaires, telles que la construction de régions de confiance pour les compositions aléatoires, sont évoquées dans \cite{Lecture}}.
+La distance \textbf{euclidienne} entre les compositions \(x_1\) et \(x_2\) est la même que celle entre \(x_3\) et \(x_4\), pourtant la proportion de la première composante a doublé dans le premier cas tandis qu'elle n'a augmenté que de 25\% dans le second. De même, la multiplication et l'addition usuelles ne sont pas appropriées dans le simplexe: la multiplication d'une composition par un scalaire ne permet pas de rester dans le simplexe (elle change la valeur de \(\kappa\)) et la somme de deux compositions multiplie elle aussi $\kappa$ par deux. Pour ces raisons, nous avons besoin de définir une nouvelle géométrie dans le simplexe\footnote{Des raisons supplémentaires, telles que la construction de régions de confiance pour les compositions aléatoires, sont évoquées dans \cite{Lecture}}.
 
 \vspace*{0.3cm}
 
@@ -245,7 +246,7 @@ x\in S^D,\ \alpha\in \mathbb{R},\ \alpha\odot x =C\left(\left[x_1^{\alpha},x_2^{
 \]
 Les deux opérations ci-dessus permettent au simplexe de devenir un espace vectoriel (la perturbation $\oplus$ en tant que loi de composition interne, la puissance $\odot$ en tant que loi de composition externe). À ces deux opérations, on ajoute un produit scalaire ainsi que la distance et la norme associées à ce produit scalaire :
 
-Produit scalaire de deux composition \(x,y\in S^D\),
+Produit scalaire de deux compositions \(x,y\in S^D\),
 \[
 x,y\in S^D,\ \left\langle x,y\right\rangle_a=\frac{1}{2D}\sum_{i=1}^D\sum_{j=1}^Dln
 \frac{x_i}{x_j}ln\frac{y_i}{y_j}
@@ -382,7 +383,7 @@ Voyons enfin la transformation \emph{isometric log-ratio} (ilr) définie par:
 \[
 ilr:S^D\rightarrow \R^{D-1},\ ilr\left(x\right)=clr\left(x\right)\Psi^{'}
 \]
-avec \(\Psi\) l'image \(clr\) d'une base du simplexe $S^D$ (cf. section suivante pour le choix de la base). La transformation ilr permet de résoudre les problématiques des autres transformations: elle préserve les distances et projette les composition dans un espace de bonne dimension. Pour cela, elle utilise un type de coordonnées particulier nommé "balance binaire".\\
+avec \(\Psi\) l'image \(clr\) d'une base du simplexe $S^D$ (cf. section suivante pour le choix de la base). La transformation ilr permet de résoudre les problématiques des autres transformations: elle préserve les distances et projette les compositions dans un espace de bonne dimension. Pour cela, elle utilise un type de coordonnées particulier nommé "balance binaire".\\
 
 \textbf{Construction et interprétation de $\Psi$:}\\
 Prenons comme système générateur de \(\mathbb{R}^{D}\), les vecteurs canoniques
@@ -394,7 +395,7 @@ en appliquant \(clr^{-1}\) et la closure à ces vecteurs, on obtient un système
 W_i=C([\underset{i-1}{\underbrace{1,...,1}},e,1,...,1]),\quad i=1,...,D
 \]
 
-En prenant l'image \(clr\) des vecteurs $W_i$ (qui ne sont pas les vecteurs canoniques $e_i$ étant donnée que la closure a été appliqué entre les transformations \(clr^{-1}\) et \(clr\)), puis en utilisant le processus d'orthogonalisation Gram-Schmidt à la matrice $(clr(W_1)|\dots|clr(W_D))$, on obtient la matrice \(\Psi\). Comme la famille des $(clr(W_i))_i$ est de rang $D-1$ (à l'instar de la famille $(W_i)_i$), le processus de Gram-Schmidt conduit à une ligne nulle qui est supprimée de $\Psi$.
+En prenant l'image \(clr\) des vecteurs $W_i$ (qui ne sont pas les vecteurs canoniques $e_i$ étant donné que la closure a été appliquée entre les transformations \(clr^{-1}\) et \(clr\)), puis en utilisant le processus d'orthogonalisation Gram-Schmidt à la matrice $(clr(W_1)|\dots|clr(W_D))$, on obtient la matrice \(\Psi\). Comme la famille des $(clr(W_i))_i$ est de rang $D-1$ (à l'instar de la famille $(W_i)_i$), le processus de Gram-Schmidt conduit à une ligne nulle qui est supprimée de $\Psi$.
 
 \begin{table}[H]
 \[
@@ -410,7 +411,7 @@ En prenant l'image \(clr\) des vecteurs $W_i$ (qui ne sont pas les vecteurs cano
 \label{tab:psi}
 \end{table}
 
-Les coordonées obtenues obtenues par la transformation \(ilr\) ont une interprétation naturelle en terme de \emph{balance binaire}. Considérons la matrice binaire (dans laquelle chaque coefficient est remplacée par son signe) associée à $\Psi$.
+Les coordonnées obtenues par la transformation \(ilr\) ont une interprétation naturelle en terme de \emph{balance binaire}. Considérons la matrice binaire (dans laquelle chaque coefficient est remplacé par son signe) associée à $\Psi$.
 
 \begin{table}[H]
 \[
@@ -475,7 +476,7 @@ lines(circl, col=14, lwd=2)
   \label{fig:ilr_geom}
 \end{figure}
 
-Si nous reprenons l'exemple du début de cette partie (avec les quatre compositions), nous remarquons bien que la transformation ilr ne préserve pas la distance euclidienne (Fig.~\ref{fig:ilr_point}). L'intuition visuelle associée aux distances euclidienne est fausse: une distance (euclidienne) à priori similaire entre deux points (panel de gauche) correspond à des distances très différentes dans l'espace ilr (panel de droite). On peut noter en particulier que les distances sont d'autant plus déformées qu'on se rapproche des bords du simplexe.
+Si nous reprenons l'exemple du début de cette partie (avec les quatre compositions), nous remarquons bien que la transformation ilr ne préserve pas la distance euclidienne (Fig.~\ref{fig:ilr_point}). L'intuition visuelle associée aux distances euclidiennes est fausse: une distance (euclidienne) à priori similaire entre deux points (panel de gauche) correspond à des distances très différentes dans l'espace ilr (panel de droite). On peut noter en particulier que les distances sont d'autant plus déformées qu'on se rapproche des bords du simplexe.
 
 
 \begin{figure}[h]
@@ -541,11 +542,11 @@ Cela revient simplement à ajouter un pseudo-comptage de $1$ à chaque OTU avant
 \section{Transformation ilr et classification}
 
 \subsection{Jeux de données}
-Cinq jeux de données, décrit ci-après, ont été mis à ma disposition. Ils se présentent sous la forme de table
+Cinq jeux de données, décrits ci-après, ont été mis à ma disposition. Ils se présentent sous la forme de table
 de comptage d’OTU accompagnés de quelques variables descriptives d’intérêt.
 
 \subsubsection*{Chaillou\cite{Chaillou}}
-Il s'agit d'un jeu de données issue de matrices alimentaires, qui s'intéresse aux flores liées à l'altération des aliments après la date de péremption. Pour cela, quatre types de viande : boeuf haché, veau hache, lardons, saucisses de volaille et quatre types de produits de la mer: saumon fumé, crevettes, filet de saumon et filet de cabillaud ont été échantillonnés. Pour chaque type de nourriture, huit échantillons de lots différents (réplicats biologiques) ont été étudiés et 508 OTU ont été conservés lors de l'étude. Durant mon stage, la variable qualitative d'intérêt était la matrice alimentaire d'origine.
+Il s'agit d'un jeu de données issues de matrices alimentaires, qui s'intéresse aux flores liées à l'altération des aliments après la date de péremption. Pour cela, quatre types de viande : boeuf haché, veau hache, lardons, saucisses de volaille et quatre types de produits de la mer: saumon fumé, crevettes, filet de saumon et filet de cabillaud ont été échantillonnés. Pour chaque type de nourriture, huit échantillons de lots différents (réplicats biologiques) ont été étudiés et 508 OTU ont été conservés lors de l'étude. Durant mon stage, la variable qualitative d'intérêt était la matrice alimentaire d'origine.
 
 \subsubsection*{Mach\cite{Mach}}
 L'évolution du microbiote intestinal de porcelet au cours des premiers mois (avant et après le sevrage) ainsi que son impact sur le métabolisme était le sujet de l'étude contenant ce jeu de données. Les fèces de 31 porcelets ont été séquencés à cinq périodes de leur vie (14, 36, 48, 60 et 70 jours, le sevrage intervenant entre les jours 14 et 36). Le jeu de données contient ainsi 155 échantillons et le nombre d'OTU s'élève à 4031.
@@ -554,7 +555,7 @@ L'évolution du microbiote intestinal de porcelet au cours des premiers mois (av
 L'objectif de cette étude était de caractériser le microbiote intestinal lié à la cirrhose du foie, pour cela le microbiote de 114 patients sains et 123 patients atteint de cirrhose ont été séquencés. Pour chaque patient, plusieurs caractéristiques cliniques ont également été relevées: indice de masse corporelle, indice de coagulation du sang, tests du bon fonctionnement des reins, etc. Le jeu de données contient ainsi 237 échantillons et le nombre de MGS s'élève à 1529.
 
 \subsubsection*{Ravel\cite{Ravel}}
-Dans cette étude, les chercheurs s'intéressent au lien entre le microbiote vaginal et les maladies urogenitales. Pour étudier ce lien, ils ont séquencé le microbiote vaginal de 394 femmes provenant de quatre catégories ethniques différentes (asiatiques, blanches, noires et hispanique). 247 OTU ont été gardés pour réaliser cette étude. Sur chaque échantillon (un pour chaque femme), les chercheurs ont également mesuré le \emph{nugent score}, un indice de vaginose bactérienne, qui a été discrétisé en 3 catégories (low, intermediate, high). En parallèle de ce paramètre clinique, ils ont défini 5 archétypes de communautés: les Community State Type (CST) que j'ai étudiés durant mon stage.
+Dans cette étude, les chercheurs s'intéressent au lien entre le microbiote vaginal et les maladies urogenitales. Pour étudier ce lien, ils ont séquencé le microbiote vaginal de 394 femmes provenant de quatre catégories ethniques différentes (asiatiques, blanches, noires et hispaniques). 247 OTU ont été gardés pour réaliser cette étude. Sur chaque échantillon (un pour chaque femme), les chercheurs ont également mesuré le \emph{nugent score}, un indice de vaginose bactérienne, qui a été discrétisé en 3 catégories (low, intermediate, high). En parallèle de ce paramètre clinique, ils ont défini 5 archétypes de communautés: les Community State Type (CST) que j'ai étudiés durant mon stage.
 
 \subsubsection*{Vacher\cite{Vacher}}
 L'objectif de l'étude d'où provienne les données était de trouver les interactions les plus probables entre un champignon responsable de l'oidium du chêne (\emph{Erysiphe alphitoides}) et les autres espèces de microorganismes présentes sur les feuilles de chêne. Pour ce faire, les feuilles de trois chênes ont été prélevées et séquencées (40 sur chaque arbre). Pour chaque arbre, les feuilles proviennent de quatre branches différentes (10 pour chaque branche) et plusieurs caractéristiques ont été relevées pour chaque feuille: sa distance à la base de l'arbre, sa distance au tronc de l'arbre et sa distance par rapport au sol ainsi que son orientation (South west, North East) et son niveau d'infection. Cependant dans le jeu de données, seuls 116 échantillons de feuilles sont présents (il en manque quatre) et 114 OTU ont été mesurés sur chaque feuille. L'objectif durant mon stage était d'étudier le lien entre l'arbre de prélèvement et la communauté microbienne de chaque feuille.
@@ -776,7 +777,7 @@ kable(v_liver_500_ilr$kNN)
 \end{center}
 Les meilleurs performances des classificateurs sur les données compositionnelles que sur les données de comptage sont confirmés, les classifications sur les données compositionnelles (après transformation ilr) ont, dans le pire des cas, les mêmes performances que celles sur données de comptage. Malheureusement, dans le cas de certains classificateurs tel que le svm, la classification supervisée sur certains jeux de données de comptage ne donne pas du tout des résultats concluants (voir Chaillou en Annexe \ref{annexe classification supervise}).
 
-Que ce soit pour la classification supervisée ou non supervisée, les résultats sont meilleurs sur les données compositionnelles (après transformation ilr) que sur les données initiales. Il semble donc avoir un intérêt à passer par les données compositionnelles pour la classification.
+Que ce soit pour la classification supervisée ou non supervisée, les résultats sont meilleurs sur les données compositionnelles (après transformation ilr) que sur les données initiales. Il semble donc y avoir un intérêt à passer par les données compositionnelles pour la classification.
 
 \newpage
 
@@ -862,7 +863,7 @@ Commençons par estimer la proportion de zéros pour chaque OTU $j$ dans chaque 
 \pi_{jk} = \frac{N_{jk} + \alpha}{N_k + \alpha + \beta}
 \]
 avec $\alpha = 0.09$ et $\beta=0.01$ pour lisser les probabilités et éviter d'avoir des valeurs à $1$ ou $0$. 
-Les valeurs de $\alpha$ et $\beta$ ont été choisis de sorte $E(\pi)=0.9$ la proportion moyenne de zéro dans les jeux de données. La régularisation adoptée revient à mettre un à priori $Beta(\alpha, \beta)$ sur la probabilité de $0$-inflation. Par la suite, nous modélisons les zéros à l'aide d'une loi de Bernoulli,
+Les valeurs de $\alpha$ et $\beta$ ont été choisies de sorte $E(\pi_{jk})=0.9$ la proportion moyenne de zéros dans les jeux de données. La régularisation adoptée revient à mettre un à priori $Beta(\alpha, \beta)$ sur la probabilité de $0$-inflation. Par la suite, nous modélisons les zéros à l'aide d'une loi de Bernoulli,
 
 \[P\left(Z_{jk}=x\right)=\left\{
     \begin{array}{ll}
@@ -895,7 +896,7 @@ Illustrons ce mécanisme à l'aide d'un jeu de données à 2 OTU. Lors de l'appr
 \]
 \caption{\label{tab:zero_inflation} Exemple de matrice de zero-inflation.}
 \end{table}
-Il simule un nouveau jeu de données (tableau de gauche), 3 données appartiennent à la gaussienne rouge et 5 à la gaussienne verte. Lors de la zero inflation, le simulateur va multiplier chaque comptage d'OTU du nouveau jeu de donnée (chaque case du tableau) par une variable de bernoulli de probabilité définie dans la case correspondante (OTU et gaussienne identique) du tableau Tab.~\ref{tab:zero_inflation}. Le résultat final obtenu par le simulateur est alors le jeu de donnée de droite.
+Il simule un nouveau jeu de données (tableau de gauche), 3 données appartiennent à la gaussienne rouge et 5 à la gaussienne verte. Lors de la zero inflation, le simulateur va multiplier chaque comptage d'OTU du nouveau jeu de données (chaque case du tableau) par une variable de bernoulli de probabilité définie dans la case correspondante (OTU et gaussienne identique) du tableau Tab.~\ref{tab:zero_inflation}. Le résultat final obtenu par le simulateur est alors le jeu de données de droite.
 \begin{center}
 \begin{tabular}{cc}
 \begin{tabular}{|>{\columncolor{red}}c|>{\columncolor{red}}c|>{\columncolor{red}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|>{\columncolor{green}}c|}
@@ -953,9 +954,9 @@ graph_biplot_normale(data, metadata, 1, 'Liver', 'data', ellipse=FALSE)[[1]]
 
 Globalement, les données simulées se mélangent bien avec les données réelles. La première impression sur les performances du simulateur est donc positive.
 
-Cependant cette méthode, bien que très utilisée dans la littérature, n'est pas forcément rigoureuse. En effet, certains OTU peuvent être très mal simulés sans pour autant que nous ne puissions faire la différence visuellement. Par exemple, un OTU absent de tous les échantillons réels mais présent en très faibles quantité dans les échantillons simulés n'aura quasiment aucune incidence sur une ACP (et n'induira donc aucune différence graphique). Cet OTU n'est pas pour autant bien simulé; une bonne simulation donnerait des échantillons dans lesquels cet OTU est absent la plupart du temps.
+Cependant cette méthode, bien que très utilisée dans la littérature, n'est pas forcément rigoureuse. En effet, certains OTU peuvent être très mal simulés sans pour autant que nous ne puissions faire la différence visuellement. Par exemple, un OTU absent de tous les échantillons réels mais présent en très faible quantité dans les échantillons simulés n'aura quasiment aucune incidence sur une ACP (et n'induira donc aucune différence graphique). Cet OTU n'est pas pour autant bien simulé; une bonne simulation donnerait des échantillons dans lesquels cet OTU est absent la plupart du temps.
 
-Pour avoir des résultats plus fiables, l'étude de l'efficacité du simulateur est confiée à des classificateurs. L'objectif est de regarder si un classificateur parvient à faire la différence entre les données réelles et les données simulée. Une bonne simulation mènerait le classificateur à se tromper à de nombreuses reprises (l'objectif théorique est que le classificateur se trompe dans \(50\%\) des cas). Dans ce but, deux nouveaux jeux de données sont simulés, l'un d'entre eux servira de jeu d'entrainement (avec les données réelles) à un classificateur, l'autre jeu de données servira quant à lui de test. Une petite partie des données réelles n'est pas incluse dans le jeu d'entrainement, elle servira elle aussi de jeu de données test.
+Pour avoir des résultats plus fiables, l'étude de l'efficacité du simulateur est confiée à des classificateurs. L'objectif est de regarder si un classificateur parvient à faire la différence entre les données réelles et les données simulées. Une bonne simulation mènerait le classificateur à se tromper à de nombreuses reprises (l'objectif théorique est que le classificateur se trompe dans \(50\%\) des cas). Dans ce but, deux nouveaux jeux de données sont simulés, l'un d'entre eux servira de jeu d'entrainement (avec les données réelles) à un classificateur, l'autre jeu de données servira quant à lui de test. Une petite partie des données réelles n'est pas incluse dans le jeu d'entrainement, elle servira elle aussi de jeu de données test.
 
 \subsection{Résultats}
 
@@ -991,11 +992,11 @@ kable(t_liver_500$all$random_forest)
  \end{tabular}
 \end{center}
 
-Les performances du simulateur sont grandement variables selon le jeu de données. En effet, sur certains jeux de données, notamment Vacher, les classificateurs peinent à faire la différence entre les données simulées et réelles. À l'inverse sur Liver, le random Forest détecte aisément les données simulées tandis le k-NN y arrive moins facilement. Ainsi certaines caractéristiques des données Liver doivent être mal simulées (ce qui permet au random Forest de faire la différence), mais les données simulées doivent quant même relativement bien se mélanger aux données réelles (comme le montre le kNN).
+Les performances du simulateur sont grandement variables selon le jeu de données. En effet, sur certains jeux de données, notamment Vacher, les classificateurs peinent à faire la différence entre les données simulées et réelles. À l'inverse sur Liver, le random Forest détecte aisément les données simulées tandis le k-NN y arrive moins facilement. Ainsi certaines caractéristiques des données Liver doivent être mal simulées (ce qui permet au random Forest de faire la différence), mais les données simulées doivent quand même relativement bien se mélanger aux données réelles (comme le montre le kNN).
 
 \subsection{Classification}
 
-Un autre aspect de la performance du simulateur est sa capacité à capturer et simuler les caractéristiques (les OTU présents et leurs abondances) de chaque groupe d'un jeu de données (exemple: les différents arbres dans le cas de Vacher ; le status malade ou sain des patients pour Liver) ; une donnée simulée ne devrait pas présenter les caractéristiques de plusieurs groupes. Pour étudier cet aspect, la simulation ne se fera plus sur l'ensemble du jeux de données mais séparément sur chaque groupe du jeu de données (par exemple sain puis malade). Les groupes des données simulées seront alors connus et nous pourrons vérifier si un classificateur \emph{entrainé sur les données réelles} retrouve bien ces groupes.\footnote{Ou plus prosaïquement atteint les mêmes taux de bonne et mauvaise classification que sur les données réelles.}
+Un autre aspect de la performance du simulateur est sa capacité à capturer et simuler les caractéristiques (les OTU présents et leurs abondances) de chaque groupe d'un jeu de données (exemple: les différents arbres dans le cas de Vacher ; le status malade ou sain des patients pour Liver) ; une donnée simulée ne devrait pas présenter les caractéristiques de plusieurs groupes. Pour étudier cet aspect, la simulation ne se fera plus sur l'ensemble du jeu de données mais séparément sur chaque groupe du jeu de données (par exemple sain puis malade). Les groupes des données simulées seront alors connus et nous pourrons vérifier si un classificateur \emph{entrainé sur les données réelles} retrouve bien ces groupes.\footnote{Ou plus prosaïquement atteint les mêmes taux de bonne et mauvaise classification que sur les données réelles.}
 
 La figure Fig.~\ref{fig:classif_all} présente un schéma illustratif de la méthode: soit \(1,2,...,k\) les groupes du jeu de données (ex: pour Liver k=2, malade, non malade)
 
@@ -1077,14 +1078,14 @@ kable(c_liver$all$kNN)
 \end{tabular}
 \end{center}
 
-Les résultats sont meilleurs même si comparables à ceux obtenus avec la méthode précédente. Les données considérées comme réelles (bien simulées) sont donc légèrement plus faciles que dans le cas précédent, sans pour autant atteindre les taux de bonne classification observées sur les données réelles. Les jeux de données où les résultats sur l'ensemble des données simulées étaient déjà très convaincants le sont toujours ; mais les jeux de données où la classification des données simulées était plus compliquée reste compliquée (le classificateur kNN pour liver). Cependant sur ces jeux de données, la validation croisée (Classification supervisée) sur les données réelles ne permet pas non plus d'obtenir de bons résultats, la problématique ne semble donc pas venir des données simulées.\\
+Les résultats sont meilleurs même si comparables à ceux obtenus avec la méthode précédente. Les données considérées comme réelles (bien simulées) sont donc légèrement plus faciles que dans le cas précédent, sans pour autant atteindre les taux de bonne classification observée sur les données réelles. Les jeux de données où les résultats sur l'ensemble des données simulées étaient déjà très convaincants le sont toujours ; mais les jeux de données où la classification des données simulées était plus compliquée reste compliquée (le classificateur kNN pour liver). Cependant sur ces jeux de données, la validation croisée (Classification supervisée) sur les données réelles ne permet pas non plus d'obtenir de bons résultats, la problématique ne semble donc pas venir des données simulées.\\
 
 %\newpage
 \section{Conclusion}
 
-L'intérêt des données compositionnelles est de pouvoir s'affranchir de certaines contraintes techniques comme la profondeur de séquencage. De plus, les transformations log-ratio permettent de se ramener à l'espace euclidien usuel et ainsi d'accéder à l'ensemble des méthodes statistiques multivariée. L'utilisation des transformations des données compositionnelles pour repasser dans un espace euclidien s'est révélée pertinente sur les jeux de données utilisés durant mon stage, les résultats des différentes classifications étant au moins aussi bons que sur les données initiales.
+L'intérêt des données compositionnelles est de pouvoir s'affranchir de certaines contraintes techniques comme la profondeur de séquencage. De plus, les transformations log-ratio permettent de se ramener à l'espace euclidien usuel et ainsi d'accéder à l'ensemble des méthodes statistiques multivariées. L'utilisation des transformations des données compositionnelles pour repasser dans un espace euclidien s'est révélée pertinente sur les jeux de données utilisés durant mon stage, les résultats des différentes classifications étant au moins aussi bons que sur les données initiales.
 
-De même, les résultats obtenus sur les données simulées sont encourageants. Les caractéristiques des différents groupes des jeux de données semblent relativement bien simulées et montrent que les grandes structures peuvent être apprises assez facilement. Cependant, les résultats sont très variables selon les jeux de données. Des tests sur un plus grand nombre de jeux de données seraient nécessaires pour étudier la robustesse du simulateur. L'intérêt d'un tel simulateur est qu'il permet d'obtenir des résultats convenable en terme de réalisme au prix d'une faible complexité computationnelle. Ce simulateur pourrait être amélioré en utilisant des méthodes de réduction et d'apprentissage de la densité plus sophistiquées (pas forcément des mélanges gaussiens).
+De même, les résultats obtenus sur les données simulées sont encourageants. Les caractéristiques des différents groupes des jeux de données semblent relativement bien simulées et montrent que les grandes structures peuvent être apprises assez facilement. Cependant, les résultats sont très variables selon les jeux de données. Des tests sur un plus grand nombre de jeux de données seraient nécessaires pour étudier la robustesse du simulateur. L'intérêt d'un tel simulateur est qu'il permet d'obtenir des résultats convenables en terme de réalisme au prix d'une faible complexité computationnelle. Ce simulateur pourrait être amélioré en utilisant des méthodes de réduction de dimension et d'apprentissage de la densité plus sophistiquées (autres que des mélanges gaussiens).
 
 
 \section{Remerciements}
@@ -1258,7 +1259,7 @@ kable(Mclust_mach_500$ilr_table)
 \end{tabular}
 \end{center}
 
-Sur les données ilr, les groupes sont plus distinct les uns des autres que pour les données de comptage (les classificateurs mettent ensemble les données des même groupes). Excepté pour Ravel, aucune amélioration n'est visible en passant par les données ilr (voir moins bien que sur les données ilr).
+Sur les données ilr, les groupes sont plus distincts les uns des autres que pour les données de comptage (les classificateurs mettent ensemble les données des mêmes groupes). Excepté pour Ravel, aucune amélioration n'est visible en passant par les données ilr (voir moins bien que sur les données ilr).
 
 
 
@@ -1419,7 +1420,7 @@ kable(v_mach_500_ilr$kNN)
 \end{tabular}
 \end{center}
 
-La classification supervisé améliore sensiblement les résultats sur le jeu de données Ravel, mais également sur les données de comptage (un classificateur semble mieux voir la différence entre les groupes qu'un classificateur non supervisée).
+La classification supervisée améliore sensiblement les résultats sur le jeu de données Ravel, mais également sur les données de comptage (un classificateur semble mieux voir la différence entre les groupes qu'un classificateur non supervisé).
 \subsection{Performance simulateur}
 \subsubsection*{Graphique}
 \begin{figure}[H]
@@ -1447,7 +1448,7 @@ graph_biplot_normale(data, metadata, 1, 'Mach', 'data', ellipse=FALSE)[[1]]
 @
 \end{figure}
 
-Pour Mach, les données simulées ne recouvrent pas l'ensemble des données réels. Le simulateur semble pour ce jeu de donnée manqué d'un peu de variance.
+Pour Mach, les données simulées ne recouvrent pas l'ensemble des données réelles. Le simulateur semble pour ce jeu de données manquer d'un peu de variance.
 \subsubsection*{Sur le jeu de données entier}\label{annexe donnees entier}
 
 \begin{center}
@@ -1495,7 +1496,7 @@ kable(t_mach_500$all$kNN)
 \end{tabular}
 \end{center}
 
-Les résultats sont plutôt convaincants, pour les trois jeux de données une bonne partie des données simulées sont confondus avec des données réels (\(30-40\%\)).
+Les résultats sont plutôt convaincants, pour les trois jeux de données une bonne partie des données simulées sont confondues avec des données réelles (\(30-40\%\)).
 
 \subsubsection*{Sur les groupes}\label{annexe sur les groupes}
 \begin{center}
@@ -1551,7 +1552,7 @@ kable(m_super$all$kNN)
 \end{center}
 
 Les bons résultats d'une classification supervisée se confirme sur ces jeux de données, le simulateur simule bien les différentes caractéristiques des groupes.
-\subsubsection*{Sur les données simulées considéré comme réelles}\label{reels/simu}
+\subsubsection*{Sur les données simulées considérées comme réelles}\label{reels/simu}
 \begin{center}
 Chaillou
 
@@ -1604,7 +1605,6 @@ kable(c_mach$all$kNN)
 @
 \end{tabular}
 \end{center}
-
 \nocite{*}
 \bibliographystyle{plain}
 \bibliography{bibli.bib}
