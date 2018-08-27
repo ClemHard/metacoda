@@ -278,37 +278,6 @@ Plusieurs transformations permettent de passer de \(S^D\) à \(\R^D\) ou \(\R^{D
 \end{frame}
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Transformation ilr}
-Matrice utilisé pour coder la base:\\
-
-\[
-\begin{blockarray}{cccc}
-x1 & x2 & x3 & x4  \\
-\begin{block}{(cccc)}
-  1 & 1 & 1 & -1 \\
-1 & 1 & -1 & 0 \\
-1 & -1 & 0 & 0 \\
-\end{block}
-\end{blockarray}
-\]
-
-
-L'image \(clr\) de la base
-\[
-\Psi =\begin{pmatrix}
-\frac{1}{\sqrt{12}} & \frac{1}{\sqrt{12}} & \frac{1}{\sqrt{12}} & -\frac{3}{\sqrt{12}} \\
-\frac{1}{\sqrt{6}} & \frac{1}{\sqrt{6}} & -\frac{2}{\sqrt{6}} & 0 \\
-\frac{1}{\sqrt{2}} & -\frac{1}{\sqrt{2}} & 0 & 0
-\end{pmatrix}
-\]
-
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Au sujet des transformations xlr}
-\MM{Préciser que ce sont des morphismes et que c'est pour ça qu'on veut les utiliser}
-\end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[fragile]{Aitchison geometry}
@@ -388,7 +357,6 @@ ilr^{-1}\left(\xi\right)=C\left(\exp{\xi\Psi}\right)
 \)
 \end{itemize}
 
-\MM{Il manque ilr}
 
 \end{frame}
 
@@ -404,7 +372,6 @@ La transformation ilr permet de repasser dans un espace usuel.
 \item ...
 \end{itemize}
 
-\MM{Développer (au moins à l'oral)}
 
 \end{frame}
 
