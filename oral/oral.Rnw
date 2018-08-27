@@ -91,12 +91,12 @@ knitr::opts_knit$set(root.dir = "..")
 @
 
 
-\title{Exploration des méthodes d'analyse de données compositionnelles pour l'étude du lien entre microbiote intestinal et santé}
+\title{Exploration des méthodes d'analyse de données compositionnelles pour l'étude du microbiome}
 \author{Clément Hardy\\ encadré par Mahendra Mariadassou, Magali Berland }
 \institute{Inra Jouy en Josas}
 \date{29 Août 2018}
-\titlegraphic{\includegraphics[width=1.5cm]{logo_paris_sud.jpg}\hspace*{4.75cm}~%
-   \includegraphics[width=2cm]{logoINRA.jpg}
+\titlegraphic{\includegraphics[width=1.5cm]{logo_paris_sud.jpg}\hspace*{4cm}~%
+   \includegraphics[width=2.5cm]{../rapport/logoINRA2.jpg}
 }
 
 \begin{document}
@@ -153,7 +153,9 @@ Métagénomique: méthode d'étude du contenu génétique d'échantillons issus 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Présentation des données}
+\begin{small}
 \input{tikz_figures/otu_table}
+\end{small}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -183,7 +185,7 @@ Métagénomique: méthode d'étude du contenu génétique d'échantillons issus 
 	\vspace{0.5cm}
 	Simplexe:
 	\[
-    S^D=\lbrace x=\left[x_1, x_2,...,x_D\right]|x_i>0,i=1,2,...,D;\sum_{i=1}^Dx_i=\kappa\rbrace
+    S^D=\lbrace x=\left[x_1, x_2,...,x_D\right]|x_i>0,i=1,2,...,D;\sum_{i=1}^Dx_i=1\rbrace
     \]
 \end{frame}
 
@@ -222,7 +224,7 @@ c[1:3,] %>% coord_ternary_diagram() %>% points(col=c(11,2,4), pch=16, cex=1.5)
 \begin{small}
 		Closure:
 		\[
-			C(x)=\left[\frac{\kappa \times x_1}{\sum_{i=1}^Dx_i},				\frac{\kappa \times x_2}{\sum_{i=1}^Dx_i},...,						\frac{\kappa \times x_D}{\sum_{i=1}^Dx_i}     \right]
+			C(x)=\left[\frac{ x_1}{\sum_{i=1}^Dx_i},				\frac{x_2}{\sum_{i=1}^Dx_i},...,						\frac{ x_D}{\sum_{i=1}^Dx_i}     \right]
 		\]
         Perturbation(\(\sim +\)) :
         \[
@@ -260,6 +262,7 @@ Plusieurs transformations permettent de passer de \(S^D\) à \(\R^D\) ou \(\R^{D
 	\item\(
 	alr:S^D\rightarrow \R^{D-1},\ alr\left(x\right)=\left[ln\left(\frac{x_1}{x_D}\right), ln\left(\frac{x_2}{x_D}\right),...,ln\left(\frac{x_{D-1}}{x_D}\right)\right]
 	\)
+	\pause
 	\item\(
     clr:S^D\rightarrow \R^{D},\ clr\left(x\right)=\left[ln\frac{x_1}{g(x)},...,ln\frac{x_D}{g(x)}\right]
     \)\\
@@ -267,7 +270,7 @@ Plusieurs transformations permettent de passer de \(S^D\) à \(\R^D\) ou \(\R^{D
     \[
     g(x)=\left(\prod^D_{i=1}x_i\right)^{1/D}
     \]
-
+   \pause
     \item  \(
     ilr:S^D\rightarrow \R^{D-1},\ ilr\left(x\right)=clr\left(x\right)\Psi^{'}\)
 
@@ -344,10 +347,6 @@ lines(circl_ilr, col=14, lwd=2)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Transformations inverses}
 \begin{itemize}
-\item \(
-alr^{-1}\left(\xi\right)=C\left( \frac{\exp\left(\xi_1\right)}{\sum_{i=1}^{d-1} \exp\left(y_i\right) + 1},\ ...,\  \frac{1}{\sum_{i=1}^{d-1} \exp\left(y_i\right) + 1} \right)
-\)
-
 \item \(
 clr^{-1}\left(\xi\right)=C\left( \exp\left(\xi_1\right),\ ...,\  \exp\left(\xi_D\right)\ \right)
 \)
@@ -532,10 +531,10 @@ Construire un simulateur qui génère des données réalistes(bootstrap paramét
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Méthodes de simulation}
 \[
-X \overset{MAP}{\rightarrow} \left(S^p\right)^n \overset{ilr}{\rightarrow}    \left(\mathbb{R}^{p-1}\right)^n \overset{\overset{\text{réduction de}} {dimension}}{\rightarrow} \left(R^D\right)^n \rightarrow \text{Apprentissage densité}
+X \overset{MAP}{\rightarrow} \left(S^p\right)^n \overset{ilr}{\rightarrow}    \left(\mathbb{R}^{p-1}\right)^n \overset{\overset{\text{réduction de}} {dimension}}{\rightarrow} \left(\mathbb{R}^D\right)^n \rightarrow \text{Apprentissage densité}
 \]
 \[
-\text{densité} \overset{simulation}{\rightarrow} \left(R^D\right)^n \rightarrow
+\text{densité} \overset{simulation}{\rightarrow} \left(\mathbb{R}^D\right)^n \rightarrow
 \left(\mathbb{R}^{p-1}\right)^n \overset{ilr^{-1}}{\rightarrow}\left(S^{p-1}\right)^n  \overset{multinomiale/\overset{zero}{inflation}}{\rightarrow} \tilde{X}
 \]
 \end{frame}
@@ -596,8 +595,8 @@ graph_biplot_normale(data, metadata, 1, title = "ravel", legend=FALSE, legend_ti
 @
 
 \begin{tabular}{cc}
-réels & \pointcol{red} \\
-simulés & \pointcol{blue}
+réelles & \pointcol{red} \\
+simulées & \pointcol{blue}
 \end{tabular}
 \end{center}
 \end{frame}
@@ -614,13 +613,13 @@ simulés & \pointcol{blue}
 \node[right of=classificateur] (temp2) {};
 \node[cloud, above of=temp2] (Donne_reel2) {réels};
 \node[cloud, below of=temp2] (Donne_simu2) {simu};
-\node[right of=temp2] (eval)  {\begin{tabular}{|c|c|c|}
+\node[right of=temp2, node distance=4cm] (eval)  {\begin{tabular}{|c|c|c|}
 \hline
-& réels & simulés \\
+& réelles & simulées \\
 \hline
-1 & \Sexpr{t_ravel_sans$all$random_forest[1,1]} & \Sexpr{t_ravel_sans$all$random_forest[1,2]} \\
+réelles(pred) & \Sexpr{t_ravel_sans$all$random_forest[1,1]} & \Sexpr{t_ravel_sans$all$random_forest[1,2]} \\
 \hline
-0 & \Sexpr{t_ravel_sans$all$random_forest[2,1]}   & \Sexpr{t_ravel_sans$all$random_forest[2,2]}\\
+simulées(pred) & \Sexpr{t_ravel_sans$all$random_forest[2,1]}   & \Sexpr{t_ravel_sans$all$random_forest[2,2]}\\
 \hline
 \end{tabular}};
 
@@ -753,8 +752,8 @@ graph_biplot_normale(data, metadata, 1, title = "ravel", legend=FALSE, legend_ti
 @
 
 \begin{tabular}{cc}
-réels & \pointcol{red} \\
-simulés & \pointcol{blue}
+réelles & \pointcol{red} \\
+simulées & \pointcol{blue}
 \end{tabular}
 \end{center}
 \end{frame}
@@ -766,11 +765,11 @@ simulés & \pointcol{blue}
 \begin{center}
 \begin{tabular}{|c|c|c|}
 \hline
-& réels & simulés \\
+& réelles & simulées \\
 \hline
-1 & \Sexpr{t_ravel$all$random_forest[1,1]} & \Sexpr{t_ravel$all$random_forest[1,2]} \\
+réelles(pred) & \Sexpr{t_ravel$all$random_forest[1,1]} & \Sexpr{t_ravel$all$random_forest[1,2]} \\
 \hline
-0 & \Sexpr{t_ravel$all$random_forest[2,1]}   & \Sexpr{t_ravel$all$random_forest[2,2]} \\
+simulées(pred) & \Sexpr{t_ravel$all$random_forest[2,1]}   & \Sexpr{t_ravel$all$random_forest[2,2]} \\
 \hline
 \end{tabular}
 \end{center}
@@ -802,18 +801,19 @@ labs(y="nombre", x="profondeur")
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Conclusion}
-\begin{itemize}
+\begin{itemize}[label={}]
 \item \textbf{Résultats}
-\begin{itemize}
+\begin{itemize}[label={$\bullet$}]
 \item Transformation log ratio accès à l'ensemble méthodes \\
 d'analyses multivariée.
-\item gain au niveau de l'analyse des échantillons, perte au niveau des OTU (espèces)
-\item Le simulateur donne de bons résultats
+\item Gain au niveau de l'analyse des échantillons
+\item Perte d'interprétabilité au niveau des OTU (espèces)
+\item Le simulateur donne de bons résultats (très variables selon les jeux de données).
 \end{itemize}
 \item \textbf{Améliorations}
-\begin{itemize}
-\item zero inflation multivariée
-\item méthode d'apprentissage de la densité plus sophistiqué.
+\begin{itemize}[label={$\bullet$}]
+\item Zero inflation multivariée
+\item Méthode d'apprentissage de la densité plus sophistiqué.
 \end{itemize}
 \end{itemize}
 \end{frame}
@@ -1007,7 +1007,12 @@ labs(y="nombre", x="profondeur")
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Références}
+\begin{frame}[allowframebreaks]{Références}
+\nocite{Aitchison86}
+\nocite{Capushe}
+\nocite{Metagenomique}
+\nocite{PPCA}
+\nocite{Lecture}
 \bibliographystyle{plain}
 \bibliography{bibli.bib}
 \end{frame}
