@@ -1089,7 +1089,7 @@ De même, les résultats obtenus sur les données simulées sont encourageants. 
 
 \section{Remerciements}
 Merci infiniment à toute l'équipe de MaIAGE pour leur accueil. Cette ambiance chaleureuse m'a permis de m'intégrer facilement et de travailler sereinement.
-Merci à Mahendra et Magali pour leur hospitalité dès les premiers échanges, leur aide durant tout le stage ainsi que les compétences qu'ils ont eues à cœur de me transmettre.
+Merci à Mahendra et Magali pour leur hospitalité dès les premiers échanges, leur aide durant tout le stage ainsi que les compétences qu'ils ont eu à cœur de me transmettre.
 
 \newpage
 \section{Annexe}
