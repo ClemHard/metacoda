@@ -2,6 +2,7 @@ library(MASS)
 library(randomForest)
 library(plotly)
 library(ellipse)
+library(compositions)
 
 source("Rscript/read_metagenomic_data.R")
 source("Rscript/coda.R")
@@ -12,18 +13,41 @@ source("Rscript/fonction_presentation.R")
 
 
 
+c <- matrix(c(c(3.5,4,3)/10.5, ilr_inverse(c(-1.2,0)), c(1,8,1, 10/3, 10/3, 10/3)/10), byrow=TRUE, nrow=4)
+
+t <- c(2,1,3)
+ternary_diagram_vide()
+points(c[1,] %>% coord_ternary_diagram(), pch=16, col=4, cex=2)
+points(c[2,] %>% coord_ternary_diagram(), pch=16, col='red',cex=2)
+points(c[3,] %>% coord_ternary_diagram(), pch=16,cex=2)
+
+l <- ligne(c[3,],t)
+l %>% coord_ternary_diagram() %>% lines(col=15, lwd=2)
+
+l <- ligne(c[2,],t)
+l %>% coord_ternary_diagram() %>% lines(col=15, lwd=2)
+
+l <- ligne(c[1,],t)
+l %>% coord_ternary_diagram() %>% lines(col=15, lwd=2)
+
+
+t <- c(1,4,3)
+
+l <- ligne(c[3,],t)
+l %>% coord_ternary_diagram() %>% lines(col=3, lwd=2)
+
+l <- ligne(c[2,],t)
+l %>% coord_ternary_diagram() %>% lines(col=3, lwd=2)
+
+l <- ligne(c[1,],t)
+l %>% coord_ternary_diagram() %>% lines(col=3, lwd=2)
+
+
+
 
 c <- matrix(c(c(1,2,7)/10, ilr_inverse(c(-1.2,0)), c(1,8,1, 10/3, 10/3, 10/3)/10), byrow=TRUE, nrow=4)
-l <- ligne(1.2,c(0.2,1,3))
 y <- seq(0, 2*pi, length=1000)
 circl <- (cbind(1*cos(y)-1.2, 1*sin(y))) %>% ilr_inverse()
-
-ternary_diagram_vide()
-c[1:3,] %>% coord_ternary_diagram() %>% points(col=c(11,2,4), pch=16, cex=1.5)
-
-ternary_diagram_vide()
-l %>% coord_ternary_diagram() %>% lines(col=15, lwd=2)
-circl %>% coord_ternary_diagram() %>% lines(col=14, lwd=2)
 
 #png(filename = "ternary_diagram.png", res = 150, width = 10, height = 10, units = "in")
 ternary_diagram1(c, colour=c(11, 2, 4, 1), style=c(16, 16, 16, 3),add_line = l, colour_line = 15, 
@@ -51,22 +75,17 @@ print(comp %>% count_to_proportion() %>% fractions())
 print(comp %>% MAP %>% fractions() )
 
 
-boot <- bootstrap(ravel, nb_axe=15, nb_cluster = 15)
-boot1 <- bootstrap(ravel, nb_axe=15, nb_cluster = 15)
-
-data <- rbind(ravel, boot$data)
-metadata <- c(rep("reel", nrow(ravel)), rep("simu", nrow(boot$data))) %>% as.factor()
+boot <- bootstrap(liver_500, nb_axe=12, nb_cluster = 12, zero_inflated = FALSE)
+data <- rbind(liver_500, boot$data)
+metadata <- c(rep("reel", nrow(liver_500)), rep("simu", nrow(boot$data))) %>% as.factor()
 
 data_rf <- data.frame(data,metadata=metadata)
 rf <- randomForest(metadata~.,data=data_rf)
 
-boot3 <- lapply(colnames(data), function(x){rf <- randomForest(as.formula(paste("metadata~",x)),data=data_rf)
-                                    sum(predict(rf, newdata = boot1$data)=="real")}) %>%unlist()
-
 #hist(ravel[,1], breaks=50, main="données réels", xlab="comptage")
 #hist(boot$data[,1], breaks=50, main="données simulées", xlab="comptage")
 
-ggplot(data_rf, aes(x=OTU_163,fill=metadata, color=metadata)) + geom_histogram(position = "dodge")
+ggplot(data_rf, aes(x=CAG00214_hs_9.9,fill=metadata, color=metadata)) + geom_histogram(position = "dodge") + xlim(c(-1, 50))
 
 
 
@@ -173,8 +192,8 @@ lines(x2[3:4,1],x2[3:4,2])
 
 
 
-ravel_boot <- bootstrap_presentation(ravel, nb_cluster = 4, nb_axe = 4, type="comptage")
-data <- data.frame(data=c(ravel_boot$data %>% apply(1, sum), ravel %>% apply(1, sum)), metadata=c(rep("simu",nrow(ravel)),rep("real", nrow(ravel))))
+ravel_boot <- bootstrap_presentation(liver_500, nb_cluster = 12, nb_axe = 12, type="comptage")
+data <- data.frame(data=c(ravel_boot$data %>% apply(1, sum), liver %>% apply(1, sum)), metadata=c(rep("simu",nrow(liver_500)),rep("real", nrow(liver_500))))
 ggplot(data, aes(x=data, color=metadata, fill=metadata)) + geom_histogram(position="dodge", bins=30)
 
 
@@ -217,3 +236,19 @@ ellipse(mat3, centre = u3) %>% ilr_inverse %>% coord_ternary_diagram() %>% lines
 ellipse(mat3, centre = u3, level=0.8) %>% ilr_inverse %>% coord_ternary_diagram() %>% lines(col=col3)
 ellipse(mat3, centre = u3, level=0.4) %>% ilr_inverse %>% coord_ternary_diagram() %>% lines(col=col3)
 
+
+
+
+#####
+x <- runif(3, 0.1,1.2) %>% round(digits = 2) %>% norm_data()
+x1 <- runif(3, 0.1,1.2) %>% round(digits = 2) %>% norm_data()
+
+perturbation(x,x1) %>% ilr
+(x %>% ilr) + (x1%>% ilr)
+
+power(x,2.3) %>% ilr
+(x %>% ilr) * 2.3
+
+data <- 
+ternary_diagram_vide()
+Hongite %>%

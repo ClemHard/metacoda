@@ -176,7 +176,7 @@ density_melange <- function(x, y, pro, moy, sigma){
 
 
 
-bootstrap_presentation <- function(data, nb_axe=NULL, nb_cluster=NULL, nb_sample=nrow(data), type="comptage", zero_inflated=TRUE, base_binaire=Base_binary_matrix(ncol(data))){
+bootstrap_presentation <- function(data, nb_axe=NULL, nb_cluster=NULL, nb_sample=nrow(data), type="comptage", zero_inflated=FALSE, base_binaire=Base_binary_matrix(ncol(data))){
   
   apprent <- apprentissage(data, nb_axe = nb_axe, nb_cluster = nb_cluster, base_binaire = base_binaire)
   if(type=="comptage"){
@@ -193,7 +193,7 @@ bootstrap_presentation <- function(data, nb_axe=NULL, nb_cluster=NULL, nb_sample
 
 
 
-simulation_presentation <- function(result, nb_sample=nrow(result$data), type="comptage", zero_inflated=TRUE){
+simulation_presentation <- function(result, nb_sample=nrow(result$data), type="comptage", zero_inflated=FALSE){
   
   if(type=="ilr"){
     simu_ilr <- simulation_ilr(result, nb_sample = nb_sample)
@@ -215,17 +215,13 @@ simulation_presentation <- function(result, nb_sample=nrow(result$data), type="c
   zero_inflated_comptage <- result$zero_inflated_comptage
   
   result_sample <- sapply(1:nrow(simu_MAP$data), function(x){
-    
     deep_simu <- sample(deep, 1)
-    
-    
     if(any(x>0)){
       r <- rmultinom(1, round(deep_simu), simu_MAP$data[x, ])
     }
     else rep(0, length(simu_MAP[x, ]))
   }) %>% t()
-  
-  
+
   
   if(!is.null(result$zero_inflated_comptage)){
     for(i in 1:nrow(zero_inflated_comptage)){

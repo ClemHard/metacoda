@@ -103,6 +103,7 @@ knitr::opts_knit$set(root.dir = "..")
 
 <<chargement_source, echo=FALSE,  include=FALSE>>=
 library(ellipse)
+library(compositions)
 source("Rscript/read_metagenomic_data.R")
 source("Rscript/coda.R")
 source("Rscript/comparaison_clustering.R")
@@ -189,6 +190,16 @@ Métagénomique: méthode d'étude du contenu génétique d'échantillons issus 
     \]
 \end{frame}
 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+<<fig.height=4>>=
+par(mar=rep(0,4))
+ternary_diagram2()
+par(mar=rep(4,4))
+@
+\end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[fragile]{Espace des compositions}
 
@@ -245,13 +256,67 @@ c[1:3,] %>% coord_ternary_diagram() %>% points(col=c(11,2,4), pch=16, cex=1.5)
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Objets géométrique}
+\begin{frame}[fragile]{Objets géométrique}
+\begin{center}
+\(t=t_0\oplus (\alpha \odot t_1)\)
+
 <<fig.height=3>>=
+c <- matrix(c(c(3.5,4,3)/10.5, ilr_inverse(c(-1.2,0)), c(1,8,1, 10/3, 10/3, 10/3)/10), byrow=TRUE, nrow=4)
+
+t <- c(2,1,3)
 ternary_diagram_vide()
+points(c[1,] %>% coord_ternary_diagram(), pch=16, col=4, cex=2)
+points(c[2,] %>% coord_ternary_diagram(), pch=16, col='red',cex=2)
+points(c[3,] %>% coord_ternary_diagram(), pch=16,cex=2)
+
+l <- ligne(c[3,],t)
 l %>% coord_ternary_diagram() %>% lines(col=15, lwd=2)
-circl %>% coord_ternary_diagram() %>% lines(col=14, lwd=2)
+
+l <- ligne(c[2,],t)
+l %>% coord_ternary_diagram() %>% lines(col=15, lwd=2)
+
+l <- ligne(c[1,],t)
+l %>% coord_ternary_diagram() %>% lines(col=15, lwd=2)
+
+
+t1 <- c(1,4,3)
+
+l <- ligne(c[3,],t1)
+l %>% coord_ternary_diagram() %>% lines(col=3, lwd=2)
+
+l <- ligne(c[2,],t1)
+l %>% coord_ternary_diagram() %>% lines(col=3, lwd=2)
+
+l <- ligne(c[1,],t1)
+l %>% coord_ternary_diagram() %>% lines(col=3, lwd=2)
 @
 
+\begin{tabular}{cc}
+\begin{tabular}{|c|c|c|c|}
+\hline
+& x1(A) & x2(B) & x3(C) \\
+\hline
+\pointcol{blue} & \Sexpr{c[1,1] %>% round(2)} & \Sexpr{c[1,2] %>% round(2)} & \Sexpr{c[1,3] %>% round(2)} \\
+\hline
+\pointcol{red} & \Sexpr{c[2,1] %>% round(2)} & \Sexpr{c[2,2] %>% round(2)} & \Sexpr{c[2,3] %>% round(2)} \\
+\hline
+\pointcol{black} & \Sexpr{c[3,1] %>% round(2)} & \Sexpr{c[3,2] %>% round(2)} & \Sexpr{c[3,3] %>% round(2)} \\
+\hline
+\end{tabular}
+
+&
+
+\begin{tabular}{|c|c|c|c|}
+\hline
+& x1 & x2 & x3 \\
+\hline
+\pointcol{yellow} & \Sexpr{t[1] %>% round(2)} & \Sexpr{t[2] %>% round(2)} & \Sexpr{t[3] %>% round(2)} \\
+\hline
+\pointcol{green} & \Sexpr{t1[1] %>% round(2)} & \Sexpr{t1[2] %>% round(2)} & \Sexpr{t1[3] %>% round(2)} \\
+\hline
+\end{tabular}
+\end{tabular}
+\end{center}
 \end{frame}
 
 
@@ -290,6 +355,10 @@ Plusieurs transformations permettent de passer de \(S^D\) à \(\R^D\) ou \(\R^{D
       \begin{minipage}{0.65\linewidth}
 <<fig.height=4>>=
 par(mar=c(rep(0,4)))
+c <- matrix(c(c(1,2,7)/10, ilr_inverse(c(-1.2,0)), c(1,8,1, 10/3, 10/3, 10/3)/10), byrow=TRUE, nrow=4)
+y <- seq(0, 2*pi, length=1000)
+circl <- (cbind(1*cos(y)-1.2, 1*sin(y))) %>% ilr_inverse()
+
 ternary_diagram1(c, colour=c(11, 2, 4, 1), style=c(16, 16, 16, 3),add_line = l, colour_line = 15,
                 add_circle = circl, colour_circle = 14,
                 asp = 1, axes = FALSE)
@@ -302,7 +371,7 @@ ternary_diagram1(c, colour=c(11, 2, 4, 1), style=c(16, 16, 16, 3),add_line = l, 
 \hline
 & x1 & x2 & x3 \\
 \hline
-\pointcol{black} & \Sexpr{c[1,1] %>% round(2)} & \Sexpr{c[1,2] %>% round(2)} & \Sexpr{c[1,3]} \\
+\pointcol{green} & \Sexpr{c[1,1] %>% round(2)} & \Sexpr{c[1,2] %>% round(2)} & \Sexpr{c[1,3]} \\
 \hline
 \pointcol{red} & \Sexpr{c[2,1] %>% round(2)} & \Sexpr{c[2,2] %>% round(2)} & \Sexpr{c[2,3] %>% round(2)} \\
 \hline
@@ -317,6 +386,7 @@ ternary_diagram1(c, colour=c(11, 2, 4, 1), style=c(16, 16, 16, 3),add_line = l, 
       \centering
       \begin{minipage}{0.65\linewidth}
 <<fig.height=4>>=
+l <- ligne(c[3,],c(1.2,1,3))
 c_ilr <- ilr(c)
 l_ilr <- ilr(l)
 circl_ilr <- ilr(circl)
@@ -332,7 +402,7 @@ lines(circl_ilr, col=14, lwd=2)
 \hline
 & x1 & x2  \\
 \hline
-\pointcol{black} & \Sexpr{c_ilr[1,1] %>% round(2)} & \Sexpr{c_ilr[1,2] %>% round(2)} \\
+\pointcol{green} & \Sexpr{c_ilr[1,1] %>% round(2)} & \Sexpr{c_ilr[1,2] %>% round(2)} \\
 \hline
 \pointcol{red} & \Sexpr{c_ilr[2,1] %>% round(2)} & \Sexpr{c_ilr[2,2] %>% round(2)} \\
 \hline
@@ -359,7 +429,42 @@ ilr^{-1}\left(\xi\right)=C\left(\exp{\xi\Psi}\right)
 
 \end{frame}
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]{Morphisme}
+
+<<>>=
+x <- runif(3, 0.1,1.2) %>% round(digits = 2) %>% norm_data()
+x1 <- runif(3, 0.1,1.2) %>% round(digits = 2) %>% norm_data()
+@
+
+\begin{center}
+\begin{tabular}{cc}
+x=[\Sexpr{x}] & x1=[\Sexpr{x1}]
+\end{tabular}
+\end{center}
+
+
+\begin{tikzpicture}[node distance=4cm, auto]
+\node[] (X) {\begin{tabular}{c} x \\ x1 \end{tabular}};
+\node[right of=X] (X1) {[\Sexpr{perturbation(x,x1) %>% round(digits=2)}]};
+\node[right of=X1] (X2) {[\Sexpr{perturbation(x,x1) %>% ilr %>% round(digits=2)}]};
+\node[below of=X, node distance=2cm] (X_1) {\begin{tabular}{c} x \\ x1 \end{tabular}};
+\node[right of=X_1] (X3) {\begin{tabular}{c}[\Sexpr{x %>% ilr() %>% round(digits=2)}] \\ 
+ \([\Sexpr{x1 %>% ilr() %>% round(digits=2)}] \)
+\\
+\end{tabular}};
+\node[right of=X3] (X4) {[\Sexpr{((x %>% ilr) + (x1%>% ilr)) %>% round(digits=2)}]};
+
+
+\path[line] (X) --  node[midway, above] {perturbation} (X1);
+\path[line] (X1) --  node[midway, above] {\(ilr\)} (X2);
+\path[line] (X_1) --  node[midway, above] {\(ilr\)} (X3);
+\path[line] (X3) --  node[midway, above] {somme} (X4);
+\end{tikzpicture}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \begin{frame}
 La transformation ilr permet de repasser dans un espace usuel.
 \\
@@ -493,26 +598,39 @@ MAP(p)=\underset{p}{argmax}\left(p|x\right)=\frac{x_i+1}{\sum_{i=1}^D\left(x_i+1
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Ravel\cite{Ravel}}
+\begin{frame}{Liver\cite{Liver}}
 \resizebox{\linewidth}{!}{%
 <<>>=
-head(metadata_ravel) %>% kable()
+head(metadata_liver) %>% kable()
 @
 }
-\\
-pH: pH du vagin de la femme \\
-Nugent score: résultat du test (détection de Bacterial vaginosis)\\
-CST: cluster discret\\
-Depth: profondeur de séquençage
+
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Réduction de dimension}
-<<graph biplot ravel, fig.height = 4.5>>=
-graph_biplot_normale(ravel, metadata_ravel$CST, 1, "Ravel", "CST", ellipse=FALSE) [[1]]
+<<graph biplot Liver, fig.height = 4.5>>=
+graph_biplot_normale(data=liver_500, metadata_group=metadata_liver$status, nb_graph=1, title="liver", legend_title = "status")[[1]]
+
 @
 \end{frame}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]{Classification k-means}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{cc}
+comptage & ilr \\
+<<>>=
+kable(k_liver$comptage_table)
+@
+&
+<<>>=
+kable(k_liver$ilr_table)
+@
+\end{tabular}
+}
+\end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section[Simulateur]{Simulateur de données}
@@ -565,7 +683,7 @@ abline(v=4, col='red')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}
 <<fig.height=3.5>>=
-g <- graph_biplot_normale(ravel, "data", legend=FALSE)
+g <- graph_biplot_normale(liver_500, "data", legend=FALSE)
 g[[1]] + geom_density2d(aes(X1, X2))
 @
 
@@ -583,15 +701,36 @@ avec \(f\) la fonction de densité de la loi normale multivariée.
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{mélange gaussien}
+<<fig.height=4>>=
+x <- seq(-5, 6, length=10000)
+y1 <- dnorm(x, mean=-1.8)*0.3
+y2 <- dnorm(x, mean=1.6, sd=1.4)*0.5
+y3 <- dnorm(x, mean=-3, sd=0.4)*0.2
+n <- 1000000
+r1 <- rnorm(n*0.3, -1.8)
+r2 <- rnorm(n*0.5, 1.6, 1.4)
+r3 <- rnorm(n*0.2, -3, 0.4)
+
+hist(c(r1, r2, r3), proba=TRUE, breaks = 50, main="melange gaussien", xlab = "x")
+lines(x, y1, col="red")
+lines(x, y2, col='blue')
+lines(x,y3, col="green")
+lines(x, y1+y2+y3)
+legend("topright", lty=c(1,1,1), col=c("red", "blue", "green", "black"), legend=c("G1","G2", "G3","G1+G2+G3"))
+
+@
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[fragile]{Première évaluation}
 
 \begin{center}
 <<boot6, fig.height=3.5, cache=TRUE>>=
-ravel_boot <- bootstrap(ravel, nb_cluster = 12, nb_axe = 12, type="comptage", zero_inflated = FALSE)
-data <- rbind(ravel, ravel_boot$data)
-# metadata <- c(as.character(metadata_ravel$CST), as.character(ravel_boot$metadata)) %>% as.factor()
-metadata <- c(rep("real", nrow(ravel)), rep("simu", nrow(ravel_boot$data))) %>% as.factor()
-graph_biplot_normale(data, metadata, 1, title = "ravel", legend=FALSE, legend_title = "data")[[1]]
+liver_500_boot <- bootstrap(liver_500, nb_cluster = 13, nb_axe = 17, type="comptage", zero_inflated = FALSE)
+data <- rbind(liver_500, liver_500_boot$data)
+metadata <- c(rep("real", nrow(liver_500)), rep("simu", nrow(liver_500_boot$data))) %>% as.factor()
+graph_biplot_normale(data, metadata, 1, title = "Liver", legend=FALSE, legend_title = "data")[[1]]
 @
 
 \begin{tabular}{cc}
@@ -617,9 +756,9 @@ simulées & \pointcol{blue}
 \hline
 & réelles & simulées \\
 \hline
-réelles(pred) & \Sexpr{t_ravel_sans$all$random_forest[1,1]} & \Sexpr{t_ravel_sans$all$random_forest[1,2]} \\
+réelles(pred) & \Sexpr{t_liver_500_sans$all$random_forest[1,1]} & \Sexpr{t_liver_500_sans$all$random_forest[1,2]} \\
 \hline
-simulées(pred) & \Sexpr{t_ravel_sans$all$random_forest[2,1]}   & \Sexpr{t_ravel_sans$all$random_forest[2,2]}\\
+simulées(pred) & \Sexpr{t_liver_500_sans$all$random_forest[2,1]}   & \Sexpr{t_liver_500_sans$all$random_forest[2,2]}\\
 \hline
 \end{tabular}};
 
@@ -635,13 +774,13 @@ simulées(pred) & \Sexpr{t_ravel_sans$all$random_forest[2,1]}   & \Sexpr{t_ravel
 \begin{frame}
 
 <<boot1, fig.height=4, cache=TRUE>>=
-ravel_boot <- bootstrap(ravel, nb_cluster = 12, nb_axe = 12, type="comptage", zero_inflated = FALSE)
-data <- rbind(ravel, ravel_boot$data)
-# metadata <- c(as.character(metadata_ravel$CST), as.character(ravel_boot$metadata)) %>% as.factor()
-metadata <- c(rep("real", nrow(ravel)), rep("simu", nrow(ravel_boot$data))) %>% as.factor()
+liver_500_boot <- bootstrap(liver_500, nb_cluster = 13, nb_axe = 17, zero_inflated = FALSE)
+data <- rbind(liver_500, liver_500_boot$data)
+metadata <- c(rep("real", nrow(liver)), rep("simu", nrow(liver_boot$data))) %>% as.factor()
 d <- data.frame(data, metadata=metadata)
-ggplot(d) + geom_histogram(aes(OTU_163, fill=metadata), position="dodge", binwidth = 1)
+ggplot(d) + geom_histogram(aes(CAG00214_hs_9.9, fill=metadata), position="dodge", binwidth = 1) + xlim(c(-1, 30))
 @
+
 
 \end{frame}
 
@@ -729,12 +868,11 @@ Gaussienne 2 \\
 \begin{frame}
 
 <<boot2, fig.height=4, cache=TRUE>>=
-ravel_boot <- bootstrap(ravel, nb_cluster = 12, nb_axe = 12, type="comptage", zero_inflated = TRUE)
-data <- rbind(ravel, ravel_boot$data)
-# metadata <- c(as.character(metadata_ravel$CST), as.character(ravel_boot$metadata)) %>% as.factor()
-metadata <- c(rep("real", nrow(ravel)), rep("simu", nrow(ravel_boot$data))) %>% as.factor()
+liver_500_boot <- bootstrap(liver_500, nb_cluster = 13, nb_axe = 17, zero_inflated = TRUE)
+data <- rbind(liver_500, liver_500_boot$data)
+metadata <- c(rep("real", nrow(liver)), rep("simu", nrow(liver_boot$data))) %>% as.factor()
 d <- data.frame(data, metadata=metadata)
-ggplot(d) + geom_histogram(aes(OTU_163, fill=metadata), position="dodge", binwidth = 1)
+ggplot(d) + geom_histogram(aes(CAG00214_hs_9.9, fill=metadata), position="dodge", binwidth = 1)
 @
 
 \end{frame}
@@ -744,11 +882,11 @@ ggplot(d) + geom_histogram(aes(OTU_163, fill=metadata), position="dodge", binwid
 \begin{frame}
 \begin{center}
 <<boot3, fig.height=3.5,cache=TRUE>>=
-ravel_boot <- bootstrap(ravel, nb_cluster = 12, nb_axe = 12, type="comptage", zero_inflated = TRUE)
-data <- rbind(ravel, ravel_boot$data)
-# metadata <- c(as.character(metadata_ravel$CST), as.character(ravel_boot$metadata)) %>% as.factor()
-metadata <- c(rep("real", nrow(ravel)), rep("simu", nrow(ravel_boot$data))) %>% as.factor()
-graph_biplot_normale(data, metadata, 1, title = "ravel", legend=FALSE, legend_title = "data")[[1]]
+liver_boot <- bootstrap(liver_500, nb_cluster = 13, nb_axe = 17, zero_inflated = TRUE)
+data <- rbind(liver_500, liver_boot$data)
+metadata <- c(rep("real", nrow(liver)), rep("simu", nrow(liver_boot$data))) %>% as.factor()
+graph_biplot_normale(data, metadata, 1, "liver", "data")[[1]]
+
 @
 
 \begin{tabular}{cc}
@@ -767,9 +905,9 @@ simulées & \pointcol{blue}
 \hline
 & réelles & simulées \\
 \hline
-réelles(pred) & \Sexpr{t_ravel$all$random_forest[1,1]} & \Sexpr{t_ravel$all$random_forest[1,2]} \\
+réelles(pred) & \Sexpr{t_liver_500$all$random_forest[1,1]} & \Sexpr{t_liver_500$all$random_forest[1,2]} \\
 \hline
-simulées(pred) & \Sexpr{t_ravel$all$random_forest[2,1]}   & \Sexpr{t_ravel$all$random_forest[2,2]} \\
+simulées(pred) & \Sexpr{t_liver_500$all$random_forest[2,1]}   & \Sexpr{t_liver_500$all$random_forest[2,2]} \\
 \hline
 \end{tabular}
 \end{center}
@@ -777,19 +915,33 @@ simulées(pred) & \Sexpr{t_ravel$all$random_forest[2,1]}   & \Sexpr{t_ravel$all$
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Problématique profondeur de séquencage}
+\begin{frame} [fragile]{Problématique profondeur de séquencage}
 
 <<boot4, fig.height=4.5,cache=TRUE>>=
-ravel_boot <- bootstrap_presentation(ravel, nb_cluster = 12, nb_axe = 12, type="comptage")
-data <- data.frame(data=c(ravel_boot$data %>% apply(1, sum), ravel %>% apply(1, sum)), metadata=c(rep("simu",nrow(ravel)),rep("real", nrow(ravel))))
+liver_500_boot <- bootstrap_presentation(liver_500, nb_cluster = 13, nb_axe = 17, type="comptage", zero_inflated=FALSE)
+data <- data.frame(data=c(liver_500_boot$data %>% apply(1, sum), liver_500 %>% apply(1, sum)), metadata=c(rep("simu",nrow(liver_500)),rep("real", nrow(liver_500))))
 ggplot(data, aes(x=data, color=metadata, fill=metadata)) + geom_histogram(position="dodge", bins=30) +
 labs(y="nombre", x="profondeur")
 @
 
+
 \end{frame}
 
-
-
+\begin{frame}[fragile]
+<<>>=
+pro1 <- liver_500_boot$data %>% apply(1,sum) %>% mean
+pro2 <- liver_500 %>% apply(1,sum) %>% mean
+@
+\begin{center}
+\begin{tabular}{c|c}
+simulées & réelles \\
+\hline
+\Sexpr{pro1}
+&
+\Sexpr{pro2}
+\end{tabular}
+\end{center}
+\end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -808,7 +960,6 @@ labs(y="nombre", x="profondeur")
 d'analyses multivariée.
 \item Gain au niveau de l'analyse des échantillons
 \item Perte d'interprétabilité au niveau des OTU (espèces)
-\item Le simulateur donne de bons résultats (très variables selon les jeux de données).
 \end{itemize}
 \item \textbf{Améliorations}
 \begin{itemize}[label={$\bullet$}]
@@ -854,27 +1005,6 @@ grid.arrange(ggplot(data.frame(x = x, y = 0), aes(x, y)) + geom_point()
 @
 \end{frame}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Annexe}{mélange gaussien}
-<<fig.height=4>>=
-x <- seq(-5, 6, length=10000)
-y1 <- dnorm(x, mean=-1.8)*0.3
-y2 <- dnorm(x, mean=1.6, sd=1.4)*0.5
-y3 <- dnorm(x, mean=-3, sd=0.4)*0.2
-n <- 1000000
-r1 <- rnorm(n*0.3, -1.8)
-r2 <- rnorm(n*0.5, 1.6, 1.4)
-r3 <- rnorm(n*0.2, -3, 0.4)
-
-hist(c(r1, r2, r3), proba=TRUE, breaks = 50, main="melange gaussien", xlab = "x")
-lines(x, y1, col="red")
-lines(x, y2, col='blue')
-lines(x,y3, col="green")
-lines(x, y1+y2+y3)
-legend("topright", lty=c(1,1,1), col=c("red", "blue", "green", "black"), legend=c("G1","G2", "G3","G1+G2+G3"))
-
-@
-\end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Annexe}{conservation distance}
@@ -998,15 +1128,46 @@ avec \(\pi_{jk}\) la probabilité de mettre un zéro\\
 \begin{frame}{Annexe}{Problématique profondeur de séquencage}
 
 <<boot5, fig.height=4.5, cache=TRUE>>=
-ravel_boot <- bootstrap(ravel, nb_cluster = 12, nb_axe = 12, type="comptage")
-data <- data.frame(data=c(ravel_boot$data %>% apply(1, sum), ravel %>% apply(1, sum)), metadata=c(rep("simu",nrow(ravel)),rep("real", nrow(ravel))))
+liver_500_boot <- bootstrap(liver_500, nb_cluster = 13, nb_axe = 17, type="comptage")
+data <- data.frame(data=c(liver_500_boot$data %>% apply(1, sum), liver_500 %>% apply(1, sum)), metadata=c(rep("simu",nrow(liver_500)),rep("real", nrow(liver_500))))
 ggplot(data, aes(x=data, color=metadata, fill=metadata)) + geom_histogram(position="dodge", bins=30) +
 labs(y="nombre", x="profondeur")
 @
 
 \end{frame}
 
+
+\begin{frame}[fragile]{Annexe}{Problématique profondeur de séquencage}
+<<>>=
+pro1 <- liver_500_boot$data %>% apply(1,sum) %>% mean
+pro2 <- liver_500 %>% apply(1,sum) %>% mean
+@
+\begin{center}
+\begin{tabular}{c|c}
+simulées & réelles \\
+\hline
+\Sexpr{pro1}
+&
+\Sexpr{pro2}
+\end{tabular}
+\end{center}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Annexe}{Opération de base}
+<<fig.height=4>>=
+data("Hongite")
+h <- Hongite[,1:3] %>% closure
+ternary_diagram_vide()
+h %>% coord_ternary_diagram() %>% points()
+center_data(h) %>% coord_ternary_diagram() %>% points(col="red", pch=3)
+apply(h, 2, mean) %>% closure %>% coord_ternary_diagram() %>% points(col="green", pch=3)
+legend("topright", pch=c(3,3), col=c("red", "green", "black"), legend=c("geometrice"," arithmetic"))
+@
+\end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \begin{frame}[allowframebreaks]{Références}
 \nocite{Aitchison86}
 \nocite{Capushe}
