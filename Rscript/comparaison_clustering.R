@@ -3,6 +3,23 @@ library(dplyr)
 library(magrittr)
 
 
+
+#' perform two k-means clustering, one on a data set of count data, 
+#' the second on the same data set but after transforming it to compositionnal 
+#' and apply ilr transformation. 
+#' 
+#'  
+#' @param data a dataset (count data)
+#' @param metadata a numeric vector containing the name of the group (the group of the samples of the dataset data) 
+#' @param nb_cluster the number of clusters use in the kmeans
+#' @param nb_graph the number of graph return (show the graphically the results of clusterings and the real group)
+#' @param base_binaire binary sequential matrix use for the ilr transformation (default the basis sequence)
+#'
+#' @return two table contingence (one for the clustering on the count dataset, the other on ilr dataset) 
+#' @return list of graphics (showing the results of the clustering on the first axes of an acp)
+#' @author Clement Hardy
+#' @export
+
 comparaison_k_means <- function(data, metadata, nb_cluster=2, nb_graph=1, nb_start=50, base_binaire=Base_binary_matrix(ncol(data))){
   
   data_ilr <- data %>% MAP() %>% ilr(base_binaire = base_binaire)
@@ -24,6 +41,22 @@ comparaison_k_means <- function(data, metadata, nb_cluster=2, nb_graph=1, nb_sta
 }
 
 
+#' perform two hierarchical clustering, one on a data set of count data, 
+#' the second on the same data set but after transforming it to compositionnal 
+#' and apply ilr transformation. 
+#' 
+#'  
+#' @param data a dataset (count data)
+#' @param metadata a numeric vector containing the name of the group (the group of the samples of the dataset data) 
+#' @param nb_cluster the number of clusters use in the clustering
+#' @param nb_graph the number of graph return (show the graphically the results of clusterings and the real group)
+#' @param base_binaire binary sequential matrix use for the ilr transformation (default the basis sequence)
+#'
+#' @return two table contingence (one for the clustering on the count dataset, the other on ilr dataset) 
+#' @return list of graphics (showing the results of the clustering on the first axes of an acp)
+#' @author Clement Hardy
+#' @export
+
 comparaison_hclust <- function(data, metadata, nb_cluster, nb_graph, base_binaire=Base_binary_matrix(ncol(data))){
   
   data_ilr <- data %>% MAP() %>% ilr(base_binaire = base_binaire)
@@ -44,6 +77,22 @@ comparaison_hclust <- function(data, metadata, nb_cluster, nb_graph, base_binair
   
 }
 
+
+#' perform two gaussian mixture clustering, one on a data set of count data, 
+#' the second on the same data set but after transforming it to compositionnal 
+#' and apply ilr transformation. 
+#'  
+#' @param data a dataset (count data)
+#' @param metadata a numeric vector containing the name of the group (the group of the samples of the dataset data) 
+#' @param nb_cluster the number of gaussian use in the gaussian mixture
+#' @param nb_graph the number of graph return (show the graphically the results of clusterings and the real group)
+#' @param base_binaire binary sequential matrix use for the ilr transformation (default the basis sequence)
+#'
+#' @return two table contingence (one for the clustering on the count dataset, the other on ilr dataset) 
+#' @return list of graphics (showing the results of the clustering on the first axes of an acp)
+#' @author Clement Hardy
+#' @export
+#' @import mclust
 
 comparaison_Mclust <- function(data, metadata, nb_cluster, nb_graph, base_binaire=Base_binary_matrix(ncol(data))){
   

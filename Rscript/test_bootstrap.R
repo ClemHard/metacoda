@@ -9,6 +9,17 @@ library(nnet)
 source("Rscript/bootstrap.R")
 
 
+#' make sure the two table are compatible(same rownames, same colnames)
+#'In case the rownames, colnames aren't the same, the function add column, row to the tables
+#'
+#' @param table1,table2 the two tables to check
+#' 
+#' @return a list containing the tow tables check and modify (if necessary)
+#'
+#' @author Clement Hardy
+#' @export
+#' 
+
 
 check_table <- function(table1, table2){
 
@@ -68,11 +79,31 @@ check_table <- function(table1, table2){
 
 
 
+#' Modify a table to a table with percentage
+#'
+#' @param table the table to modify to a percentage table
+#' 
+#' @return the percentage table
+#'
+#' @author Clement Hardy
+#' @export
+
+
 table_to_percentage_table <- function(table){
   nb_row <- nrow(table)
   table <- round(table/matrix(rep(apply(table, 2, sum), nb_row), byrow = TRUE, nrow=nb_row)*100, digits=2)
   table
 }
+
+
+#' add predict or observe to the colnames and rownames of a table 
+#'
+#' @param table 
+#' 
+#' @return the table with the colnames and rownames modify
+#'
+#' @author Clement Hardy
+#' @export
 
 
 change_name_table <- function(table){
@@ -110,11 +141,33 @@ list_table_sum <- function(l){
 }
 
 
+#' create a test data frame (to make sure the colnames are compatible with the test function) with the data (matrix) pass in argument
+#'
+#' @param data a matrix containing the test data
+#' 
+#' @return a data.frame 
+#'
+#' @author Clement Hardy
+#' @export
+#' 
+
 create_data_frame_test <- function(data){
   test <- data.frame(data, row.names = NULL)
   colnames(test) <- paste("X",1:ncol(test), sep="")
   test
 }
+
+
+#' create a train data frame (to make sure the colnames are compatible with the test function) with the data (matrix) pass in argument
+#' the metadata is in the last column of the data frame
+#' 
+#' @param data a matrix containing the test data
+#' 
+#' @return a data.frame 
+#'
+#' @author Clement Hardy
+#' @export
+#' 
 
 
 create_data_frame_train <- function(data, metadata){
@@ -157,6 +210,17 @@ create_data_frame_simu <- function(data1, apprent, test_real_data=NULL, type, ze
 }
 
 
+#' select the optimal number of nearest neighbors in the kNN  with a 10 folds cross validation
+#' 
+#' @param train a data frame created by the function create_data_frame_train
+#' 
+#' @return the optimal k
+#'
+#' @author Clement Hardy
+#' @export
+#' 
+
+
 best_k_kNN <- function(train){
   
   metadata <- train[,ncol(train)]
@@ -176,6 +240,18 @@ best_k_kNN <- function(train){
   which.min(l)
 }
 
+
+#' three differents classification algorithm which are random Forest, logistic regression and k nearest neighbors
+#' predict the type (real or simulated) of the sample pass in argument. Firstly the classificators are train in a dataset
+#' containing real and simulated sample
+#' 
+#' @param train a data frame created by the function create_data_frame_train
+#' @param test a data frame created by the function create_data_frame_test
+#' @return list containing prediction (a vector) of each classification algorithm
+#'
+#' @author Clement Hardy
+#' @export
+#' 
 
 pred_real_simu <- function(train, test){
   
@@ -197,6 +273,29 @@ pred_real_simu <- function(train, test){
   
   list(random_forest=pred_forest, kNN=pred_kNN, logi=pred_logi)
 }
+
+#' test the performance of the simulator for a count dataset 
+#' three differents classification algorithm are use in the goal to predict the type (real or simualted) of simulated sample
+#' A good simulation lead to an impossibility for the classification algorithm to see
+#' the different beetween a simulated or a real sample.
+#' 
+#' For i in 1,2,..., nb_train, this function simulate two new dataset. One is with the real dataset (some samples aren't use in the training dataset but are use for the test) use to train the classificators (to learn the differents beetween the real and simulated sample)
+#' The classificators are then use to predict the type of the sample of the second simulated dataset (some real samples are also use in the test dataset), a table contingence are finally created.
+#' 
+#' 
+#' @param data1 the dataset (containing the real samples) to simulate for the test 
+#' @param metadata a numeric vector containing the name of the group (the group of the samples of the dataset data1) 
+#' @param nb_cluster the number of gaussian in the gaussian mixture
+#' @param nb_axe the dimension of the latent space (dimension reduction)
+#' @param nb_sample the number of sample to produce
+#' @param  base_binaire binary sequential matrix use for the ilr transformation
+#' @param zero_inflated boolean, if TRUE a zero inflated method is apply (on the simulated dataset), FALSE otherwise
+#' @param proportion_real_data the proportion of real samples use in the test dataset (should be a number beetween 0 and 1) 
+#' 
+#' @return a list containing the mean of the nb_train contingence table (for each incompatible) and a list of all contigence table produces (for each algorithm)
+#' 
+#' @author Clement Hardy
+#' @export
 
 
 test_bootstrap_all <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_train=1, proportion_real_data=0.1, type="comptage", zero_inflated=TRUE, base_binaire=Base_binary_matrix(ncol(data1))){
@@ -243,65 +342,5 @@ test_bootstrap_all <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_train=1, 
   list(all=all, all_train=l)
 }
 
-
-
-
-test_bootstrap_variable <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_train=1, proportion_real_data=0.1, type="comptage", base_binaire=Base_binary_matrix(ncol(data1))){
-  
-  
-  if(type=="ilr") data1 <- data1 %>% MAP() %>% center_scale(scale=FALSE) %>% ilr(base_binaire = base_binaire)
-  
-  if(type=="MAP") data1 <- data1 %>% MAP()
-  
-  rand_real_data <- sample(1:nrow(data1), floor(nrow(data1)*proportion_real_data))
-  test_real_data <- data1[rand_real_data,]
-  data1 <- data1[-rand_real_data,]
-  apprent <- apprentissage(data1, nb_axe = nb_axe, nb_cluster = nb_cluster, base_binaire = base_binaire)
-  
-  data_test <- create_data_frame_simu(data1, apprent=apprent, test_real_data = test_real_data, type=type)
-  
-  variables <- colnames(data_test$test)
-  
-  
-  no_cores <- detectCores()-1
-  if(no_cores>1){
-    
-    cl <- makeCluster(no_cores)
-    clusterEvalQ(cl, {library(randomForest); library(dplyr)})
-    clusterExport(cl, list("data_test"), envir = environment())
-    
-      each <- lapply(variables, function(x){
-                                              rf <- randomForest(as.formula(paste("metadata~",x)), data_test$train)
-                                              predict(rf, data_test$test) %>% table(data_test$metadata_test)
-                                              })
-      
-    stopCluster(cl)
-    
-  }else{
-    each <- lapply(variables, function(x){
-                                      rf <- randomForest(as.formula(paste("metadata~",x)), data_test$train)
-                                      predict(rf, data_test$test) %>% table(data_test$metadata_test)
-                                       })
-  }
-  
-  misclassification_each <- sapply(each, function(x){x[1, 2]})
-  
-  names(misclassification_each) <- colnames(data1)
-  names(each) <- colnames(data1)
-  
-  
-  list(table_each=each, misclassification=misclassification_each)
-}
-
-
-
-
-test_bootstrap <- function(data1, nb_cluster=NULL, nb_axe=NULL, proportion_real_data=0.1, nb_train_all=1, type="comptage", base_binaire=Base_binary_matrix(ncol(data1))){
-  
-  all <- test_bootstrap_all(data1, nb_train = nb_train_all, type=type, base_binaire=base_binaire, proportion_real_data = proportion_real_data)
-  each <- test_bootstrap_variable(data1, type=type, base_binaire=base_binaire, proportion_real_data = proportion_real_data)
-  
-  list(all=all, table_each=each$table_each, misclassification=each$misclassification)
-}
 
 

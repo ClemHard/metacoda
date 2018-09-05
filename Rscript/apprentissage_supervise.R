@@ -93,6 +93,24 @@ bootstrap_supervise <- function(data, metadata, nb_sample=NULL){
 }
 
 
+
+#' test the performance of the simulator for a count dataset 
+#' Firstly, the function learn the density of the different groups (of the dataset) with a gaussian mixture and 
+#' different classification algorithm like randomForest are train in the dataset
+#' 
+#' Then, nb_train new dataset are simulated ; for each new dataset the different classification algoritm predict the class
+#' of each new sample (of the new dataset) , the result of the prediction is then compare to the real class to create
+#' a contingence table.
+#' 
+#' @param data the dataset to simulate for the test 
+#' @param metadata a numeric vector containing the name of the group 
+#' @param nb_sample a numeric vector containing the number of sample to produce for each group (default nrow(data))
+#'
+#' @return a list containing the mean of the nb_train contingence table (for each incompatible) and a list of all contigence table produces (for each algorithm)
+#' 
+#' @author Clement Hardy
+#' @export
+
 test_bootstrap_supervise <- function(data, metadata, nb_train=1, type="comptage", nb_sample=NULL){
   
   apprent <- apprentissage_supervise(data=data, metadata = metadata)
@@ -120,15 +138,31 @@ test_bootstrap_supervise <- function(data, metadata, nb_train=1, type="comptage"
     test <- create_data_frame_test(data=simu$data)
     
     find_group(train, test, simu$metadata)
-      
-   })
+    
+  })
   
   stopCluster(cl)
-
+  
   sum_table <- lapply(list_table_sum(l), table_to_percentage_table)
   list(all=sum_table, all_train=l)
 }
 
+#' test the performance of the simulator for a count dataset 
+#' Firstly, the function learn the density of the different groups (of the dataset) with a gaussian mixture and 
+#' different classification algorithm like randomForest are train in the dataset
+#' 
+#' Then, nb_train new dataset are simulated ; for each new dataset the different classification algoritm predict the class
+#' of each new sample (of the new dataset) , the result of the prediction is then compare to the real class to create
+#' a contingence table.
+#' 
+#' @param data the dataset to simulate for the test 
+#' @param metadata a numeric vector containing the name of the group 
+#' @param nb_sample a numeric vector containing the number of sample to produce for each group (default nrow(data))
+#'
+#' @return a list containing the mean of the nb_train contingence table (for each incompatible) and a list of all contigence table produces (for each algorithm)
+#' 
+#' @author Clement Hardy
+#' @export
 
 find_group <- function(train, test, metadata_test){
   ### random forest
@@ -144,12 +178,24 @@ find_group <- function(train, test, metadata_test){
   pred_svm <- predict(Svm, test)
   
   ### neuronal
- # nn <- nnet(metadata~., train, size=5, MaxNWts=1000000, maxit=500)
- # pred_nn <- predict(nn, test, type="class")
+  # nn <- nnet(metadata~., train, size=5, MaxNWts=1000000, maxit=500)
+  # pred_nn <- predict(nn, test, type="class")
   
   list(random_forest=table(pred_forest, metadata_test) %>% change_name_table(), kNN=table(kNN, metadata_test) %>% change_name_table(), Svm=table(pred_svm, metadata_test) %>% change_name_table())
 }
 
+
+
+#' perform the cross validation for tow algorithms (kNN, SVM) and return the confusion matrix for the random Forest
+#' 
+#' @param data the dataset use for the cross validation
+#' @param metadata a numeric vector containing the name of the group 
+#' @param n the dataset is separated in n groups for the cross validation (by default n=nrow(data), leave one out is perform)
+#'
+#' @return contigences table of cross validation (for each algorithm)
+#' 
+#' @author Clement Hardy
+#' @export
 
 
 
@@ -175,7 +221,7 @@ validation_croise <- function(data, metadata, n=nrow(data)){
     
     table1 <- table(pred_kNN, metadata[x==iid])
     table2 <- table(pred_Svm, metadata[x==iid])
-
+    
     
     list(table1, table2)
   })
@@ -189,16 +235,27 @@ validation_croise <- function(data, metadata, n=nrow(data)){
   all
 }
 
+#' find the simulated sample pass in argument which are considered as real sample 
+#' 
+#' @param data_real the dataset of real sample use to train the classification algorithm
+#' @param data_simu_train a dataset of simulated sample use to train the classification algorithm
+#' @param data_simu a dataset of simulated sample (the function return the index of the sample considered as real of this dataset)
+#' @param algo the classification algorithm use to find the real sample (by defautl randomForest), could be randomForest, logistic, kNN or neural (nnet)
+#' 
+#' @return a vector of the index of the sample considere as real
+#' 
+#' @author Clement Hardy
+#' @export
 
 
 find_real <- function(data_real, data_simu_train, data_simu, algo="randomForest"){
   
   data_train <- rbind(data_real, data_simu_train)
   metadata <- c(rep("real", nrow(data_real)), rep("simu", nrow(data_simu_train))) %>% as.factor()
-
+  
   train <- create_data_frame_train(data=data_train, metadata = metadata)
   test <- create_data_frame_test(data=data_simu)
-
+  
   pred <- NULL
   
   
@@ -206,13 +263,13 @@ find_real <- function(data_real, data_simu_train, data_simu, algo="randomForest"
     forest <- randomForest(metadata~., train)
     pred <- predict(forest, test)
   }
-
+  
   if(algo=="kNN"){
     k <- best_k_kNN(train)
     pred <- knn(train[,-ncol(train)], 
-                    test, 
-                    cl=train[,ncol(train)], 
-                    k=train)
+                test, 
+                cl=train[,ncol(train)], 
+                k=train)
   }
   
   if(algo=="logistic"){
@@ -231,6 +288,15 @@ find_real <- function(data_real, data_simu_train, data_simu, algo="randomForest"
 }
 
 
+#' return the number of sample in each group of a dataset 
+#' 
+#' @param metadata a numeric vector containing the name of the group 
+#' 
+#' @return a vector containing the number of sample for each group
+#' 
+#' @author Clement Hardy
+#' @export
+
 
 find_nb_sample_cluster <- function(metadata){
   name_group <- unique(metadata)
@@ -238,6 +304,26 @@ find_nb_sample_cluster <- function(metadata){
 }
 
 
+
+#' test the performance of the simulator for a count dataset 
+#' The different with the function test_bootstrap supervise is that this time only the simulated sample considered as real
+#' are keep for the test of classification
+#' 
+#' Firstly, the function learn the density of the different groups (of the dataset) with a gaussian mixture and 
+#' different classification algorithm like randomForest are train in the dataset
+#' 
+#' Then, nb_train new dataset are simulated ; for each new dataset the different classification algoritm predict the class
+#' of each new sample considered as real by the function find_real (of the new dataset) , the result of the prediction is then compare to the real class to create
+#' a contingence table.
+#' 
+#' @param data the dataset to simulate for the test 
+#' @param metadata a numeric vector containing the name of the group 
+#' @param nb_sample a numeric vector containing the number of sample to produce for each group (default nrow(data))
+#'
+#' @return a list containing the mean of the nb_train contingence table (for each incompatible) and a list of all contigence table produces (for each algorithm)
+#' 
+#' @author Clement Hardy
+#' @export
 
 classificateur_group_real_simu <- function(data, metadata, nb_train=1, type="comptage"){
   
@@ -258,7 +344,7 @@ classificateur_group_real_simu <- function(data, metadata, nb_train=1, type="com
   
   
   train <- create_data_frame_train(data = data, metadata=metadata)
-
+  
   no_cores <- detectCores()-1
   if(no_cores==0) no_cores <- 1
   
@@ -269,7 +355,7 @@ classificateur_group_real_simu <- function(data, metadata, nb_train=1, type="com
   l <-  parLapply(cl, 1:nb_train, function(x){
     
     simu <- simulation_supervise(apprent, nb_sample=10*find_nb_sample_cluster(metadata = metadata))
-  
+    
     if(type=="ilr"){
       simu$data <- simu$data %>% MAP() %>% ilr()
     }
@@ -279,22 +365,21 @@ classificateur_group_real_simu <- function(data, metadata, nb_train=1, type="com
     }
     
     iid_real <- find_real(data_real = data, data_simu_train = boot$data, data_simu = simu$data)
-  
+    
     data_real <- simu$data[iid_real, ]
     metadata_real <- simu$metadata[iid_real]
-
+    
     test <- create_data_frame_test(data=data_real)
-  
-  
+    
+    
     find_group(train=train, test = test, metadata_test =  metadata_real)
   })
   
   stopCluster(cl)
   
   sum_table <- list_table_sum(l)
-
+  
   
   sum_table <- lapply(sum_table, table_to_percentage_table)
   list(all=sum_table, all_train=l)
 }
-

@@ -5,6 +5,17 @@ library(magrittr)
 
 source("Rscript/test_groupe.R")
 
+
+#' Plot the evolution of a compositionnal data
+#'  
+#' @param data a matrix containing compositional data (coordinates of a compositionnal data in lines)
+#' @param abscisse abiscisse of the graphic (by default 1,2,..., nrow(data))
+#' @return a ggplot object
+#' 
+#' @author Clement Hardy
+#' @export
+
+
 Graph_proportion_evolution<-function(data, abscisse=1:nrow(data)){
   
   data <- norm_data(data)
@@ -30,6 +41,14 @@ Graph_proportion_evolution<-function(data, abscisse=1:nrow(data)){
 
 
 
+#' Plot the cumulative evolution of a compositionnal data 
+#'  
+#' @param data a matrix containing compositional data (coordinates of the compositionnal data in lines)
+#' @param abscisse abscisse of the graphic (by default 1,2,..., nrow(data))
+#' @return a ggplot object
+#' 
+#' @author Clement Hardy
+#' @export
 
 
 Graph_cumulative_evolution<-function(data, abscisse=1:nrow(data)){

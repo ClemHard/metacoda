@@ -54,7 +54,8 @@ max_abundance_value_OTU <- function(data){
 #'                                 six: the proportion of the value per OTU
 #' 
 #' @author Clement Hardy
-#' @export dplyr
+#' @import dplyr
+#' @export
 
 
 zero_inflated <- function(data, classification){
@@ -179,7 +180,7 @@ nb_cluster <- function(data, max_nb_cluster=round(nrow(data)/3)){
 }
 
 
-#' find the optimal dimension of the latent space with the the heuristic slope
+#' find the optimal dimension of the latent space with the heuristic slope
 #'
 #' @param data the original dataset
 #' @param data_biplot boolen , TRUE the dataset is already principal component coordinate, FALSE compositionnal data
@@ -219,7 +220,7 @@ nb_axe_capushe <- function(data, data_biplot=FALSE, base_binaire=Base_binary_mat
 
 #'  fit a gaussian mixture on compositional data after doing a reduction dimension
 #'  
-#' @param a dataset (compositionnal data)
+#' @param data a dataset (compositionnal data)
 #' @param nb_axe the dimension of the latent space
 #' @param nb_cluster the number of gaussian in the gaussian mixture
 #' @param  base_binaire binary sequential matrix use for the ilr transformation (default the basis sequence)
