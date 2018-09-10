@@ -9,6 +9,8 @@ library(rARPACK)
 #' @author Clement Hardy
 #' @export
 
+
+
 check_data <- function(data) {
   ## transform to column matrix if vector
   ## ensures that functions work also with one data point only
@@ -36,6 +38,9 @@ check_data <- function(data) {
 #'
 #' @author Clement Hardy
 #' @export
+
+
+
 norm_data <- function(data) {
   data <- check_data(data)
   ## check presence of 0s or negative values
@@ -50,7 +55,12 @@ norm_data <- function(data) {
 #' @param x,y two compositional data
 #'
 #' @return the Inner product of the data
-#'
+#' @examples 
+#' \dontrun{
+#' x <- matrix(c(0.1, 0.3, 0.6), nrow=1)
+#' y <- matrix(c(0.4, 0.2, 0.4), nrow=1)
+#' Inner_product(x,y)
+#' }
 #' @author Clement Hardy
 #' @export
 #' 
@@ -72,6 +82,12 @@ Inner_product<-function(x,y){
 #' @return a single number giving the norm of the compositionnal data, 
 #' or a numeric vector giving the norm of each line if data is a matrix
 #'
+#' @examples 
+#' \dontrun{
+#' data <- closure(matrix(runif(30,0,1), nrow=10))
+#' norm_simplex(data)
+#' }
+#' 
 #' @author Clement Hardy
 #' @export
 
@@ -86,7 +102,11 @@ norm_simplex<-function(data){
 #' @param a numeric matrix containing compositionnal data
 #' 
 #' @return an object of class "dist"
-#'
+#' @examples 
+#' \dontrun{
+#' data <- closure(matrix(runif(30,0,1), nrow=10))
+#' norm_simplex(data)
+#' }
 #' @author Clement Hardy
 #' @export
 
@@ -95,12 +115,17 @@ dist_simplex <- function(data) {
 }
 
 
-#' close compositional data for a sum equal to one
+#' close compositional data for a sum equal to a constant k
 #'
 #' @param data a matrix containing compositional data
 #' @param k the sum of the closure (the default is 1)
 #' @return compositionnal data (closure done)
-#'
+#' @examples 
+#' \dontrun{
+#' x <- matrix(1:6, nrow=2)
+#' closure(x)
+#' closure(x, k=3)
+#' }
 #' @author Clement Hardy
 #' @export
 
@@ -117,7 +142,12 @@ closure <- function(data, k=1){
 #' @param multiple a compositional data use to perturbe data
 #' 
 #' @return the results of the perturbation 
-#'
+#' @examples 
+#' \dontrun{
+#' data <- closure(matrix(1:9, nrow=3))
+#' x <- closure(matrix(c(1,1.2,1.2), nrow=1))
+#' perturbation(data, x)
+#' }
 #' @author Clement Hardy
 #' @export
 #' 
@@ -137,7 +167,12 @@ perturbation <- function(data, multiple){
 #' @param alpha a numeric to power with
 #' 
 #' @return the results of the power  
-#'
+#' @examples 
+#' \dontrun{
+#' data <- closure(matrix(1:9, nrow=3))
+#' x <- 2
+#' power(data, x)
+#' }
 #' @author Clement Hardy
 #' @export
 #' 
@@ -154,7 +189,11 @@ power <- function(data, alpha){
 #' @param data a matrix containing compositional data
 #' 
 #' @return the centerd log ration coordinates of the data
-#'
+#' @examples 
+#' \dontrun{
+#' data <- closure(matrix(1:9, nrow=3))
+#' clr(data)
+#' }
 #' @author Clement Hardy
 #' @export
 #' 
@@ -210,7 +249,12 @@ simu_simplexe<-function(D, k = 1, N) {
 #' @param data a matrix containing compositional data
 #' 
 #' @return a mtrix containing the coordinate of data in the simplex
-#' 
+#' @examples 
+#' \dontrun{
+#' data <- closure(matrix(1:9, nrow=3))
+#' data1 <- clr(data)
+#' clr_inverse(data1)
+#' }
 #' @author Clement Hardy
 #' @export
 
@@ -223,8 +267,12 @@ clr_inverse<-function(data, k = 1){
 #'
 #' @param data D the size of compositional data
 #' 
-#' @return the  Sigma matrix of the basis
-#'
+#' @return the  Sigma matrix of the basis (dimension of the matrix D-1,D)
+#' @examples 
+#' \dontrun{
+#' Base_SIGMA_matrix(2)
+#' Base_SIGMA_matrix(5)
+#' }
 #' @author Clement Hardy
 #' @export
 
@@ -243,12 +291,16 @@ Base_SIGMA_matrix <- function(D) {
 
 #' compute the SIGMA matrix of a particular basis (for the isometric log ration transformation)
 #'
-#' @param sequential_binary a matrix of the sequence of the a particular basis
+#' @param sequential_binary a matrix of the sequence of the particular basis
 #' 
 #' @param data D the size of compositional data
 #' 
 #' @return the  binary matrix of the basis
-#' 
+#' @examples 
+#' \dontrun{
+#' mat <- matrix(c(1,1,-1,1,-1,0),byrow = TRUE, nrow=2)
+#' SIGMA_matrix(mat)
+#' }
 #' @author Clement Hardy
 #' @export
 
@@ -279,7 +331,11 @@ SIGMA_matrix <- function(sequential_binary){
 #' @param D a matrix of the sequence of the a particular basis
 #' 
 #' @return the matrix of the particular basis
-#'
+#' @examples 
+#' \dontrun{
+#' Base_binary_matrix(2)
+#' Base_binary_matrix(5)
+#' }
 #' @author Clement Hardy
 #' @export
 
@@ -298,7 +354,13 @@ Base_binary_matrix<-function(D){
 #' @param data a matrix containing compositional data
 #' 
 #' @return the isometric log ratio  coordinates of the data
-#'
+#' @examples 
+#' \dontrun{
+#' mat <- matrix(c(1,1,-1,1,-1,0),byrow = TRUE, nrow=2)
+#' data <- closure(matrix(1:9, nrow=3))
+#' ilr(data)
+#' ilr(data, mat)
+#' }
 #' @author Clement Hardy
 #' @export
 #' 
@@ -317,7 +379,13 @@ ilr<-function(data, base_binaire=Base_binary_matrix(ncol(data))){
 #' @param data a matrix containing compositional data
 #' 
 #' @return a mtrix containing the coordinate of data in the simplex
-#' 
+#' @examples 
+#' \dontrun{
+#' mat <- matrix(c(1,1,-1,1,-1,0),byrow = TRUE, nrow=2)
+#' data <- closure(matrix(1:9, nrow=3))
+#' ilr(data) %>% ilr_inverse()
+#' ilr(data, mat) %>% ilr_inverse(base_binaire=mat)
+#' }
 #' @author Clement Hardy
 #' @export
 
@@ -334,7 +402,11 @@ ilr_inverse<-function(data, k=1, base_binaire=Base_binary_matrix(ncol(data)+1)){
 #' @param data a matrix containing compositional data
 #' 
 #' @return the additive log ratio  coordinates of the data
-#'
+#' @examples 
+#' \dontrun{
+#' data <- closure(matrix(1:9, nrow=3))
+#' alr(data)
+#' }
 #' @author Clement Hardy
 #' @export
 
@@ -350,7 +422,11 @@ alr <- function(data){
 #' @param data a matrix containing compositional data
 #' 
 #' @return a mtrix containing the coordinate of data in the simplex
-#' 
+#' @examples 
+#' \dontrun{
+#' data <- closure(matrix(1:9, nrow=3))
+#' alr(data) %>% alr_inverse()
+#' }
 #' @author Clement Hardy
 #' @export
 
@@ -365,7 +441,12 @@ alr_inverse <- function(data){
 #' @param norm a boolean, TRUE for normalized covariance matrix, FALSE otherwise
 #' 
 #' @return the covariance matrix
-#'
+#' @examples 
+#' \dontrun{
+#' data <- matrix(runif(99, 0, 1), ncol=3)
+#' variation_matrix(data)
+#' variation_matrix(data, norm=TRUE)
+#' }
 #' @author Clement Hardy
 #' @export
 #' 
@@ -392,6 +473,21 @@ variation_matrix<-function(data, norm = FALSE) {
   mat
 }
 
+#' compute the normalised covariance matrix of compositional data
+#'
+#' @param data a matrix containing compositional data
+#' @param norm a boolean, TRUE for normalized covariance matrix, FALSE otherwise
+#' 
+#' @return the normalised covariance matrix
+#' @examples 
+#' \dontrun{
+#' data <- matrix(runif(99, 0, 1), ncol=3)
+#' normalised_variation_matrix(data)
+#' }
+#' @author Clement Hardy
+#' @export
+#' 
+
 normalised_variation_matrix <- function(data){
   variation_matrix(data, norm = TRUE)
 }
@@ -402,7 +498,11 @@ normalised_variation_matrix <- function(data){
 #' @param data a matrix containing compositional data
 #' 
 #' @return a composition (center of the data)
-#'
+#' @examples 
+#' \dontrun{
+#' data <- closure(matrix(1:9, nrow=3))
+#' center_data(data)
+#' }
 #' @author Clement Hardy
 #' @export
 #' 
@@ -419,7 +519,11 @@ center_data<-function(data) {
 #' @param data a matrix containing compositions data
 #' 
 #' @return a numeric (total variance of the dataset)
-#'
+#' @examples 
+#' \dontrun{
+#' data <- matrix(runif(99, 0, 1), ncol=3)
+#' totvar(data)
+#' }
 #' @author Clement Hardy
 #' @export
 #' 
@@ -436,7 +540,12 @@ totvar<-function(data){
 #' @param scale a boolean, scale the dataset if TRUE
 #' 
 #' @return the data center (if TRUE), scale (if TRUE)
-#'
+#' @examples 
+#' \dontrun{
+#' data <- cbind(runif(100,0,1), runif(100,0,100), runif(100,20,80)) %>% closure()
+#' center_scale(data, scale=FALSE)
+#' center_scale(data)
+#' }
 #' @author Clement Hardy
 #' @export
 #' 
@@ -455,6 +564,25 @@ center_scale<-function(data, center = TRUE, scale = TRUE) {
   data
 }
 
+
+#' principal component analysis on compositionnal data
+#'
+#' @param data the dataset 
+#' @param base_binaire binary sequential matrix use for the ilr transformation
+#' 
+#' @return variance_explain the cumulative sum of variance 
+#' @return vector the eigen vector of the covariance matrix
+#' @return values the eigen values of the covariance matrix
+#' @return coord the coordinate of the data in the latent space
+#' @examples 
+#' \dontrun{
+#' data <- cbind(runif(100, 0, 1), runif(100, 0, 100), runif(100, 20, 80), runif(100, 10, 11), runif(100, 23, 83)) %>% closure()
+#' biplot(data)
+#' }
+#' @author Clement Hardy
+#' @export
+#' @import rARPACK
+#'
 
 biplot<-function(data, base_binaire=Base_binary_matrix(ncol(data))){
   
@@ -494,7 +622,11 @@ biplot<-function(data, base_binaire=Base_binary_matrix(ncol(data))){
 #' @param data a matrix containing the dataset
 #' 
 #' @return a matrix containing the proportion of each componant (for each line)
-#'
+#' @examples 
+#' \dontrun{
+#' data <- matrix(1:9, nrow=3)
+#' count_to_proportion(data)
+#' }
 #' @author Clement Hardy
 #' @export
 #' 
@@ -510,10 +642,15 @@ count_to_proportion<-function(data){
 #' compute the maximun a posteriori estimator of a dataset of compositional data
 #'
 #' @param data a matrix containing compositional data
-#' @param alpha the regularization parameterr (default is one)
+#' @param alpha the regularization parameter (default is 1)
 #' 
 #' @return the maximun a posteriori
-#'
+#' @examples 
+#' \dontrun{
+#' data <- matrix(1:9, nrow=3)
+#' MAP(data)
+#' MAP(data, alpha=2)
+#' }
 #' @author Clement Hardy
 #' @export
 
