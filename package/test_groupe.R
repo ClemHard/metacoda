@@ -1,5 +1,3 @@
-library(MASS)
-
 
 regularisation <- function(var1){
 
@@ -297,6 +295,7 @@ intervalle_confiance<-function(data, alpha=0.05, case=3, moy=NULL, var_matrix=NU
 #' @author Clement Hardy
 #' @export
 #' @import stats
+
 
 
 testing<-function(data1, data2, alpha=0.05, case=1){
