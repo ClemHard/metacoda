@@ -114,6 +114,8 @@ change_name_table <- function(table){
   table
 }
 
+
+
 list_table_sum <- function(l){
   
   if(class(l)!="list") stop("l isn't a list")
@@ -177,6 +179,22 @@ create_data_frame_train <- function(data, metadata){
 }
 
 
+#' create a test data frame (to make sure the colnames are compatible with the test function) with the data (matrix) pass in argument
+#' 
+#' @param data1 a matrix containing the real sample
+#' @param apprent an object of class "apprentissage" (create by the function apprentissage)
+#' @param test_real_data a matrix containing the real sample use for the test
+#' @param type comptage or MAP
+#' @param zero_inflated boolean, if TRUE a zero inflated method is apply, FALSE otherwise
+#'  
+#'    
+#' @return train a training data frame
+#' @return test a test data frame
+#' @return metadata_test the real metadata of the test sample (necessary to create a contingence table after applying a classification algorithm)
+#'
+#' @author Clement Hardy
+#' @export
+
 
 create_data_frame_simu <- function(data1, apprent, test_real_data=NULL, type, zero_inflated){
   
@@ -218,6 +236,7 @@ create_data_frame_simu <- function(data1, apprent, test_real_data=NULL, type, ze
 #'
 #' @author Clement Hardy
 #' @export
+#' @import class
 #' 
 
 
@@ -232,7 +251,7 @@ best_k_kNN <- function(train){
   iid <- sample(rep(1:n,length=nrow(train)))
   
   l <- sapply(1:n, function(x){
-                          pred_kNN <- knn(train=train[x!=iid,], 
+                          pred_kNN <- class::knn(train=train[x!=iid,], 
                                           test=train[x==iid,], 
                                           cl=metadata[x!=iid])
                          sum(pred_kNN!=metadata[x==iid]) 
@@ -251,15 +270,18 @@ best_k_kNN <- function(train){
 #'
 #' @author Clement Hardy
 #' @export
-#' 
+#' @import class
+#' @import randomForest
+
+
 
 pred_real_simu <- function(train, test){
   
-  rf <- randomForest(metadata~. , train)
+  rf <- randomForest::randomForest(metadata~. , train)
   pred_forest <- predict(rf, test)
   
   k <- best_k_kNN(train)
-  pred_kNN <- knn(train[,-ncol(train)], 
+  pred_kNN <- class::knn(train[,-ncol(train)], 
                   test, 
                   cl=train[,ncol(train)], 
                   k=k)
@@ -296,6 +318,7 @@ pred_real_simu <- function(train, test){
 #' 
 #' @author Clement Hardy
 #' @export
+#' @import parallel
 
 
 test_bootstrap_all <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_train=1, proportion_real_data=0.1, type="comptage", zero_inflated=TRUE, base_binaire=Base_binary_matrix(ncol(data1))){
@@ -306,14 +329,14 @@ test_bootstrap_all <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_train=1, 
   if(type=="ilr") data2 <- data1 %>% MAP() %>% ilr(base_binaire = base_binaire)
   if(type=="MAP") data2 <- data1 %>% MAP()
   
-  no_cores <- detectCores()-1
+  no_cores <- parallel::detectCores()-1
   if(no_cores==0) no_cores <- 1
     
-  cl <- makeCluster(no_cores)
-  clusterEvalQ(cl, {source("Rscript/test_bootstrap.R")})
-  clusterExport(cl, list("data1", "data2", "nb_cluster", "nb_axe", "base_binaire"), envir = environment())
+  cl <- parallel::makeCluster(no_cores)
+  parallel::clusterEvalQ(cl, {source("Rscript/test_bootstrap.R")})
+  parallel::clusterExport(cl, list("data1", "data2", "nb_cluster", "nb_axe", "base_binaire"), envir = environment())
   
-  l <- parLapply(cl, 1:nb_train, function(x){
+  l <- parallel::parLapply(cl, 1:nb_train, function(x){
     
                             rand_real_data <- sample(1:nrow(data1), floor(nrow(data1)*proportion_real_data))
                             test_real_data <- data2[rand_real_data,]
@@ -333,8 +356,8 @@ test_bootstrap_all <- function(data1, nb_cluster=NULL, nb_axe=NULL, nb_train=1, 
                             
                             })
   
-  stopCluster(cl)
-  
+  parallel::stopCluster(cl)
+  print(l)
   all <- l %>% list_table_sum()
   
   all <- lapply(all, table_to_percentage_table)

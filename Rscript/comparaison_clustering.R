@@ -98,8 +98,8 @@ comparaison_Mclust <- function(data, metadata, nb_cluster, nb_graph, base_binair
   
   data_ilr <- data %>% MAP() %>% ilr(base_binaire = base_binaire)
   
-  Mclust_data <- data %>% Mclust(G=nb_cluster)
-  Mclust_data_ilr <- data_ilr %>% Mclust(G=nb_cluster)
+  Mclust_data <- data %>% mclust::Mclust(G=nb_cluster)
+  Mclust_data_ilr <- data_ilr %>% mclust::Mclust(G=nb_cluster)
   
   table1 <- table(Mclust_data$classification, metadata) %>% change_name_table()
   table2 <- table(Mclust_data_ilr$classification, metadata) %>% change_name_table()
@@ -112,38 +112,4 @@ comparaison_Mclust <- function(data, metadata, nb_cluster, nb_graph, base_binair
   
   list( comptage_table=table1, ilr_table=table2, graphics=grob)
   
-}
-
-
-
-
-adjusted_rand_index <- function(table1){
-  
-  part1 <- table1 %>% rowSums() %>% choose(2) %>% sum()
-  part2 <- table1 %>% colSums() %>% choose(2) %>% sum()
-  part3 <- table1 %>% sum() %>% choose(2)
-  
-  ARI <- table1 %>% choose(2) %>% sum() - part1*part2/part3
-  ARI_denom <- 0.5*( part1+part2 ) - part1*part2/part3
-  
-  ARI/ARI_denom
-}
-
-
-mutual_information_distance <- function(table1){
-  
-  P <- rowSums(table1)/sum(table1)
-  P <- P+(P==0)*1
-  HY <- -P%*%log(P)
-  
-  P <- colSums(table1)/sum(table1)
-  P <- P+(P==0)*1
-  HC <- -P%*%log(P)
-  
-  PC <- t(t(table1)/colSums(table1))
-  PC <- PC+(PC==0)*1
-  HYC <- sum(colSums((-PC)*log(PC)))
-  I <- HY-HYC
-  
-  HC+HY-2*I
 }

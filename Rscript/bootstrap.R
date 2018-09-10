@@ -113,7 +113,7 @@ simu_melange_gaussien <- function(n, probability, mean, Sigma){
   for(i in 1:length(probability)){
     
     if(NB[i]>0){
-      sample1 <- rbind(sample1, mvrnorm(NB[i], mean[[i]], Sigma[[i]]))
+      sample1 <- rbind(sample1, MASS::mvrnorm(NB[i], mean[[i]], Sigma[[i]]))
     }
     
   }
@@ -172,7 +172,7 @@ nb_cluster <- function(data, max_nb_cluster=round(nrow(data)/3)){
   nb_cluster <- 1:max_nb_cluster
   
   erreur <- sapply(nb_cluster, function(x){
-    Mclust(data, x)$bic 
+    mclust::Mclust(data, x)$bic 
   })
   
   which.max(erreur)
@@ -205,7 +205,7 @@ nb_axe_capushe <- function(data, data_biplot=FALSE, base_binaire=Base_binary_mat
   
   z <- data.frame(1:D,1:D,1:D,RMSE)
   i <- nrow(z)
-  while(class(try(capushe(z[1:i,]), silent=TRUE))=="try-error"){
+  while(class(try(capushe::capushe(z[1:i,]), silent=TRUE))=="try-error"){
     i <- round(i*0.9)
     if(i<=5){
       warning("impossible de fitter une régression")
@@ -255,7 +255,7 @@ apprentissage_pca <- function(data, nb_cluster=NULL, nb_axe=NULL, base_binaire=B
     nb_cluster <- nb_cluster(data_biplot$coord[,1:nb_axe])
   }
   
-  Mclust_data <- Mclust(data_biplot$coord[,1:nb_axe], G=nb_cluster)
+  Mclust_data <- mclust::Mclust(data_biplot$coord[,1:nb_axe], G=nb_cluster)
   probability <- Mclust_data$parameters$pro
   
   mean_data <- list()
@@ -340,7 +340,7 @@ simulation_ilr <- function(result, nb_sample=nrow(result$data)){
   
   D <- ncol(Z)
   n <- nrow(Z)
-  Z <- Z + mvrnorm(n, rep(0, D), result$noise*diag(D))
+  Z <- Z + MASS::mvrnorm(n, rep(0, D), result$noise*diag(D))
   
   list(data=Z, metadata=new_sample$metadata)
 }

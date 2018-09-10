@@ -110,6 +110,7 @@ bootstrap_supervise <- function(data, metadata, nb_sample=NULL){
 #' 
 #' @author Clement Hardy
 #' @export
+#' @import doParallel
 
 test_bootstrap_supervise <- function(data, metadata, nb_train=1, type="comptage", nb_sample=NULL){
   
@@ -121,14 +122,14 @@ test_bootstrap_supervise <- function(data, metadata, nb_train=1, type="comptage"
   train <- create_data_frame_train(data=data, metadata = metadata)
   
   
-  no_cores <- detectCores()-1
+  no_cores <- parallel::detectCores()-1
   if(no_cores==0) no_cores <- 1
   
-  cl <- makeCluster(no_cores)
-  clusterEvalQ(cl, {source("Rscript/apprentissage_supervise.R")})
+  cl <- parallel::makeCluster(no_cores)
+  parallel::clusterEvalQ(cl, {source("Rscript/apprentissage_supervise.R")})
   
   
-  l <- parLapply(cl, 1:nb_train, function(x){
+  l <- parallel::parLapply(cl, 1:nb_train, function(x){
     
     simu <- simulation_supervise(apprent, nb_sample = nb_sample)
     
@@ -141,7 +142,7 @@ test_bootstrap_supervise <- function(data, metadata, nb_train=1, type="comptage"
     
   })
   
-  stopCluster(cl)
+  parallel::stopCluster(cl)
   
   sum_table <- lapply(list_table_sum(l), table_to_percentage_table)
   list(all=sum_table, all_train=l)
@@ -163,18 +164,21 @@ test_bootstrap_supervise <- function(data, metadata, nb_train=1, type="comptage"
 #' 
 #' @author Clement Hardy
 #' @export
+#' @import randomForest
+#' @import e1071
+#' @import class
 
 find_group <- function(train, test, metadata_test){
   ### random forest
-  forest <- randomForest(metadata~., train)
+  forest <- randomForest::randomForest(metadata~., train)
   pred_forest <- predict(forest, test)
   
   ### kNN
   k <- best_k_kNN(train)
-  kNN <- knn(train[, -ncol(train)], test, cl=train[, ncol(train)], k=k)
+  kNN <- class::knn(train[, -ncol(train)], test, cl=train[, ncol(train)], k=k)
   
   ### Svm
-  Svm <- svm(metadata~., train)
+  Svm <- e1071::svm(metadata~., train)
   pred_svm <- predict(Svm, test)
   
   ### neuronal
@@ -196,6 +200,10 @@ find_group <- function(train, test, metadata_test){
 #' 
 #' @author Clement Hardy
 #' @export
+#' @import parallel
+#' @import e1071
+#' @import class
+#' @import randomForest
 
 
 
@@ -206,17 +214,17 @@ validation_croise <- function(data, metadata, n=nrow(data)){
   
   iid <- sample(rep(1:n,length=nrow(data)))
   
-  no_cores <- detectCores()-1
+  no_cores <- parallel::detectCores()-1
   if(no_cores==0) no_cores <- 1
   
-  cl <- makeCluster(no_cores)
-  clusterEvalQ(cl, {source("Rscript/apprentissage_supervise.R")})
+  cl <- parallel::makeCluster(no_cores)
+  parallel::clusterEvalQ(cl, {source("Rscript/apprentissage_supervise.R")})
   
-  l <- parLapply(cl, 1:n, function(x){
+  l <- parallel::parLapply(cl, 1:n, function(x){
     
     k <- best_k_kNN(train=train)
-    pred_kNN <- knn(train=data[x!=iid,], test=data[x==iid,], cl=metadata[x!=iid], k=k)
-    Svm <- svm(metadata~., train[x!=iid,])
+    pred_kNN <- class::knn(train=data[x!=iid,], test=data[x==iid,], cl=metadata[x!=iid], k=k)
+    Svm <- e1071::svm(metadata~., train[x!=iid,])
     pred_Svm <-  predict(Svm, train[x==iid,-ncol(train)])
     
     table1 <- table(pred_kNN, metadata[x==iid])
@@ -226,11 +234,11 @@ validation_croise <- function(data, metadata, n=nrow(data)){
     list(table1, table2)
   })
   
-  stopCluster(cl)
+  parallel::stopCluster(cl)
   
   all <- list_table_sum(l)
   names(all) <- c("kNN", "Svm")
-  all$confusion_random_Forest <- randomForest(metadata~., create_data_frame_train(data, metadata))$confusion[,-(length(unique(metadata))+1)]
+  all$confusion_random_Forest <- randomForest::randomForest(metadata~., create_data_frame_train(data, metadata))$confusion[,-(length(unique(metadata))+1)]
   all <- lapply(all, change_name_table)
   all
 }
@@ -246,6 +254,7 @@ validation_croise <- function(data, metadata, n=nrow(data)){
 #' 
 #' @author Clement Hardy
 #' @export
+#' @import randomForest
 
 
 find_real <- function(data_real, data_simu_train, data_simu, algo="randomForest"){
@@ -260,13 +269,13 @@ find_real <- function(data_real, data_simu_train, data_simu, algo="randomForest"
   
   
   if(algo=='randomForest'){
-    forest <- randomForest(metadata~., train)
+    forest <- randomForest::randomForest(metadata~., train)
     pred <- predict(forest, test)
   }
   
   if(algo=="kNN"){
     k <- best_k_kNN(train)
-    pred <- knn(train[,-ncol(train)], 
+    pred <- class::knn(train[,-ncol(train)], 
                 test, 
                 cl=train[,ncol(train)], 
                 k=train)
@@ -278,7 +287,7 @@ find_real <- function(data_real, data_simu_train, data_simu, algo="randomForest"
   }
   
   if(algo=="neural"){
-    nn <- nnet(metadata~., train, size=5, MaxNWts=1000000, maxit=500)
+    nn <- nnet::nnet(metadata~., train, size=5, MaxNWts=1000000, maxit=500)
     pred <- predict(nn, test, type="class")
   }
   
@@ -324,6 +333,9 @@ find_nb_sample_cluster <- function(metadata){
 #' 
 #' @author Clement Hardy
 #' @export
+#' @import parallel
+
+
 
 classificateur_group_real_simu <- function(data, metadata, nb_train=1, type="comptage"){
   
@@ -345,14 +357,14 @@ classificateur_group_real_simu <- function(data, metadata, nb_train=1, type="com
   
   train <- create_data_frame_train(data = data, metadata=metadata)
   
-  no_cores <- detectCores()-1
+  no_cores <- parallel::detectCores()-1
   if(no_cores==0) no_cores <- 1
   
-  cl <- makeCluster(no_cores)
-  clusterEvalQ(cl, {source("Rscript/apprentissage_supervise.R")})
+  cl <- parallel::makeCluster(no_cores)
+  parallel::clusterEvalQ(cl, {source("Rscript/apprentissage_supervise.R")})
   
   
-  l <-  parLapply(cl, 1:nb_train, function(x){
+  l <-  parallel::parLapply(cl, 1:nb_train, function(x){
     
     simu <- simulation_supervise(apprent, nb_sample=10*find_nb_sample_cluster(metadata = metadata))
     
@@ -375,7 +387,7 @@ classificateur_group_real_simu <- function(data, metadata, nb_train=1, type="com
     find_group(train=train, test = test, metadata_test =  metadata_real)
   })
   
-  stopCluster(cl)
+  parallel::stopCluster(cl)
   
   sum_table <- list_table_sum(l)
   

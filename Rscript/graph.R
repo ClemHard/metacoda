@@ -12,8 +12,16 @@ source("Rscript/test_groupe.R")
 #' @param abscisse abiscisse of the graphic (by default 1,2,..., nrow(data))
 #' @return a ggplot object
 #' 
+#' @examples 
+#' \dontrun{
+#' data <- cbind(9:1,4,1:9)
+#' Graph_cumulative_evolution(data)
+#' Graph_cumulative_evolution(data, 10:18)
+#' }
 #' @author Clement Hardy
 #' @export
+#' @import ggplot2
+#' @import gridExtra
 
 
 Graph_proportion_evolution<-function(data, abscisse=1:nrow(data)){
@@ -47,8 +55,17 @@ Graph_proportion_evolution<-function(data, abscisse=1:nrow(data)){
 #' @param abscisse abscisse of the graphic (by default 1,2,..., nrow(data))
 #' @return a ggplot object
 #' 
+#' @examples 
+#' \dontrun{
+#' data <- cbind(9:1,4,1:9)
+#' Graph_cumulative_evolution(data)
+#' Graph_cumulative_evolution(data, 10:18)
+#' }
+#' 
 #' @author Clement Hardy
 #' @export
+#' @import ggplot2
+#' @import gridExtra
 
 
 Graph_cumulative_evolution<-function(data, abscisse=1:nrow(data)){
