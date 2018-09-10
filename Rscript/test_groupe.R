@@ -23,6 +23,21 @@ solve_regularisation <- function(var1) {
   var1 %>% regularisation() %>% solve()
 }
 
+
+#' realize three univariate normality test (Anderson-Darling statistic, Cramer-von Mises statistic, Watson statistic) 
+#' on each variable of compositionnal dataset
+#'
+#' @param data a compositionnal dataset (composition on line)
+#'
+#' @return significance_level: critical values for the test
+#' @return Anderson_Darling statistic
+#' @return Cramer-von Mises statistic
+#' @return Watson statistic
+#' @return marginale_normale the results for the watson test (confidence 5%)
+#' @author Clement Hardy
+#' @export
+#' @import stats
+
 marginal_univariate_distributions<-function(data){
 
   data_ilr <- ilr(data)
@@ -67,7 +82,19 @@ marginal_univariate_distributions<-function(data){
 
 
 
-
+#' realize three bivariate normality test (Anderson-Darling statistic, Cramer-von Mises statistic, Watson statistic) 
+#' on each couple of variable of a compositionnal dataset (via a raduis angle test)
+#'
+#' @param data a compositionnal dataset (composition on line)
+#'
+#' @return significance_level: critical values for the test
+#' @return Anderson_Darling statistic
+#' @return Cramer-von Mises statistic
+#' @return Watson statistic
+#' @return couple_normal the results for the watson test, the couple of variables following a normal (confidence 5%)
+#' @author Clement Hardy
+#' @export
+#' @import stats
 
 Bivariate_angle_distribution<-function(data){
 
@@ -130,6 +157,20 @@ Bivariate_angle_distribution<-function(data){
 }
 
 
+#' realize three bivariate normality test (Anderson-Darling statistic, Cramer-von Mises statistic, Watson statistic) 
+#'
+#' @param data a compositionnal dataset (composition on line)
+#'
+#' @return significance_level: critical values for the test
+#' @return Anderson_Darling statistic
+#' @return Cramer-von Mises statistic
+#' @return Watson statistic
+#' 
+#' @author Clement Hardy
+#' @export
+#' @import stats
+
+
 Raduis_test<-function(data){
 
   data <- norm_data(data)
@@ -177,7 +218,23 @@ Raduis_test<-function(data){
 
 }
 
-intervalle_confiance<-function(data, alpha, case=3, moy=NULL, var_matrix=NULL){
+
+#' give an confidence ellipse  for 2D compositionnal data
+#' 
+#' @param data les donnees compositionnelles
+#' @param alpha risk level
+#' @param case the type of ellipse givent (1 mean, variance unknown, probabilty ellipse)
+#' (2 mean unknown, variance unknown, confidence ellipse for the mean)
+#' (2 mean unknown, variance unknown, probability ellipse)
+#' @param moy the mean (if known)
+#' @param var_matrix the variance (if known)
+#' @return significance level
+#' @author Clement Hardy
+#' @export
+#' @import stats
+
+
+intervalle_confiance<-function(data, alpha=0.05, case=3, moy=NULL, var_matrix=NULL){
 
   coord <- function(x,k,sigma,theta){
     u1 <- x[1]-sqrt((sigma[1,1]*sigma[2,2]-sigma[1,2]^2)/sigma[2,2])*sqrt(k)*cos(theta)-sigma[1,2]/sqrt(sigma[2,2])*sqrt(k)*sin(theta)
@@ -221,6 +278,23 @@ intervalle_confiance<-function(data, alpha, case=3, moy=NULL, var_matrix=NULL){
   }
 
 }
+
+
+#' test the equality of mean or covariance matrix of tow group of compositionnal dataset
+#' 
+#' @param data1 the first dataset
+#' @param data2 the second dataset
+#' @param alpha the risk level
+#' @param case type of test (1 equal mean and equal covariance matrix)
+#' (2 equal covariance matrix)
+#' (3 equal mean)
+#' 
+#' @return statistic=Q, quantile=quant, result=(Q<quant), case=case
+#' @author Clement Hardy
+#' @export
+#' @import stats
+
+
 
 testing<-function(data1, data2, alpha=0.05, case=1){
   
