@@ -14,6 +14,8 @@ source("Rscript/test_groupe.R")
 #' 
 #' @author Clement Hardy
 #' @export
+#' @import ggplot2
+#' @import gridExtra
 
 
 Graph_proportion_evolution<-function(data, abscisse=1:nrow(data)){
@@ -49,6 +51,8 @@ Graph_proportion_evolution<-function(data, abscisse=1:nrow(data)){
 #' 
 #' @author Clement Hardy
 #' @export
+#' @import ggplot2
+#' @import gridExtra
 
 
 Graph_cumulative_evolution<-function(data, abscisse=1:nrow(data)){
