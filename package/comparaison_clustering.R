@@ -8,6 +8,7 @@
 #' @param metadata a numeric vector containing the name of the group (the group of the samples of the dataset data) 
 #' @param nb_cluster the number of clusters use in the kmeans
 #' @param nb_graph the number of graph return (show the graphically the results of clusterings and the real group)
+#' @param nb_start the number of random sets chosen in kmeans algorithm
 #' @param base_binaire binary sequential matrix use for the ilr transformation (default the basis sequence)
 #'
 #' @return two table contingence (one for the clustering on the count dataset, the other on ilr dataset) 

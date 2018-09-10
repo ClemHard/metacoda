@@ -138,19 +138,14 @@ test_bootstrap_supervise <- function(data, metadata, nb_train=1, type="comptage"
   list(all=sum_table, all_train=l)
 }
 
-#' test the performance of the simulator for a count dataset 
-#' Firstly, the function learn the density of the different groups (of the dataset) with a gaussian mixture and 
-#' different classification algorithm like randomForest are train in the dataset
+#' Predict the group of samples of a dataset with three algorithm (randomForest, kNN, svm), the real group of this samples are also pass in argument to build
+#' the contingence table (to see the performance of the classification)
 #' 
-#' Then, nb_train new dataset are simulated ; for each new dataset the different classification algoritm predict the class
-#' of each new sample (of the new dataset) , the result of the prediction is then compare to the real class to create
-#' a contingence table.
-#' 
-#' @param data the dataset to simulate for the test 
-#' @param metadata a numeric vector containing the name of the group 
-#' @param nb_sample a numeric vector containing the number of sample to produce for each group (default nrow(data))
+#' @param train a dataset use to train the classification algorithm
+#' @param test a dataset containing the samples which their group have to be predict
+#' @param metadata_test the real group of the samples of the dataset test
 #'
-#' @return a list containing the mean of the nb_train contingence table (for each incompatible) and a list of all contigence table produces (for each algorithm)
+#' @return contingence tables (one for each classification algorithm)
 #' 
 #' @author Clement Hardy
 #' @export
